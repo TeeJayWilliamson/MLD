@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLD Major League Diceball - Online Multiplayer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --wood-bg: #edd3b1;
+            --field-green: #2e7d32;
+            --dirt-orange: #c87033;
+            --text-dark: #2c251e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e2d7ca;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .screen {
+            background-color: var(--wood-bg);
+            border: 12px solid #b59369;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            width: 500px;
+            padding: 25px;
+            box-sizing: border-box;
+            color: var(--text-dark);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #704422;
+            border-bottom: 3px double #b59369;
+            padding-bottom: 5px;
+        }
+
+        /* --- TEAM SETUP SCREEN --- */
+        .setup-group {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #513118;
+        }
+        select, input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 2px solid #b59369;
+            background: white;
+            font-weight: bold;
+        }
+        input { text-transform: uppercase; text-align: center; }
+        
+        .action-divider {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            position: relative;
+            color: #704422;
+        }
+        .action-divider::before, .action-divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 2px;
+            background: #b59369;
+        }
+        .action-divider::before { left: 0; }
+        .action-divider::after { right: 0; }
+
+        .btn {
+            color: white;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+        .btn-create { background: #2980b9; }
+        .btn-create:hover { background: #3498db; }
+        .btn-join { background: #27ae60; }
+        .btn-join:hover { background: #2ecc71; }
+
+        .room-display-banner {
+            background: #34495e;
+            color: #fff;
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        /* --- DICE CHART --- */
+        .dice-chart {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .chart-item { display: flex; align-items: center; gap: 4px; }
+        .dice-icon {
+            background: white;
+            border: 1px solid #333;
+            border-radius: 3px;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        /* --- SCOREBOARD --- */
+        .scoreboard {
+            background: #1e1a15;
+            color: #00ff00;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+            border: 2px solid #513118;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .score-label { width: 80px; font-weight: bold; color: #fff;}
+        .score-values { display: flex; gap: 11px; }
+        .score-val {
+            width: 16px;
+            text-align: center;
+            color: #444;
+            background: #111;
+            border-radius: 50%;
+            font-size: 11px;
+        }
+        .score-val.active {
+            background: #ff0000;
+            color: #fff;
+            box-shadow: 0 0 8px #ff0000;
+            font-weight: bold;
+        }
+        .team-names-row {
+            margin-top: 8px;
+            border-top: 1px dashed #444;
+            padding-top: 6px;
+            color: #ffb300;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        #lbl-status {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* --- BASEBALL FIELD & HOLES --- */
+        .field-container {
+            position: relative;
+            width: 100%;
+            height: 270px;
+            background-color: var(--field-green);
+            border-radius: 0 0 220px 220px;
+            border: 5px solid #fff;
+            overflow: hidden;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.5);
+        }
+        .infield-dirt {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 190px;
+            height: 190px;
+            background-color: var(--dirt-orange);
+            border: 2px dashed rgba(255,255,255,0.6);
+        }
+        .infield-grass {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 95px;
+            height: 95px;
+            background-color: var(--field-green);
+        }
+
+        .base-hole {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #22150c;
+            border-radius: 50%;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: bold;
+            transform: translate(-50%, 50%);
+        }
+
+        .runner-peg {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, 50%);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+        }
+        .runner-peg::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+        }
+
+        .umpire-overlay {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid #ffb300;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 24px;
+            font-family: 'Impact', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            z-index: 100;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            opacity: 0;
+        }
+        .umpire-overlay.flash {
+            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- CONTROLS PANEL --- */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button.roll-btn {
+            background: #2ecc71;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #27ae60;
+            transition: transform 0.1s, background 0.2s;
+            width: 80%;
+            text-transform: uppercase;
+        }
+        button.roll-btn:hover { background: #26af5f; }
+        button.roll-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #27ae60; }
+        button.roll-btn:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; opacity: 0.6; }
+
+        .dice-display { display: flex; gap: 15px; margin: 5px 0; }
+        .die {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+        }
+        .rolling { animation: wobble 0.15s infinite alternate; }
+        .log-box {
+            background: rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            font-weight: bold;
+            min-height: 38px;
+        }
+
+        @keyframes wobble {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+        @keyframes popFlash {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            35% { transform: translate(-50%, -50%) scale(1); }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="screen" id="setup-screen">
+    <h2>Major League Diceball</h2>
+    
+    <div class="setup-group">
+        <label for="team-select">Choose Your Team</label>
+        <select id="team-select"></select>
+    </div>
+
+    <div style="margin-top: 25px;">
+        <button class="btn btn-create" onclick="setupRoom(true)">Create New Room (Be Home Team)</button>
+    </div>
+
+    <div class="action-divider">OR</div>
+
+    <div class="setup-group">
+        <label for="room-input">Enter 4-Digit Room Code</label>
+        <input type="text" id="room-input" maxlength="4" placeholder="e.g. 5402">
+    </div>
+    <button class="btn btn-join" onclick="setupRoom(false)">Join Room (Be Away Team)</button>
+</div>
+
+<div class="screen" id="game-screen" style="display: none;">
+    <div class="room-display-banner" id="room-banner">ROOM CODE: ----</div>
+    <h1>Diceball</h1>
+
+    <div class="dice-chart">
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Home Run</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">2</span> Double</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">3</span> Fly Out</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">4</span> Walk</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">5</span> Pop Out</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">6</span> Single</div>
+        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">2</span> Double Play</div>
+        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">3</span> Ground Out</div>
+        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">4</span> Strike Out</div>
+        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">5</span> Single</div>
+        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">6</span> Strike Out</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">3</span> Walk</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">4</span> Triple</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">5</span> Ground Out</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">6</span> Fly Out</div>
+        <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">4</span> Walk</div>
+        <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">5</span> Pop Out</div>
+        <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">6</span> Strike Out</div>
+        <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">5</span> Double</div>
+        <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">6</span> Sacrifice Fly</div>
+        <div class="chart-item"><span class="dice-icon">6</span><span class="dice-icon">6</span> Home Run</div>
+    </div>
+
+    <div class="scoreboard">
+        <div class="score-row">
+            <div class="score-label">OUTS</div>
+            <div class="score-values">
+                <span class="score-val" id="out-0">0</span>
+                <span class="score-val" id="out-1">1</span>
+                <span class="score-val" id="out-2">2</span>
+                <span class="score-val" id="out-3">3</span>
+            </div>
+        </div>
+        <div class="score-row">
+            <div class="score-label">INNING</div>
+            <div class="score-values">
+                <span class="score-val" id="inn-1">1</span>
+                <span class="score-val" id="inn-2">2</span>
+                <span class="score-val" id="inn-3">3</span>
+                <span class="score-val" id="inn-4">4</span>
+                <span class="score-val" id="inn-5">5</span>
+                <span class="score-val" id="inn-6">6</span>
+                <span class="score-val" id="inn-7">7</span>
+                <span class="score-val" id="inn-8">8</span>
+                <span class="score-val" id="inn-9">9</span>
+            </div>
+        </div>
+        <div class="score-row team-names-row">
+            <div id="lbl-visitor">AWAY: 0</div>
+            <div id="lbl-home">HOME: 0</div>
+            <div id="lbl-status">CONNECTING...</div>
+        </div>
+    </div>
+
+    <div class="field-container" id="field-container">
+        <div class="infield-dirt"></div>
+        <div class="infield-grass"></div>
+        
+        <div class="base-hole" id="hole-0">H</div>
+        <div class="base-hole" id="hole-1">1B</div>
+        <div class="base-hole" id="hole-2">2B</div>
+        <div class="base-hole" id="hole-3">3B</div>
+
+        <div class="umpire-overlay" id="umpire-overlay">SINGLE!</div>
+    </div>
+
+    <div class="controls">
+        <div class="log-box" id="game-log">Waiting for opponent to connect...</div>
+        <div class="dice-display">
+            <div class="die" id="die1">1</div>
+            <div class="die" id="die2">1</div>
+        </div>
+        <button class="roll-btn" id="roll-btn" onclick="rollDice()" disabled>Waiting Your Turn</button>
+    </div>
+</div>
+
+<script>
+    // --- SUPABASE CONFIGURATION ---
+    const SUBABASE_URL = "https://wzsnbybswgylbshvstda.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6c25ieWJzd2d5bGJzaHZzdGRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY1NjI0MDcsImV4cCI6MjAzMjEzODQwN30.8V4-6H95ZBl6m7R_vXJpX6T3OQ1M6z_78h26yZ6w7gM";
+    
+    // Fixed capitalization error here:
+    const supabaseClient = supabase.createClient(SUBABASE_URL, SUPABASE_KEY);
+
+    const mlbTeams = [
+        "Arizona Diamondbacks", "Atlanta Braves", "Baltimore Orioles", "Boston Red Sox",
+        "Chicago Cubs", "Chicago White Sox", "Cincinnati Reds", "Cleveland Guardians",
+        "Colorado Rockies", "Detroit Tigers", "Houston Astros", "Kansas City Royals",
+        "Los Angeles Angels", "Los Angeles Dodgers", "Miami Marlins", "Milwaukee Brewers",
+        "Minnesota Twins", "New York Mets", "New York Yankees", "Oakland Athletics",
+        "Philadelphia Phillies", "Pittsburgh Pirates", "San Diego Padres", "San Francisco Giants",
+        "Seattle Mariners", "St. Louis Cardinals", "Tampa Bay Rays", "Texas Rangers",
+        "Toronto Blue Jays", "Washington Nationals"
+    ];
+
+    const baseCoords = [
+        { bottom: '15px', left: '50%' },  
+        { bottom: '95px', left: '73%' },  
+        { bottom: '170px', left: '50%' }, 
+        { bottom: '95px', left: '27%' }   
+    ];
+
+    let myRole = ""; 
+    let myTeam = "";
+    let roomCode = "";
+    let channel = null;
+
+    const gameState = {
+        visitorTeam: "Away Team",
+        homeTeam: "Home Team",
+        inning: 1,
+        isTopInning: true, 
+        outs: 0,
+        scores: { visitor: 0, home: 0 },
+        runners: [] 
+    };
+
+    const playChart = {
+        "1-1": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" },
+        "1-2": { name: "DOUBLE!!", type: "hit", bases: 2, color: "#3498db" },
+        "1-3": { name: "Fly Out", type: "out", color: "#e74c3c" },
+        "1-4": { name: "Walk", type: "walk", color: "#2ecc71" },
+        "1-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
+        "1-6": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
+        "2-2": { name: "DOUBLE PLAY!", type: "double-play", color: "#c0392b" },
+        "2-3": { name: "Ground Out", type: "out", color: "#e74c3c" },
+        "2-4": { name: "Strike Out", type: "out" , color: "#e74c3c"},
+        "2-5": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
+        "2-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
+        "3-3": { name: "Walk", type: "walk", color: "#2ecc71" },
+        "3-4": { name: "TRIPLE!!!", type: "hit", bases: 3, color: "#e67e22" },
+        "3-5": { name: "Ground Out", type: "out", color: "#e74c3c" },
+        "3-6": { name: "Fly Out", type: "out", color: "#e74c3c" },
+        "4-4": { name: "Walk", type: "walk", color: "#2ecc71" },
+        "4-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
+        "4-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
+        "5-5": { name: "Double!!", type: "hit", bases: 2, color: "#3498db" },
+        "5-6": { name: "Sacrifice Fly", type: "sac-fly", color: "#e67e22" },
+        "6-6": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" }
+    };
+
+    window.onload = function() {
+        const tSelect = document.getElementById("team-select");
+        mlbTeams.forEach(team => {
+            tSelect.add(new Option(team, team));
+        });
+        tSelect.selectedIndex = mlbTeams.indexOf("Toronto Blue Jays");
+
+        for(let i=0; i<=3; i++) {
+            let hole = document.getElementById(`hole-${i}`);
+            hole.style.bottom = baseCoords[i].bottom;
+            hole.style.left = baseCoords[i].left;
+        }
+    };
+
+    function getNickname(fullName) {
+        return fullName.split(' ').pop().toUpperCase();
+    }
+
+    function setupRoom(isHost) {
+        myTeam = document.getElementById("team-select").value;
+
+        if (isHost) {
+            myRole = "home";
+            roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+            gameState.homeTeam = myTeam;
+            initMultiplayerChannel();
+        } else {
+            myRole = "visitor";
+            const inputCode = document.getElementById("room-input").value.trim();
+            if (inputCode.length !== 4) {
+                alert("Please enter a valid 4-digit room code.");
+                return;
+            }
+            roomCode = inputCode;
+            gameState.visitorTeam = myTeam;
+            initMultiplayerChannel();
+        }
+    }
+
+    function initMultiplayerChannel() {
+        document.getElementById("setup-screen").style.display = "none";
+        document.getElementById("game-screen").style.display = "block";
+        document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
+
+        channel = supabaseClient.channel(`room-${roomCode}`, {
+            config: { broadcast: { self: true } }
+        });
+
+        channel
+            .on("broadcast", { event: "sync" }, (payload) => {
+                handleStateSync(payload.payload);
+            })
+            .on("broadcast", { event: "roll" }, (payload) => {
+                executeVisualTurn(payload.payload.d1, payload.payload.d2);
+            })
+            .subscribe((status) => {
+                if (status === "SUBSCRIBED") {
+                    if (myRole === "home") {
+                        document.getElementById("game-log").innerText = "Room created! Tell Player 2 to join code: " + roomCode;
+                    } else {
+                        channel.send({
+                            type: "broadcast",
+                            event: "sync",
+                            payload: { visitorTeam: myTeam, requestSync: true }
+                        });
+                    }
+                }
+            });
+            
+        updateScoreboardLayout();
+    }
+
+    function handleStateSync(data) {
+        if (data.requestSync && myRole === "home") {
+            gameState.visitorTeam = data.visitorTeam;
+            broadcastGameState();
+            return;
+        }
+
+        gameState.visitorTeam = data.gameState.visitorTeam;
+        gameState.homeTeam = data.gameState.homeTeam;
+        gameState.inning = data.gameState.inning;
+        gameState.isTopInning = data.gameState.isTopInning;
+        gameState.outs = data.gameState.outs;
+        gameState.scores = data.gameState.scores;
+        gameState.runners = data.gameState.runners;
+
+        updateScoreboardLayout();
+        renderPegPositionsDirectly();
+        evaluateTurnLockout();
+    }
+
+    function broadcastGameState() {
+        if (myRole === "home" && channel) {
+            channel.send({
+                type: "broadcast",
+                event: "sync",
+                payload: { gameState: gameState }
+            });
+        }
+    }
+
+    function evaluateTurnLockout() {
+        const btn = document.getElementById("roll-btn");
+        const isMyTurn = (gameState.isTopInning && myRole === "visitor") || (!gameState.isTopInning && myRole === "home");
+        
+        if (isMyTurn) {
+            btn.disabled = false;
+            btn.innerText = "Your Turn! Roll Dice";
+            document.getElementById("game-log").innerText = "It's your turn to bat!";
+        } else {
+            btn.disabled = true;
+            const currentBatter = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
+            btn.innerText = `Waiting for ${currentBatter}...`;
+            document.getElementById("game-log").innerText = `Waiting on opponent to roll...`;
+        }
+    }
+
+    function updateScoreboardLayout() {
+        document.getElementById("lbl-visitor").innerText = `${getNickname(gameState.visitorTeam)}: ${gameState.scores.visitor}`;
+        document.getElementById("lbl-home").innerText = `${getNickname(gameState.homeTeam)}: ${gameState.scores.home}`;
+        
+        const currentActiveNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
+        document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
+
+        document.querySelectorAll(".score-val").forEach(el => el.classList.remove("active"));
+        document.getElementById(`out-${gameState.outs}`).classList.add("active");
+        if (gameState.inning <= 9) {
+            document.getElementById(`inn-${gameState.inning}`).classList.add("active");
+        }
+    }
+
+    function rollDice() {
+        document.getElementById("roll-btn").disabled = true;
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        const d2 = Math.floor(Math.random() * 6) + 1;
+
+        channel.send({
+            type: "broadcast",
+            event: "roll",
+            payload: { d1: d1, d2: d2 }
+        });
+    }
+
+    function executeVisualTurn(d1, d2) {
+        const d1El = document.getElementById("die1");
+        const d2El = document.getElementById("die2");
+
+        d1El.classList.add("rolling");
+        d2El.classList.add("rolling");
+
+        setTimeout(() => {
+            d1El.classList.remove("rolling");
+            d2El.classList.remove("rolling");
+            d1El.innerText = d1;
+            d2El.innerText = d2;
+
+            const key = d1 <= d2 ? `${d1}-${d2}` : `${d2}-${d1}`;
+            const play = playChart[key];
+
+            flashUmpireOverlay(play, () => {
+                processPlayCalculations(play);
+            });
+        }, 600);
+    }
+
+    function flashUmpireOverlay(play, onDone) {
+        const overlay = document.getElementById("umpire-overlay");
+        overlay.innerText = play.name;
+        overlay.style.borderColor = play.color || "#ffb300";
+        overlay.style.color = play.color || "#fff";
+        
+        overlay.classList.remove("flash");
+        void overlay.offsetWidth; 
+        overlay.classList.add("flash");
+
+        setTimeout(onDone, 1100);
+    }
+
+    function processPlayCalculations(play) {
+        let activeTeamKey = gameState.isTopInning ? "visitor" : "home";
+        let activeTeamNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
+        let runsScored = 0;
+        let stepsToAnimate = [];
+
+        gameState.runners.sort((a, b) => b - a);
+
+        switch(play.type) {
+            case "hit":
+                let nextRunners = [];
+                gameState.runners.forEach(base => {
+                    let finalBase = base + play.bases;
+                    stepsToAnimate.push({ start: base, end: finalBase, team: gameState.isTopInning });
+                    if (finalBase > 3) runsScored++;
+                    else nextRunners.push(finalBase);
+                });
+                
+                stepsToAnimate.push({ start: 0, end: play.bases, team: gameState.isTopInning });
+                if (play.bases > 3) runsScored++;
+                else nextRunners.push(play.bases);
+
+                gameState.runners = nextRunners;
+                document.getElementById("game-log").innerText = `${activeTeamNick} hits a ${play.name}!`;
+                break;
+
+            case "walk":
+                let move1B = true;
+                let move2B = gameState.runners.includes(1);
+                let move3B = move2B && gameState.runners.includes(2);
+                let moveHome = move3B && gameState.runners.includes(3);
+
+                let walkedRunners = [];
+                gameState.runners.forEach(base => {
+                    let target = base;
+                    if (base === 1 && move1B) target = 2;
+                    if (base === 2 && move2B) target = 3;
+                    if (base === 3 && moveHome) {
+                        target = 4;
+                        runsScored++;
+                    }
+                    stepsToAnimate.push({ start: base, end: target, team: gameState.isTopInning });
+                    if (target <= 3) walkedRunners.push(target);
+                });
+
+                stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
+                walkedRunners.push(1);
+                gameState.runners = walkedRunners;
+                document.getElementById("game-log").innerText = `${activeTeamNick} draws a Walk!`;
+                break;
+
+            case "sac-fly":
+                gameState.outs++;
+                let sacRunners = [];
+                gameState.runners.forEach(base => {
+                    if (base === 3) {
+                        stepsToAnimate.push({ start: 3, end: 4, team: gameState.isTopInning });
+                        runsScored++;
+                    } else {
+                        sacRunners.push(base);
+                    }
+                });
+                gameState.runners = sacRunners;
+                document.getElementById("game-log").innerText = `Sac Fly! Out recorded.`;
+                break;
+
+            case "double-play":
+                gameState.outs += 2;
+                if (gameState.runners.length > 0) {
+                    gameState.runners.shift(); 
+                }
+                document.getElementById("game-log").innerText = `Double Play!`;
+                break;
+
+            case "out":
+                gameState.outs++;
+                document.getElementById("game-log").innerText = `${activeTeamNick}: ${play.name}!`;
+                break;
+        }
+
+        gameState.scores[activeTeamKey] += runsScored;
+
+        animateBasesStepByStep(stepsToAnimate, () => {
+            updateScoreboardLayout();
+            renderPegPositionsDirectly();
+
+            if (gameState.outs >= 3) {
+                setTimeout(() => {
+                    handleSideSwitching();
+                }, 600);
+            } else {
+                if (myRole === "home") broadcastGameState();
+                evaluateTurnLockout();
+            }
+        });
+    }
+
+    function animateBasesStepByStep(movements, onFinished) {
+        clearAllRunnerPegs();
+        if (movements.length === 0) {
+            onFinished();
+            return;
+        }
+
+        let dynamicPegs = movements.map(move => {
+            const peg = document.createElement("div");
+            peg.className = "runner-peg";
+            peg.style.bottom = baseCoords[move.start].bottom;
+            peg.style.left = baseCoords[move.start].left;
+            
+            if (move.team) {
+                peg.style.background = "linear-gradient(135deg, #ff4d4d, #cf0000)";
+                peg.style.boxShadow = "0 5px 0 #7f0000, 0 6px 8px rgba(0,0,0,0.5)";
+            } else {
+                peg.style.background = "linear-gradient(135deg, #3498db, #1d6fa5)";
+                peg.style.boxShadow = "0 5px 0 #0f4366, 0 6px 8px rgba(0,0,0,0.5)";
+            }
+            
+            document.getElementById("field-container").appendChild(peg);
+            return { element: peg, current: move.start, target: move.end };
+        });
+
+        let maxSteps = Math.max(...movements.map(m => m.end - m.start));
+        let stepCount = 0;
+
+        function processSingleGlobalStep() {
+            if (stepCount >= maxSteps) {
+                dynamicPegs.forEach(p => p.element.remove());
+                onFinished();
+                return;
+            }
+
+            dynamicPegs.forEach(peg => {
+                if (peg.current < peg.target) {
+                    peg.current++;
+                    let displayIndex = peg.current > 3 ? 0 : peg.current;
+                    peg.element.style.bottom = baseCoords[displayIndex].bottom;
+                    peg.element.style.left = baseCoords[displayIndex].left;
+
+                    if (peg.current > 3) {
+                        peg.element.style.opacity = "0";
+                        peg.element.style.transform = "translate(-50%, 50%) scale(0.4)";
+                    }
+                }
+            });
+
+            stepCount++;
+            setTimeout(processSingleGlobalStep, 450);
+        }
+
+        setTimeout(processSingleGlobalStep, 50);
+    }
+
+    function renderPegPositionsDirectly() {
+        clearAllRunnerPegs();
+        gameState.runners.forEach(base => {
+            if(base === 0) return;
+            const peg = document.createElement("div");
+            peg.className = "runner-peg";
+            peg.style.bottom = baseCoords[base].bottom;
+            peg.style.left = baseCoords[base].left;
+
+            if (gameState.isTopInning) {
+                peg.style.background = "linear-gradient(135deg, #ff4d4d, #cf0000)";
+                peg.style.boxShadow = "0 5px 0 #7f0000, 0 6px 8px rgba(0,0,0,0.5)";
+            } else {
+                peg.style.background = "linear-gradient(135deg, #3498db, #1d6fa5)";
+                peg.style.boxShadow = "0 5px 0 #0f4366, 0 6px 8px rgba(0,0,0,0.5)";
+            }
+            document.getElementById("field-container").appendChild(peg);
+        });
+    }
+
+    function clearAllRunnerPegs() {
+        document.querySelectorAll(".runner-peg").forEach(el => el.remove());
+    }
+
+    function handleSideSwitching() {
+        gameState.runners = [];
+        gameState.outs = 0;
+        clearAllRunnerPegs();
+
+        if (gameState.isTopInning) {
+            gameState.isTopInning = false;
+            document.getElementById("game-log").innerText = `Bottom of Inning ${gameState.inning}. ${gameState.homeTeam} hitting!`;
+        } else {
+            gameState.isTopInning = true;
+            gameState.inning++;
+
+            if (gameState.inning > 9) {
+                executeGameOverProcessing();
+                return;
+            }
+            document.getElementById("game-log").innerText = `Inning ${gameState.inning}! ${gameState.visitorTeam} up!`;
+        }
+
+        updateScoreboardLayout();
+        if (myRole === "home") broadcastGameState();
+        evaluateTurnLockout();
+    }
+
+    function executeGameOverProcessing() {
+        let title = "Game Over! ";
+        if (gameState.scores.visitor > gameState.scores.home) title += `${gameState.visitorTeam} Wins!`;
+        else if (gameState.scores.home > gameState.scores.visitor) title += `${gameState.homeTeam} Wins!`;
+        else title += "It's a Tie Ball Game!";
+
+        alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
+        
+        if(channel) channel.unsubscribe();
+        location.reload();
+    }
+</script>
+
+</body>
+</html>
