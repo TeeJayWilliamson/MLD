@@ -497,7 +497,8 @@
     let roomCode = "";
     let channel = null;
     let opponentTeamFound = "";
-    let setupInterval = null;
+    let discoveryInterval = null;
+    let syncInterval = null;
 
     const gameState = {
         visitorTeam: "Away Team",
@@ -551,7 +552,7 @@
         return fullName.split(' ').pop().toUpperCase();
     }
 
-    // --- PRE-JOIN ROOM DISCOVERY ---
+    // --- RELIABLE PRE-JOIN INTERACTION CONTROLLERS ---
     function handleCodeTyping(input) {
         let code = input.value.trim();
         if(code.length === 4) {
@@ -559,6 +560,7 @@
         } else {
             document.getElementById("join-alert-banner").style.display = "none";
             document.getElementById("btn-join-room").disabled = true;
+            if (discoveryInterval) clearInterval(discoveryInterval);
         }
     }
 
@@ -568,46 +570,59 @@
         banner.style.background = "#f39c12";
         banner.innerText = `Searching for room ${code}...`;
 
-        if(channel) supabaseClient.removeChannel(channel);
+        if (discoveryInterval) clearInterval(discoveryInterval);
+        if (channel) supabaseClient.removeChannel(channel);
 
-        channel = supabaseClient.channel(`room-${code}`, {
-            config: { broadcast: { self: true } }
+        roomCode = code;
+        channel = supabaseClient.channel(`room-${roomCode}`, {
+            config: { broadcast: { self: false } }
         });
 
         channel
             .on("broadcast", { event: "discovery_reply" }, (payload) => {
-                opponentTeamFound = payload.payload.hostTeam;
-                banner.style.background = "#27ae60";
-                banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
-                
-                // Block matching team selection choice safely
-                const selectEl = document.getElementById("team-select");
-                if (selectEl.value === opponentTeamFound) {
-                    let alternateIndex = (mlbTeams.indexOf(opponentTeamFound) + 1) % mlbTeams.length;
-                    selectEl.selectedIndex = alternateIndex;
+                if (payload.payload && payload.payload.hostTeam) {
+                    clearInterval(discoveryInterval);
+                    opponentTeamFound = payload.payload.hostTeam;
+                    banner.style.background = "#27ae60";
+                    banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
+                    
+                    const selectEl = document.getElementById("team-select");
+                    if (selectEl.value === opponentTeamFound) {
+                        let alternateIndex = (mlbTeams.indexOf(opponentTeamFound) + 1) % mlbTeams.length;
+                        selectEl.selectedIndex = alternateIndex;
+                    }
+                    document.getElementById("btn-join-room").disabled = false;
                 }
-                
-                document.getElementById("btn-join-room").disabled = false;
-                clearInterval(setupInterval);
+            })
+            .on("broadcast", { event: "sync" }, (payload) => {
+                // If a game state sync catches up early, immediately ingest it
+                if (payload.payload && payload.payload.gameState && myRole === "visitor") {
+                    handleStateSync(payload.payload);
+                }
             })
             .subscribe((status) => {
-                if(status === "SUBSCRIBED") {
-                    // Poll room host until they send back a confirmation signature
-                    setupInterval = setInterval(() => {
-                        channel.send({
-                            type: "broadcast",
-                            event: "discovery_ping",
-                            payload: {}
-                        });
-                    }, 500);
+                if (status === "SUBSCRIBED") {
+                    // Send an explosive broadcast immediately, then loop poll every 500ms
+                    sendDiscoveryPing();
+                    discoveryInterval = setInterval(sendDiscoveryPing, 500);
                 }
             });
     }
 
-    // --- MAIN CONNECTION STABILIZERS ---
+    function sendDiscoveryPing() {
+        if (channel) {
+            channel.send({
+                type: "broadcast",
+                event: "discovery_ping",
+                payload: {}
+            });
+        }
+    }
+
+    // --- MAIN GAME LIFECYCLE CREATION ---
     function setupRoom(isHost) {
         myTeam = document.getElementById("team-select").value;
-        clearInterval(setupInterval);
+        if (discoveryInterval) clearInterval(discoveryInterval);
 
         if (isHost) {
             myRole = "home";
@@ -619,19 +634,29 @@
             roomCode = document.getElementById("room-input").value.trim();
             gameState.visitorTeam = myTeam;
             
-            // Send final structural join confirmation payload out to host
-            channel.send({
-                type: "broadcast",
-                event: "join_intent",
-                payload: { visitorTeam: myTeam }
-            });
-
             document.getElementById("setup-screen").style.display = "none";
             document.getElementById("game-screen").style.display = "block";
             document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
             
+            // Re-bind network events to cleanly pass sync states
+            channel.on("broadcast", { event: "sync" }, (payload) => {
+                handleStateSync(payload.payload);
+            })
+            .on("broadcast", { event: "roll" }, (payload) => {
+                executeVisualTurn(payload.payload.d1, payload.payload.d2);
+            });
+
             updateScoreboardLayout();
             evaluateTurnLockout();
+
+            // Fire off structural notification frames repeatedly until Host claims sync lock
+            syncInterval = setInterval(() => {
+                channel.send({
+                    type: "broadcast",
+                    event: "join_intent",
+                    payload: { visitorTeam: myTeam }
+                });
+            }, 600);
         }
     }
 
@@ -640,33 +665,35 @@
         document.getElementById("game-screen").style.display = "block";
         document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
 
-        if(!channel) {
+        if (!channel) {
             channel = supabaseClient.channel(`room-${roomCode}`, {
-                config: { broadcast: { self: true } }
+                config: { broadcast: { self: false } }
             });
         }
 
         channel
             .on("broadcast", { event: "discovery_ping" }, () => {
-                if (myRole === "home") {
-                    channel.send({
-                        type: "broadcast",
-                        event: "discovery_reply",
-                        payload: { hostTeam: myTeam }
-                    });
-                }
+                channel.send({
+                    type: "broadcast",
+                    event: "discovery_reply",
+                    payload: { hostTeam: myTeam }
+                });
             })
             .on("broadcast", { event: "join_intent" }, (payload) => {
                 if (myRole === "home") {
+                    if (syncInterval) clearInterval(syncInterval);
                     gameState.visitorTeam = payload.payload.visitorTeam;
                     document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
+                    broadcastGameState();
                     
-                    // Push definitive initial game structural parameters down pipeline
-                    setTimeout(() => { broadcastGameState(); }, 200);
+                    // Host sets up a heartbeat to keep Visitor in sync if lag happens
+                    syncInterval = setInterval(broadcastGameState, 3000);
                 }
             })
             .on("broadcast", { event: "sync" }, (payload) => {
-                handleStateSync(payload.payload);
+                if (myRole === "visitor") {
+                    handleStateSync(payload.payload);
+                }
             })
             .on("broadcast", { event: "roll" }, (payload) => {
                 executeVisualTurn(payload.payload.d1, payload.payload.d2);
@@ -682,6 +709,13 @@
     }
 
     function handleStateSync(data) {
+        if (!data || !data.gameState) return;
+        
+        // Visitor successfully verified handshake; terminate typing confirmation intervals
+        if (myRole === "visitor" && syncInterval) {
+            clearInterval(syncInterval);
+        }
+
         gameState.visitorTeam = data.gameState.visitorTeam;
         gameState.homeTeam = data.gameState.homeTeam;
         gameState.inning = data.gameState.inning;
@@ -708,8 +742,7 @@
     function evaluateTurnLockout() {
         const btn = document.getElementById("roll-btn");
         
-        // If team information hasn't loaded yet, stay safely parked in lockout state
-        if(gameState.visitorTeam === "Away Team") {
+        if (gameState.visitorTeam === "Away Team") {
             btn.disabled = true;
             btn.innerText = "Connecting Match...";
             document.getElementById("game-log").innerText = "Synchronizing dugouts, please wait...";
@@ -1001,7 +1034,9 @@
 
         alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
         
-        if(channel) supabaseClient.removeChannel(channel);
+        if (discoveryInterval) clearInterval(discoveryInterval);
+        if (syncInterval) clearInterval(syncInterval);
+        if (channel) supabaseClient.removeChannel(channel);
         location.reload();
     }
 </script>
