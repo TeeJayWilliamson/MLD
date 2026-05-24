@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLD Major League Diceball - Online Multiplayer</title>
+    <title>MLB Baseball Dice Board Game - Online Multiplayer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -65,6 +65,8 @@
             border: 2px solid #b59369;
             background: white;
             font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
         }
         input { text-transform: uppercase; text-align: center; }
         
@@ -102,6 +104,7 @@
         .btn-create:hover { background: #3498db; }
         .btn-join { background: #27ae60; }
         .btn-join:hover { background: #2ecc71; }
+        .btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; }
 
         .room-display-banner {
             background: #34495e;
@@ -113,6 +116,17 @@
             margin-bottom: 10px;
             font-size: 16px;
             letter-spacing: 1px;
+        }
+
+        .connection-status-alert {
+            background: #f39c12;
+            color: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 12px;
         }
 
         /* --- DICE CHART --- */
@@ -347,29 +361,35 @@
 <body>
 
 <div class="screen" id="setup-screen">
-    <h2>Major League Diceball</h2>
+    <h2>Online Dice Baseball</h2>
     
+    <div id="join-alert-banner" class="connection-status-alert" style="display: none;">
+        Connecting to room...
+    </div>
+
     <div class="setup-group">
         <label for="team-select">Choose Your Team</label>
         <select id="team-select"></select>
     </div>
 
-    <div style="margin-top: 25px;">
-        <button class="btn btn-create" onclick="setupRoom(true)">Create New Room (Be Home Team)</button>
+    <div style="margin-top: 25px;" id="host-panel">
+        <button class="btn btn-create" id="btn-create-room" onclick="setupRoom(true)">Create New Room (Be Home Team)</button>
     </div>
 
-    <div class="action-divider">OR</div>
+    <div class="action-divider" id="ui-divider">OR</div>
 
-    <div class="setup-group">
-        <label for="room-input">Enter 4-Digit Room Code</label>
-        <input type="text" id="room-input" maxlength="4" placeholder="e.g. 5402">
+    <div id="join-panel">
+        <div class="setup-group">
+            <label for="room-input">Enter 4-Digit Room Code</label>
+            <input type="text" id="room-input" maxlength="4" placeholder="e.g. 5402" oninput="handleCodeTyping(this)">
+        </div>
+        <button class="btn btn-join" id="btn-join-room" onclick="setupRoom(false)" disabled>Join Room (Be Away Team)</button>
     </div>
-    <button class="btn btn-join" onclick="setupRoom(false)">Join Room (Be Away Team)</button>
 </div>
 
 <div class="screen" id="game-screen" style="display: none;">
     <div class="room-display-banner" id="room-banner">ROOM CODE: ----</div>
-    <h1>Diceball</h1>
+    <h1>Baseball Dice</h1>
 
     <div class="dice-chart">
         <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Home Run</div>
@@ -452,8 +472,6 @@
     // --- SUPABASE CONFIGURATION ---
     const SUBABASE_URL = "https://wzsnbybswgylbshvstda.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6c25ieWJzd2d5bGJzaHZzdGRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY1NjI0MDcsImV4cCI6MjAzMjEzODQwN30.8V4-6H95ZBl6m7R_vXJpX6T3OQ1M6z_78h26yZ6w7gM";
-    
-    // Fixed capitalization error here:
     const supabaseClient = supabase.createClient(SUBABASE_URL, SUPABASE_KEY);
 
     const mlbTeams = [
@@ -478,6 +496,8 @@
     let myTeam = "";
     let roomCode = "";
     let channel = null;
+    let opponentTeamFound = "";
+    let setupInterval = null;
 
     const gameState = {
         visitorTeam: "Away Team",
@@ -531,8 +551,63 @@
         return fullName.split(' ').pop().toUpperCase();
     }
 
+    // --- PRE-JOIN ROOM DISCOVERY ---
+    function handleCodeTyping(input) {
+        let code = input.value.trim();
+        if(code.length === 4) {
+            connectPreJoinDiscovery(code);
+        } else {
+            document.getElementById("join-alert-banner").style.display = "none";
+            document.getElementById("btn-join-room").disabled = true;
+        }
+    }
+
+    function connectPreJoinDiscovery(code) {
+        const banner = document.getElementById("join-alert-banner");
+        banner.style.display = "block";
+        banner.style.background = "#f39c12";
+        banner.innerText = `Searching for room ${code}...`;
+
+        if(channel) supabaseClient.removeChannel(channel);
+
+        channel = supabaseClient.channel(`room-${code}`, {
+            config: { broadcast: { self: true } }
+        });
+
+        channel
+            .on("broadcast", { event: "discovery_reply" }, (payload) => {
+                opponentTeamFound = payload.payload.hostTeam;
+                banner.style.background = "#27ae60";
+                banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
+                
+                // Block matching team selection choice safely
+                const selectEl = document.getElementById("team-select");
+                if (selectEl.value === opponentTeamFound) {
+                    let alternateIndex = (mlbTeams.indexOf(opponentTeamFound) + 1) % mlbTeams.length;
+                    selectEl.selectedIndex = alternateIndex;
+                }
+                
+                document.getElementById("btn-join-room").disabled = false;
+                clearInterval(setupInterval);
+            })
+            .subscribe((status) => {
+                if(status === "SUBSCRIBED") {
+                    // Poll room host until they send back a confirmation signature
+                    setupInterval = setInterval(() => {
+                        channel.send({
+                            type: "broadcast",
+                            event: "discovery_ping",
+                            payload: {}
+                        });
+                    }, 500);
+                }
+            });
+    }
+
+    // --- MAIN CONNECTION STABILIZERS ---
     function setupRoom(isHost) {
         myTeam = document.getElementById("team-select").value;
+        clearInterval(setupInterval);
 
         if (isHost) {
             myRole = "home";
@@ -541,14 +616,22 @@
             initMultiplayerChannel();
         } else {
             myRole = "visitor";
-            const inputCode = document.getElementById("room-input").value.trim();
-            if (inputCode.length !== 4) {
-                alert("Please enter a valid 4-digit room code.");
-                return;
-            }
-            roomCode = inputCode;
+            roomCode = document.getElementById("room-input").value.trim();
             gameState.visitorTeam = myTeam;
-            initMultiplayerChannel();
+            
+            // Send final structural join confirmation payload out to host
+            channel.send({
+                type: "broadcast",
+                event: "join_intent",
+                payload: { visitorTeam: myTeam }
+            });
+
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "block";
+            document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
+            
+            updateScoreboardLayout();
+            evaluateTurnLockout();
         }
     }
 
@@ -557,11 +640,31 @@
         document.getElementById("game-screen").style.display = "block";
         document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
 
-        channel = supabaseClient.channel(`room-${roomCode}`, {
-            config: { broadcast: { self: true } }
-        });
+        if(!channel) {
+            channel = supabaseClient.channel(`room-${roomCode}`, {
+                config: { broadcast: { self: true } }
+            });
+        }
 
         channel
+            .on("broadcast", { event: "discovery_ping" }, () => {
+                if (myRole === "home") {
+                    channel.send({
+                        type: "broadcast",
+                        event: "discovery_reply",
+                        payload: { hostTeam: myTeam }
+                    });
+                }
+            })
+            .on("broadcast", { event: "join_intent" }, (payload) => {
+                if (myRole === "home") {
+                    gameState.visitorTeam = payload.payload.visitorTeam;
+                    document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
+                    
+                    // Push definitive initial game structural parameters down pipeline
+                    setTimeout(() => { broadcastGameState(); }, 200);
+                }
+            })
             .on("broadcast", { event: "sync" }, (payload) => {
                 handleStateSync(payload.payload);
             })
@@ -569,29 +672,16 @@
                 executeVisualTurn(payload.payload.d1, payload.payload.d2);
             })
             .subscribe((status) => {
-                if (status === "SUBSCRIBED") {
-                    if (myRole === "home") {
-                        document.getElementById("game-log").innerText = "Room created! Tell Player 2 to join code: " + roomCode;
-                    } else {
-                        channel.send({
-                            type: "broadcast",
-                            event: "sync",
-                            payload: { visitorTeam: myTeam, requestSync: true }
-                        });
-                    }
+                if (status === "SUBSCRIBED" && myRole === "home") {
+                    document.getElementById("game-log").innerText = "Room created! Tell Player 2 to join code: " + roomCode;
                 }
             });
             
         updateScoreboardLayout();
+        evaluateTurnLockout();
     }
 
     function handleStateSync(data) {
-        if (data.requestSync && myRole === "home") {
-            gameState.visitorTeam = data.visitorTeam;
-            broadcastGameState();
-            return;
-        }
-
         gameState.visitorTeam = data.gameState.visitorTeam;
         gameState.homeTeam = data.gameState.homeTeam;
         gameState.inning = data.gameState.inning;
@@ -617,6 +707,15 @@
 
     function evaluateTurnLockout() {
         const btn = document.getElementById("roll-btn");
+        
+        // If team information hasn't loaded yet, stay safely parked in lockout state
+        if(gameState.visitorTeam === "Away Team") {
+            btn.disabled = true;
+            btn.innerText = "Connecting Match...";
+            document.getElementById("game-log").innerText = "Synchronizing dugouts, please wait...";
+            return;
+        }
+
         const isMyTurn = (gameState.isTopInning && myRole === "visitor") || (!gameState.isTopInning && myRole === "home");
         
         if (isMyTurn) {
@@ -645,6 +744,7 @@
         }
     }
 
+    // --- GAMEPLAY MECHANICS & SYNC ROLLS ---
     function rollDice() {
         document.getElementById("roll-btn").disabled = true;
         const d1 = Math.floor(Math.random() * 6) + 1;
@@ -901,7 +1001,7 @@
 
         alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
         
-        if(channel) channel.unsubscribe();
+        if(channel) supabaseClient.removeChannel(channel);
         location.reload();
     }
 </script>
