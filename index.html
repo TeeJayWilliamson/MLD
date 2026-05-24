@@ -492,7 +492,7 @@
         { bottom: '95px', left: '27%' }   
     ];
 
-    let myRole = ""; 
+    let myRole = ""; // Will be "home", "visitor", or "" (searching)
     let myTeam = "";
     let roomCode = "";
     let channel = null;
@@ -552,10 +552,11 @@
         return fullName.split(' ').pop().toUpperCase();
     }
 
-    // --- RELIABLE PRE-JOIN INTERACTION CONTROLLERS ---
+    // --- PRE-JOIN / DISCOVERY PHASE ---
     function handleCodeTyping(input) {
         let code = input.value.trim();
         if(code.length === 4) {
+            roomCode = code;
             connectPreJoinDiscovery(code);
         } else {
             document.getElementById("join-alert-banner").style.display = "none";
@@ -570,19 +571,40 @@
         banner.style.background = "#f39c12";
         banner.innerText = `Searching for room ${code}...`;
 
+        myRole = ""; // Reset role while discovering
         if (discoveryInterval) clearInterval(discoveryInterval);
-        if (channel) supabaseClient.removeChannel(channel);
+        
+        createAndSubscribeChannel(code);
+    }
 
-        roomCode = code;
-        channel = supabaseClient.channel(`room-${roomCode}`, {
+    // --- OMNIBUS CHANNEL ARCHITECTURE ---
+    // Solves the Supabase "cannot add listeners after subscribe" issue by attaching everything upfront
+    function createAndSubscribeChannel(code) {
+        if (channel) {
+            // Unsubscribe from any previous attempts to ensure a clean slate
+            supabaseClient.removeAllChannels(); 
+        }
+
+        channel = supabaseClient.channel(`room-${code}`, {
             config: { broadcast: { self: false } }
         });
 
         channel
+            .on("broadcast", { event: "discovery_ping" }, () => {
+                if (myRole === "home") {
+                    channel.send({
+                        type: "broadcast",
+                        event: "discovery_reply",
+                        payload: { hostTeam: myTeam }
+                    });
+                }
+            })
             .on("broadcast", { event: "discovery_reply" }, (payload) => {
-                if (payload.payload && payload.payload.hostTeam) {
+                if (myRole === "" && payload.payload && payload.payload.hostTeam) {
                     clearInterval(discoveryInterval);
                     opponentTeamFound = payload.payload.hostTeam;
+                    
+                    const banner = document.getElementById("join-alert-banner");
                     banner.style.background = "#27ae60";
                     banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
                     
@@ -594,17 +616,34 @@
                     document.getElementById("btn-join-room").disabled = false;
                 }
             })
+            .on("broadcast", { event: "join_intent" }, (payload) => {
+                if (myRole === "home") {
+                    if (syncInterval) clearInterval(syncInterval);
+                    gameState.visitorTeam = payload.payload.visitorTeam;
+                    document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
+                    broadcastGameState();
+                    
+                    // Setup heartbeat to prevent desyncs
+                    syncInterval = setInterval(broadcastGameState, 3000);
+                }
+            })
             .on("broadcast", { event: "sync" }, (payload) => {
-                // If a game state sync catches up early, immediately ingest it
-                if (payload.payload && payload.payload.gameState && myRole === "visitor") {
+                if (myRole === "visitor") {
                     handleStateSync(payload.payload);
                 }
             })
+            .on("broadcast", { event: "roll" }, (payload) => {
+                executeVisualTurn(payload.payload.d1, payload.payload.d2);
+            })
             .subscribe((status) => {
                 if (status === "SUBSCRIBED") {
-                    // Send an explosive broadcast immediately, then loop poll every 500ms
-                    sendDiscoveryPing();
-                    discoveryInterval = setInterval(sendDiscoveryPing, 500);
+                    if (myRole === "home") {
+                        document.getElementById("game-log").innerText = "Room created! Tell Player 2 to enter code: " + code;
+                    } else if (myRole === "") {
+                        // Searching logic is triggered after confirmed subscription
+                        sendDiscoveryPing();
+                        discoveryInterval = setInterval(sendDiscoveryPing, 500);
+                    }
                 }
             });
     }
@@ -628,90 +667,43 @@
             myRole = "home";
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             gameState.homeTeam = myTeam;
-            initMultiplayerChannel();
+            
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "block";
+            document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
+            
+            createAndSubscribeChannel(roomCode);
+            updateScoreboardLayout();
+            evaluateTurnLockout();
         } else {
+            // Visitor is already connected on the correct channel via `connectPreJoinDiscovery`
             myRole = "visitor";
-            roomCode = document.getElementById("room-input").value.trim();
             gameState.visitorTeam = myTeam;
             
             document.getElementById("setup-screen").style.display = "none";
             document.getElementById("game-screen").style.display = "block";
             document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
             
-            // Re-bind network events to cleanly pass sync states
-            channel.on("broadcast", { event: "sync" }, (payload) => {
-                handleStateSync(payload.payload);
-            })
-            .on("broadcast", { event: "roll" }, (payload) => {
-                executeVisualTurn(payload.payload.d1, payload.payload.d2);
-            });
-
             updateScoreboardLayout();
             evaluateTurnLockout();
 
-            // Fire off structural notification frames repeatedly until Host claims sync lock
+            // Begin pinging join intent to Host
             syncInterval = setInterval(() => {
-                channel.send({
-                    type: "broadcast",
-                    event: "join_intent",
-                    payload: { visitorTeam: myTeam }
-                });
+                if (channel) {
+                    channel.send({
+                        type: "broadcast",
+                        event: "join_intent",
+                        payload: { visitorTeam: myTeam }
+                    });
+                }
             }, 600);
         }
-    }
-
-    function initMultiplayerChannel() {
-        document.getElementById("setup-screen").style.display = "none";
-        document.getElementById("game-screen").style.display = "block";
-        document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
-
-        if (!channel) {
-            channel = supabaseClient.channel(`room-${roomCode}`, {
-                config: { broadcast: { self: false } }
-            });
-        }
-
-        channel
-            .on("broadcast", { event: "discovery_ping" }, () => {
-                channel.send({
-                    type: "broadcast",
-                    event: "discovery_reply",
-                    payload: { hostTeam: myTeam }
-                });
-            })
-            .on("broadcast", { event: "join_intent" }, (payload) => {
-                if (myRole === "home") {
-                    if (syncInterval) clearInterval(syncInterval);
-                    gameState.visitorTeam = payload.payload.visitorTeam;
-                    document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
-                    broadcastGameState();
-                    
-                    // Host sets up a heartbeat to keep Visitor in sync if lag happens
-                    syncInterval = setInterval(broadcastGameState, 3000);
-                }
-            })
-            .on("broadcast", { event: "sync" }, (payload) => {
-                if (myRole === "visitor") {
-                    handleStateSync(payload.payload);
-                }
-            })
-            .on("broadcast", { event: "roll" }, (payload) => {
-                executeVisualTurn(payload.payload.d1, payload.payload.d2);
-            })
-            .subscribe((status) => {
-                if (status === "SUBSCRIBED" && myRole === "home") {
-                    document.getElementById("game-log").innerText = "Room created! Tell Player 2 to join code: " + roomCode;
-                }
-            });
-            
-        updateScoreboardLayout();
-        evaluateTurnLockout();
     }
 
     function handleStateSync(data) {
         if (!data || !data.gameState) return;
         
-        // Visitor successfully verified handshake; terminate typing confirmation intervals
+        // Visitor successfully verified handshake
         if (myRole === "visitor" && syncInterval) {
             clearInterval(syncInterval);
         }
@@ -1036,7 +1028,7 @@
         
         if (discoveryInterval) clearInterval(discoveryInterval);
         if (syncInterval) clearInterval(syncInterval);
-        if (channel) supabaseClient.removeChannel(channel);
+        if (channel) supabaseClient.removeAllChannels();
         location.reload();
     }
 </script>
