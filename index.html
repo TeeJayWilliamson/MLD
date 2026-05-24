@@ -492,7 +492,10 @@
         { bottom: '95px', left: '27%' }   
     ];
 
-    let myRole = ""; // Will be "home", "visitor", or "" (searching)
+    // FIX: myRole starts as "" and is only set once the handshake is complete.
+    // opponentTeamFound is used as the discovery guard instead of myRole,
+    // so it cannot be clobbered by a role assignment race condition.
+    let myRole = "";
     let myTeam = "";
     let roomCode = "";
     let channel = null;
@@ -555,7 +558,7 @@
     // --- PRE-JOIN / DISCOVERY PHASE ---
     function handleCodeTyping(input) {
         let code = input.value.trim();
-        if(code.length === 4) {
+        if (code.length === 4) {
             roomCode = code;
             connectPreJoinDiscovery(code);
         } else {
@@ -571,18 +574,21 @@
         banner.style.background = "#f39c12";
         banner.innerText = `Searching for room ${code}...`;
 
-        myRole = ""; // Reset role while discovering
+        // FIX: Reset discovery state but do NOT set myRole here.
+        // myRole stays "" until the visitor actually joins via setupRoom(false).
+        opponentTeamFound = "";
         if (discoveryInterval) clearInterval(discoveryInterval);
-        
+
         createAndSubscribeChannel(code);
     }
 
     // --- OMNIBUS CHANNEL ARCHITECTURE ---
-    // Solves the Supabase "cannot add listeners after subscribe" issue by attaching everything upfront
+    // All event listeners are attached once at subscription time and never torn down
+    // until the game ends. setupRoom(false) reuses the already-subscribed channel
+    // instead of rebuilding it, avoiding the race condition.
     function createAndSubscribeChannel(code) {
         if (channel) {
-            // Unsubscribe from any previous attempts to ensure a clean slate
-            supabaseClient.removeAllChannels(); 
+            supabaseClient.removeAllChannels();
         }
 
         channel = supabaseClient.channel(`room-${code}`, {
@@ -591,6 +597,7 @@
 
         channel
             .on("broadcast", { event: "discovery_ping" }, () => {
+                // Only the confirmed home host replies to pings
                 if (myRole === "home") {
                     channel.send({
                         type: "broadcast",
@@ -600,14 +607,18 @@
                 }
             })
             .on("broadcast", { event: "discovery_reply" }, (payload) => {
-                if (myRole === "" && payload.payload && payload.payload.hostTeam) {
+                // FIX: Guard on opponentTeamFound === "" instead of myRole === "".
+                // This prevents the race where myRole gets set to "visitor" by
+                // setupRoom(false) before this async reply arrives, which would
+                // have caused the old guard (myRole === "") to silently drop the reply.
+                if (opponentTeamFound === "" && payload.payload && payload.payload.hostTeam) {
                     clearInterval(discoveryInterval);
                     opponentTeamFound = payload.payload.hostTeam;
-                    
+
                     const banner = document.getElementById("join-alert-banner");
                     banner.style.background = "#27ae60";
                     banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
-                    
+
                     const selectEl = document.getElementById("team-select");
                     if (selectEl.value === opponentTeamFound) {
                         let alternateIndex = (mlbTeams.indexOf(opponentTeamFound) + 1) % mlbTeams.length;
@@ -622,8 +633,8 @@
                     gameState.visitorTeam = payload.payload.visitorTeam;
                     document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
                     broadcastGameState();
-                    
-                    // Setup heartbeat to prevent desyncs
+
+                    // Heartbeat to prevent desyncs
                     syncInterval = setInterval(broadcastGameState, 3000);
                 }
             })
@@ -640,7 +651,7 @@
                     if (myRole === "home") {
                         document.getElementById("game-log").innerText = "Room created! Tell Player 2 to enter code: " + code;
                     } else if (myRole === "") {
-                        // Searching logic is triggered after confirmed subscription
+                        // Visitor discovery: start pinging after confirmed subscription
                         sendDiscoveryPing();
                         discoveryInterval = setInterval(sendDiscoveryPing, 500);
                     }
@@ -658,36 +669,43 @@
         }
     }
 
-    // --- MAIN GAME LIFECYCLE CREATION ---
+    // --- MAIN GAME LIFECYCLE ---
     function setupRoom(isHost) {
         myTeam = document.getElementById("team-select").value;
-        if (discoveryInterval) clearInterval(discoveryInterval);
 
         if (isHost) {
+            if (discoveryInterval) clearInterval(discoveryInterval);
             myRole = "home";
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             gameState.homeTeam = myTeam;
-            
+
             document.getElementById("setup-screen").style.display = "none";
             document.getElementById("game-screen").style.display = "block";
             document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
-            
+
+            // Host creates the channel fresh
             createAndSubscribeChannel(roomCode);
             updateScoreboardLayout();
             evaluateTurnLockout();
+
         } else {
-            // Visitor is already connected on the correct channel via `connectPreJoinDiscovery`
+            // FIX: Do NOT call createAndSubscribeChannel again here.
+            // The visitor is already subscribed to the correct channel via
+            // connectPreJoinDiscovery. Rebuilding the channel would kill the
+            // live connection right before join_intent pings need to go out.
+            if (discoveryInterval) clearInterval(discoveryInterval);
+
             myRole = "visitor";
             gameState.visitorTeam = myTeam;
-            
+
             document.getElementById("setup-screen").style.display = "none";
             document.getElementById("game-screen").style.display = "block";
             document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
-            
+
             updateScoreboardLayout();
             evaluateTurnLockout();
 
-            // Begin pinging join intent to Host
+            // Ping join_intent on the already-open channel until host acks via sync
             syncInterval = setInterval(() => {
                 if (channel) {
                     channel.send({
@@ -702,10 +720,11 @@
 
     function handleStateSync(data) {
         if (!data || !data.gameState) return;
-        
-        // Visitor successfully verified handshake
+
+        // Visitor clears its join_intent interval once it receives the first sync
         if (myRole === "visitor" && syncInterval) {
             clearInterval(syncInterval);
+            syncInterval = null;
         }
 
         gameState.visitorTeam = data.gameState.visitorTeam;
@@ -733,7 +752,7 @@
 
     function evaluateTurnLockout() {
         const btn = document.getElementById("roll-btn");
-        
+
         if (gameState.visitorTeam === "Away Team") {
             btn.disabled = true;
             btn.innerText = "Connecting Match...";
@@ -742,7 +761,7 @@
         }
 
         const isMyTurn = (gameState.isTopInning && myRole === "visitor") || (!gameState.isTopInning && myRole === "home");
-        
+
         if (isMyTurn) {
             btn.disabled = false;
             btn.innerText = "Your Turn! Roll Dice";
@@ -758,7 +777,7 @@
     function updateScoreboardLayout() {
         document.getElementById("lbl-visitor").innerText = `${getNickname(gameState.visitorTeam)}: ${gameState.scores.visitor}`;
         document.getElementById("lbl-home").innerText = `${getNickname(gameState.homeTeam)}: ${gameState.scores.home}`;
-        
+
         const currentActiveNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
         document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
 
@@ -769,17 +788,22 @@
         }
     }
 
-    // --- GAMEPLAY MECHANICS & SYNC ROLLS ---
+    // --- GAMEPLAY MECHANICS ---
     function rollDice() {
         document.getElementById("roll-btn").disabled = true;
         const d1 = Math.floor(Math.random() * 6) + 1;
         const d2 = Math.floor(Math.random() * 6) + 1;
 
+        // Broadcast roll to both players; both sides run executeVisualTurn
         channel.send({
             type: "broadcast",
             event: "roll",
             payload: { d1: d1, d2: d2 }
         });
+
+        // FIX: The roller also needs to execute the turn locally since
+        // broadcast with self:false won't echo back to the sender.
+        executeVisualTurn(d1, d2);
     }
 
     function executeVisualTurn(d1, d2) {
@@ -809,9 +833,9 @@
         overlay.innerText = play.name;
         overlay.style.borderColor = play.color || "#ffb300";
         overlay.style.color = play.color || "#fff";
-        
+
         overlay.classList.remove("flash");
-        void overlay.offsetWidth; 
+        void overlay.offsetWidth;
         overlay.classList.add("flash");
 
         setTimeout(onDone, 1100);
@@ -834,7 +858,7 @@
                     if (finalBase > 3) runsScored++;
                     else nextRunners.push(finalBase);
                 });
-                
+
                 stepsToAnimate.push({ start: 0, end: play.bases, team: gameState.isTopInning });
                 if (play.bases > 3) runsScored++;
                 else nextRunners.push(play.bases);
@@ -886,7 +910,7 @@
             case "double-play":
                 gameState.outs += 2;
                 if (gameState.runners.length > 0) {
-                    gameState.runners.shift(); 
+                    gameState.runners.shift();
                 }
                 document.getElementById("game-log").innerText = `Double Play!`;
                 break;
@@ -926,7 +950,7 @@
             peg.className = "runner-peg";
             peg.style.bottom = baseCoords[move.start].bottom;
             peg.style.left = baseCoords[move.start].left;
-            
+
             if (move.team) {
                 peg.style.background = "linear-gradient(135deg, #ff4d4d, #cf0000)";
                 peg.style.boxShadow = "0 5px 0 #7f0000, 0 6px 8px rgba(0,0,0,0.5)";
@@ -934,7 +958,7 @@
                 peg.style.background = "linear-gradient(135deg, #3498db, #1d6fa5)";
                 peg.style.boxShadow = "0 5px 0 #0f4366, 0 6px 8px rgba(0,0,0,0.5)";
             }
-            
+
             document.getElementById("field-container").appendChild(peg);
             return { element: peg, current: move.start, target: move.end };
         });
@@ -973,7 +997,7 @@
     function renderPegPositionsDirectly() {
         clearAllRunnerPegs();
         gameState.runners.forEach(base => {
-            if(base === 0) return;
+            if (base === 0) return;
             const peg = document.createElement("div");
             peg.className = "runner-peg";
             peg.style.bottom = baseCoords[base].bottom;
@@ -1025,7 +1049,7 @@
         else title += "It's a Tie Ball Game!";
 
         alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
-        
+
         if (discoveryInterval) clearInterval(discoveryInterval);
         if (syncInterval) clearInterval(syncInterval);
         if (channel) supabaseClient.removeAllChannels();
