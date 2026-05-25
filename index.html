@@ -526,6 +526,7 @@
     let syncInterval = null;
     let isSoloMode = false;
     let cpuTurnPending = false;
+    let isAnimating = false;
 
     const gameState = {
         visitorTeam: "Away Team",
@@ -653,9 +654,7 @@
                 }
             })
             .on("broadcast", { event: "sync" }, (payload) => {
-                if (!document.getElementById("roll-btn").disabled || document.getElementById("game-log").innerText.includes("Waiting")) {
-                     handleStateSync(payload.payload);
-                }
+                if (!isAnimating) handleStateSync(payload.payload);
             })
             .on("broadcast", { event: "roll" }, (payload) => {
                 executeVisualTurn(payload.payload.d1, payload.payload.d2);
@@ -788,6 +787,7 @@
     }
 
     function executeVisualTurn(d1, d2) {
+        isAnimating = true;
         document.getElementById("roll-btn").disabled = true;
 
         const d1El = document.getElementById("die1");
@@ -831,47 +831,56 @@
         canvas.height = H;
         const ctx = canvas.getContext("2d");
 
-        // Home plate position in canvas coords (bottom centre)
+        const isHR = play.bases === 4;
+
+        // Home plate position
         const startX = W * 0.5;
         const startY = H - 18;
 
-        // Landing zone configs per hit type
-        // Field "deep" = low Y (top of canvas), shallow = higher Y
-        // x spread: left field (low x%), right field (high x%), centre (~50%)
+        // Landing zone configs per hit type — single shallow, double mid, triple deep
         const configs = {
-            1: { minDist: 0.28, maxDist: 0.42 },  // single - shallow
-            2: { minDist: 0.42, maxDist: 0.62 },  // double - mid
-            3: { minDist: 0.62, maxDist: 0.80 },  // triple - deep
-            4: { minDist: 0.85, maxDist: 1.00 },  // HR - gone
+            1: { minDist: 0.18, maxDist: 0.32 },  // single: shallow infield/short outfield
+            2: { minDist: 0.40, maxDist: 0.58 },  // double: mid-outfield gap
+            3: { minDist: 0.68, maxDist: 0.88 },  // triple: warning track deep
         };
-        const cfg = configs[play.bases] || configs[1];
 
-        // Random landing spot in a fan-shaped outfield region
-        const angleDeg = (Math.random() * 110) - 55; // -55 to +55 from centre
+        // Random direction angle (-55 to +55 from centre)
+        const angleDeg = (Math.random() * 110) - 55;
         const angleRad = (angleDeg * Math.PI) / 180;
-        const dist = cfg.minDist + Math.random() * (cfg.maxDist - cfg.minDist);
 
-        // The field radius (from home plate) we can use
-        const maxRadius = H * 0.92;
-        const radius = dist * maxRadius;
+        let endX, endY, ctrlX, ctrlY, shadowCtrlY;
 
-        // Convert polar to canvas coords (0 angle = straight up/centre field)
-        const endX = startX + Math.sin(angleRad) * radius;
-        const endY = startY - Math.cos(angleRad) * radius;
+        if (isHR) {
+            // Exit point: send the ball well beyond the top of the canvas
+            const exitRadius = H * 1.55;
+            endX = startX + Math.sin(angleRad) * exitRadius;
+            endY = startY - Math.cos(angleRad) * exitRadius;
 
-        // Control point for quadratic bezier arc - peak height scales with distance
-        const peakHeight = radius * (play.bases === 4 ? 1.1 : 0.75);
-        const midX = (startX + endX) / 2;
-        const ctrlX = midX + (Math.random() - 0.5) * 20;
-        const ctrlY = Math.min(startY - peakHeight, H * 0.06);
+            const midX = (startX + endX) / 2;
+            ctrlX = midX + (Math.random() - 0.5) * 30;
+            ctrlY = startY - H * 1.15; // peak well above canvas
+            shadowCtrlY = ctrlY;
+        } else {
+            const cfg = configs[play.bases] || configs[1];
+            const maxRadius = H * 0.95;
+            const dist = cfg.minDist + Math.random() * (cfg.maxDist - cfg.minDist);
+            const radius = dist * maxRadius;
+            endX = startX + Math.sin(angleRad) * radius;
+            endY = startY - Math.cos(angleRad) * radius;
 
-        // Shadow control point (lands on ground, arc is flatter)
-        const shadowCtrlY = startY - peakHeight * 0.18;
+            // Triples arc higher than singles
+            const arcFactor = play.bases === 3 ? 0.90 : play.bases === 2 ? 0.78 : 0.60;
+            const peakHeight = radius * arcFactor;
+            const midX = (startX + endX) / 2;
+            ctrlX = midX + (Math.random() - 0.5) * 20;
+            ctrlY = Math.min(startY - peakHeight, H * 0.04);
+            shadowCtrlY = startY - peakHeight * 0.18;
+        }
 
-        const duration = play.bases === 4 ? 1150 : 500 + play.bases * 160;
+        // Duration scales with distance — triples feel like a rocket
+        const duration = isHR ? 1050 : play.bases === 3 ? 920 : play.bases === 2 ? 720 : 520;
         const startTime = performance.now();
 
-        // Trail points for motion blur effect
         let trail = [];
         const TRAIL_LEN = 7;
 
@@ -887,6 +896,112 @@
             return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
 
+        // ---- FIREWORKS for Home Run ----
+        const FW_DURATION = 2800;
+        let fwStartTime = null;
+
+        // Generate several shells that pop at staggered times
+        const fwPalettes = [
+            ["#f1c40f", "#f39c12", "#fff"],          // gold
+            ["#e74c3c", "#ff6b6b", "#fff"],          // red
+            ["#3498db", "#74b9ff", "#fff"],          // blue
+            ["#2ecc71", "#55efc4", "#fff"],          // green
+            ["#9b59b6", "#d980fa", "#fff"],          // purple
+        ];
+
+        function makeShell(delay, cx, cy, palette, particleCount) {
+            return {
+                delay,
+                cx, cy,
+                palette,
+                particles: Array.from({ length: particleCount }, (_, i) => {
+                    const a = (i / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+                    const speed = 38 + Math.random() * 42;
+                    return {
+                        angle: a,
+                        speed,
+                        color: palette[Math.floor(Math.random() * palette.length)],
+                        size: 2 + Math.random() * 3,
+                        tail: Math.random() > 0.5, // some particles have tails
+                    };
+                }),
+            };
+        }
+
+        const fwShells = [
+            makeShell(0,    W * 0.50, H * 0.22, fwPalettes[0], 28),  // gold centre, instant
+            makeShell(320,  W * 0.28, H * 0.32, fwPalettes[1], 22),  // red left
+            makeShell(320,  W * 0.72, H * 0.28, fwPalettes[2], 22),  // blue right
+            makeShell(700,  W * 0.40, H * 0.15, fwPalettes[4], 20),  // purple top-left
+            makeShell(700,  W * 0.62, H * 0.18, fwPalettes[2], 20),  // blue top-right
+            makeShell(1100, W * 0.50, H * 0.10, fwPalettes[3], 26),  // green grand finale top
+            makeShell(1100, W * 0.22, H * 0.30, fwPalettes[0], 18),  // gold far left
+            makeShell(1100, W * 0.78, H * 0.26, fwPalettes[1], 18),  // red far right
+        ];
+
+        function drawFireworks(now) {
+            if (!fwStartTime) fwStartTime = now;
+            const totalElapsed = now - fwStartTime;
+
+            ctx.clearRect(0, 0, W, H);
+
+            fwShells.forEach(shell => {
+                const shellElapsed = totalElapsed - shell.delay;
+                if (shellElapsed <= 0) return;
+
+                const shellDuration = 900;
+                const st = Math.min(shellElapsed / shellDuration, 1);
+
+                shell.particles.forEach(p => {
+                    const gravity = 22 * st * st;
+                    const px = shell.cx + Math.cos(p.angle) * p.speed * st * 2.5;
+                    const py = shell.cy + Math.sin(p.angle) * p.speed * st * 2.5 + gravity;
+                    const alpha = st < 0.15 ? st / 0.15 : Math.pow(1 - st, 1.4);
+                    const r = p.size * (1 - st * 0.6);
+
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, alpha);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(px, py, Math.max(0.3, r), 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Tail sparkle on some particles
+                    if (p.tail && st < 0.7) {
+                        const tx = px - Math.cos(p.angle) * 8 * st;
+                        const ty = py - Math.sin(p.angle) * 8 * st;
+                        ctx.globalAlpha = Math.max(0, alpha * 0.4);
+                        ctx.beginPath();
+                        ctx.arc(tx, ty, Math.max(0.2, r * 0.5), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+            });
+
+            // "GONE!" text — fades in, holds, fades out
+            const textT = totalElapsed / FW_DURATION;
+            const textAlpha = textT < 0.12 ? textT / 0.12 : textT > 0.78 ? 1 - (textT - 0.78) / 0.22 : 1;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, textAlpha);
+            ctx.font = `bold ${Math.round(W * 0.13)}px Impact, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#f1c40f";
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 14;
+            ctx.fillText("GONE!", W / 2, H * 0.52);
+            ctx.restore();
+
+            if (totalElapsed < FW_DURATION) {
+                requestAnimationFrame(drawFireworks);
+            } else {
+                ctx.clearRect(0, 0, W, H);
+                onDone();
+            }
+        }
+
         function draw(now) {
             const elapsed = now - startTime;
             let t = Math.min(elapsed / duration, 1);
@@ -894,78 +1009,82 @@
 
             ctx.clearRect(0, 0, W, H);
 
-            // Ball position on bezier arc
             const pos = getBezierPoint(te, startX, startY, ctrlX, ctrlY, endX, endY);
 
-            // Shadow position (flatter arc, same x destination)
-            const shadowPos = getBezierPoint(te, startX, startY + 4, ctrlX, shadowCtrlY, endX, startY - 2);
+            // Perspective scale
+            const minScale = isHR ? 0.22 : 0.38;
+            const scale = isHR
+                ? Math.max(0.05, minScale + (1 - minScale) * (1 - t)) // shrinks as it flies away
+                : minScale + (1 - minScale) * Math.abs(Math.sin(t * Math.PI));
 
-            // Perspective scale: big near plate, tiny at peak, grows again at landing
-            // Use arc height as proxy: when y is high (small number), ball is far
-            const normY = (pos.y - ctrlY) / (startY - ctrlY); // 0 at peak, 1 at start/end
-            const minScale = play.bases === 4 ? 0.28 : 0.38;
-            const scale = minScale + (1 - minScale) * Math.abs(Math.sin(t * Math.PI));
+            // For HR, fade ball out as it exits canvas top
+            const ballAlpha = isHR ? Math.max(0, 1 - Math.max(0, (t - 0.55) / 0.35)) : 1;
 
-            // Add to trail
-            trail.push({ x: pos.x, y: pos.y, scale });
+            // Shadow (non-HR only)
+            if (!isHR) {
+                const shadowPos = getBezierPoint(te, startX, startY + 4, ctrlX, shadowCtrlY, endX, startY - 2);
+                const normY = (pos.y - ctrlY) / (startY - ctrlY);
+                const shadowAlpha = 0.18 + normY * 0.22;
+                const shadowScale = 0.3 + normY * 0.5;
+                ctx.save();
+                ctx.globalAlpha = shadowAlpha;
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.ellipse(shadowPos.x, shadowPos.y, 9 * shadowScale, 4 * shadowScale, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Trail
+            trail.push({ x: pos.x, y: pos.y, scale, alpha: ballAlpha });
             if (trail.length > TRAIL_LEN) trail.shift();
 
-            // Draw shadow (small ellipse tracking on ground-ish)
-            const shadowAlpha = 0.18 + normY * 0.22;
-            const shadowScale = 0.3 + normY * 0.5;
-            ctx.save();
-            ctx.globalAlpha = shadowAlpha;
-            ctx.fillStyle = "#000";
-            ctx.beginPath();
-            ctx.ellipse(shadowPos.x, shadowPos.y, 9 * shadowScale, 4 * shadowScale, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            // Draw trail (fading white dots)
             trail.forEach((pt, i) => {
-                const alpha = (i / TRAIL_LEN) * 0.35;
+                const alpha = (i / TRAIL_LEN) * 0.35 * pt.alpha;
                 const r = 5 * pt.scale * (i / TRAIL_LEN);
                 ctx.save();
                 ctx.globalAlpha = alpha;
-                ctx.fillStyle = "#fff";
+                ctx.fillStyle = isHR ? "#f1c40f" : "#fff";
                 ctx.beginPath();
                 ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             });
 
-            // Draw ball
-            const r = 7 * scale;
-            ctx.save();
-            // Outer glow
-            ctx.shadowColor = "rgba(255,255,220,0.8)";
-            ctx.shadowBlur = 6 * scale;
-            // Ball body
-            const grad = ctx.createRadialGradient(pos.x - r * 0.3, pos.y - r * 0.3, r * 0.1, pos.x, pos.y, r);
-            grad.addColorStop(0, "#ffffff");
-            grad.addColorStop(0.7, "#f0ede8");
-            grad.addColorStop(1, "#d4cfc8");
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
-            ctx.fill();
-            // Seam lines (simple curved red lines, scaled)
-            if (r > 2.5) {
-                ctx.strokeStyle = "rgba(200,60,60,0.7)";
-                ctx.lineWidth = Math.max(0.5, r * 0.13);
+            // Ball
+            if (ballAlpha > 0) {
+                const r = 7 * scale;
+                ctx.save();
+                ctx.globalAlpha = ballAlpha;
+                ctx.shadowColor = isHR ? "rgba(255,200,0,0.9)" : "rgba(255,255,220,0.8)";
+                ctx.shadowBlur = isHR ? 10 * scale : 6 * scale;
+                const grad = ctx.createRadialGradient(pos.x - r * 0.3, pos.y - r * 0.3, r * 0.1, pos.x, pos.y, r);
+                grad.addColorStop(0, "#ffffff");
+                grad.addColorStop(0.7, "#f0ede8");
+                grad.addColorStop(1, "#d4cfc8");
+                ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.arc(pos.x + r * 0.15, pos.y, r * 0.55, -0.6, 0.6);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(pos.x - r * 0.15, pos.y, r * 0.55, Math.PI - 0.6, Math.PI + 0.6);
-                ctx.stroke();
+                ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+                ctx.fill();
+                if (r > 2.5) {
+                    ctx.strokeStyle = "rgba(200,60,60,0.7)";
+                    ctx.lineWidth = Math.max(0.5, r * 0.13);
+                    ctx.beginPath();
+                    ctx.arc(pos.x + r * 0.15, pos.y, r * 0.55, -0.6, 0.6);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(pos.x - r * 0.15, pos.y, r * 0.55, Math.PI - 0.6, Math.PI + 0.6);
+                    ctx.stroke();
+                }
+                ctx.restore();
             }
-            ctx.restore();
 
             if (t < 1) {
                 requestAnimationFrame(draw);
+            } else if (isHR) {
+                // Trigger fireworks show
+                requestAnimationFrame(drawFireworks);
             } else {
-                // Linger a frame then clear
                 setTimeout(() => {
                     ctx.clearRect(0, 0, W, H);
                     onDone();
@@ -1132,6 +1251,7 @@
         gameState.scores[activeTeamKey] += runsScored;
 
         animateBasesStepByStep(stepsToAnimate, () => {
+            isAnimating = false;
             updateScoreboardLayout();
             renderPegPositionsDirectly();
 
