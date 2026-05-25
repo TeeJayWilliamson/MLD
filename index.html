@@ -611,38 +611,38 @@
         "6-6": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" }
     };
 
-    // Team colors: [primary, dark shadow, light highlight]
+    // Team colors: [primary, dark shadow, accent/highlight]
     const teamColors = {
-        "Arizona Diamondbacks":  ["#A71930", "#6b0f1e", "#E3D4AD"],  // red + sedona red trim
-        "Atlanta Braves":        ["#CE1141", "#8b0b2a", "#13274F"],  // red + navy
-        "Baltimore Orioles":     ["#FC4C02", "#b83500", "#000000"],  // bright orange + black
-        "Boston Red Sox":        ["#BD3039", "#7d1f26", "#0C2340"],  // red + navy
-        "Chicago Cubs":          ["#1164AC", "#0a3f7a", "#CC3433"],  // bright royal blue + red
-        "Chicago White Sox":     ["#C4CED4", "#8a9499", "#27251F"],  // silver + black
-        "Cincinnati Reds":       ["#C6011F", "#840014", "#FFFFFF"],  // red + white
-        "Cleveland Guardians":   ["#E31937", "#9e1126", "#00385D"],  // red + navy
-        "Colorado Rockies":      ["#8B67AC", "#5a3d7a", "#C4CED4"],  // purple + silver
-        "Detroit Tigers":        ["#FA4616", "#b83000", "#0C2340"],  // bright orange + navy
-        "Houston Astros":        ["#EB6E1F", "#a84c12", "#002D62"],  // orange + navy
-        "Kansas City Royals":    ["#1E6BB0", "#134a7a", "#BD9B60"],  // bright royal blue + gold
-        "Los Angeles Angels":    ["#BA0021", "#7a0015", "#FFFFFF"],  // red + white
-        "Los Angeles Dodgers":   ["#1E90FF", "#1260b0", "#FFFFFF"],  // bright dodger blue + white
-        "Miami Marlins":         ["#00A3E0", "#006e97", "#FF6600"],  // blue + orange
-        "Milwaukee Brewers":     ["#FFC52F", "#c49300", "#12284B"],  // gold + navy
-        "Minnesota Twins":       ["#D31145", "#8f0b2e", "#002B5C"],  // red + navy
-        "New York Mets":         ["#FF5910", "#c03c08", "#002D72"],  // orange + blue
-        "New York Yankees":      ["#C4CED4", "#8a9499", "#003087"],  // silver + navy
-        "Oakland Athletics":     ["#EFB21E", "#b07d10", "#003831"],  // gold + green
-        "Philadelphia Phillies": ["#E81828", "#9c1019", "#002D72"],  // red + blue
-        "Pittsburgh Pirates":    ["#FDB827", "#c48d00", "#27251F"],  // gold + black
-        "San Diego Padres":      ["#FFC425", "#c49300", "#2F241D"],  // gold + brown
-        "San Francisco Giants":  ["#FD5A1E", "#c03a0d", "#27251F"],  // orange + black
-        "Seattle Mariners":      ["#4CAF8C", "#2e7a60", "#0C2C56"],  // teal + navy
-        "St. Louis Cardinals":   ["#C41E3A", "#831428", "#FFFFFF"],  // red + white
-        "Tampa Bay Rays":        ["#8FBCE6", "#5a8db5", "#092C5C"],  // light blue + navy
-        "Texas Rangers":         ["#C0111F", "#800b14", "#003278"],  // red + blue
-        "Toronto Blue Jays":     ["#1E90FF", "#1260b0", "#E8291C"],  // bright blue + red
-        "Washington Nationals":  ["#AB0003", "#720002", "#14225A"],  // red + navy
+        "Arizona Diamondbacks":  ["#A71930", "#6b0f1e", "#1A1A1A"],  // Sedona Red + Black
+        "Atlanta Braves":        ["#CE1141", "#8b0b2a", "#13274F"],  // Scarlet Red + Navy
+        "Baltimore Orioles":     ["#FC4C02", "#b83500", "#1A1A1A"],  // Orange + Black
+        "Boston Red Sox":        ["#BD3039", "#7d1f26", "#0C2340"],  // Red + Navy
+        "Chicago Cubs":          ["#1164AC", "#0a3f7a", "#CC3433"],  // Royal Blue + Red
+        "Chicago White Sox":     ["#1A1A1A", "#000000", "#FFFFFF"],  // Black + White
+        "Cincinnati Reds":       ["#C6011F", "#840014", "#FFFFFF"],  // Red + White
+        "Cleveland Guardians":   ["#00385D", "#001e33", "#E31937"],  // Navy + Red
+        "Colorado Rockies":      ["#7B2D8B", "#4e1a5a", "#1A1A1A"],  // Purple + Black
+        "Detroit Tigers":        ["#0C2340", "#050f1a", "#FA4616"],  // Navy + Orange
+        "Houston Astros":        ["#EB6E1F", "#a84c12", "#002D62"],  // Orange + Navy
+        "Kansas City Royals":    ["#1E6BB0", "#134a7a", "#FFFFFF"],  // Royal Blue + White
+        "Los Angeles Angels":    ["#BA0021", "#7a0015", "#C4CED4"],  // Red + Silver
+        "Los Angeles Dodgers":   ["#005A9C", "#003666", "#FFFFFF"],  // Dodger Blue + White
+        "Miami Marlins":         ["#00A3E0", "#006e97", "#1A1A1A"],  // Teal + Black
+        "Milwaukee Brewers":     ["#12284B", "#0a1830", "#FFC52F"],  // Navy + Gold
+        "Minnesota Twins":       ["#002B5C", "#001535", "#D31145"],  // Navy + Red
+        "New York Mets":         ["#002D72", "#001540", "#FF5910"],  // Blue + Orange
+        "New York Yankees":      ["#1A1A1A", "#000000", "#FFFFFF"],  // Navy + White (dark for contrast)
+        "Oakland Athletics":     ["#003831", "#001f1a", "#EFB21E"],  // Green + Gold
+        "Philadelphia Phillies": ["#E81828", "#9c1019", "#FFFFFF"],  // Red + White
+        "Pittsburgh Pirates":    ["#1A1A1A", "#000000", "#FDB827"],  // Black + Gold
+        "San Diego Padres":      ["#4A3728", "#2a1e16", "#FFC425"],  // Brown + Gold
+        "San Francisco Giants":  ["#FD5A1E", "#c03a0d", "#1A1A1A"],  // Orange + Black
+        "Seattle Mariners":      ["#0C2C56", "#060f20", "#005C5C"],  // Navy + Teal
+        "St. Louis Cardinals":   ["#C41E3A", "#831428", "#FFFFFF"],  // Cardinal Red + White
+        "Tampa Bay Rays":        ["#092C5C", "#041629", "#8FBCE6"],  // Navy + Columbia Blue
+        "Texas Rangers":         ["#003278", "#001640", "#C0111F"],  // Blue + Red
+        "Toronto Blue Jays":     ["#134A8E", "#0b2f5c", "#FFFFFF"],  // Blue + White
+        "Washington Nationals":  ["#AB0003", "#720002", "#14225A"],  // Red + Navy
     };
 
     function getPegColors(teamName) {
@@ -675,7 +675,7 @@
         "Chicago White Sox": "WHITE SOX",
         "Boston Red Sox":    "RED SOX",
         "Oakland Athletics": "ATHLETICS",
-        "Toronto Blue Jays": "Blue Jays",
+        "Toronto Blue Jays": "BLUE JAYS",
     };
 
     function getNickname(fullName) {
