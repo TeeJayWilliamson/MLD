@@ -805,8 +805,8 @@
             const key = d1 <= d2 ? `${d1}-${d2}` : `${d2}-${d1}`;
             const play = playChart[key];
 
-            // If it rolls double play but bases are empty, show as Ground Out
-            const displayPlay = (play.type === "double-play" && gameState.runners.length === 0)
+            // If it rolls double play but no runner on 1st, show as Ground Out
+            const displayPlay = (play.type === "double-play" && !gameState.runners.includes(1))
                 ? { ...play, name: "Ground Out" }
                 : play;
 
@@ -1093,13 +1093,15 @@
                 break;
 
             case "double-play":
-                if (gameState.runners.length === 0) {
+                if (gameState.runners.includes(1)) {
+                    // True double play — runner on 1st erased, batter out
+                    gameState.outs += 2;
+                    gameState.runners = gameState.runners.filter(b => b !== 1);
+                    document.getElementById("game-log").innerText = `Grounded into a Double Play!`;
+                } else {
+                    // No runner on 1st — can't turn two, just a ground out
                     gameState.outs++;
                     document.getElementById("game-log").innerText = `${activeTeamNick} grounds out!`;
-                } else {
-                    gameState.outs += 2;
-                    gameState.runners.shift(); 
-                    document.getElementById("game-log").innerText = `Grounded into a Double Play!`;
                 }
                 break;
 
