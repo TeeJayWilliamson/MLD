@@ -1000,10 +1000,10 @@
         } else {
             if (gameState.isTopInning) {
                 nextInningStr = `Bottom of the ${ordinal(gameState.inning)}`;
-                nextTeam = `${getNickname(gameState.homeTeam)} is at bat`;
+                nextTeam = `${getNickname(gameState.homeTeam)} are at bat`;
             } else {
                 nextInningStr = `Top of the ${ordinal(gameState.inning + 1)}`;
-                nextTeam = `${getNickname(gameState.visitorTeam)} is at bat`;
+                nextTeam = `${getNickname(gameState.visitorTeam)} are at bat`;
             }
             
             overlay.innerHTML = `SIDE RETIRED<br><span style="font-size: 0.6em; color: #f1c40f;">${nextInningStr}</span><br><span style="font-size: 0.5em; color: #fff;">${nextTeam}</span>`;
