@@ -1251,7 +1251,6 @@
         gameState.scores[activeTeamKey] += runsScored;
 
         animateBasesStepByStep(stepsToAnimate, () => {
-            isAnimating = false;
             updateScoreboardLayout();
             renderPegPositionsDirectly();
 
@@ -1262,10 +1261,12 @@
                 
                 setTimeout(() => {
                     flashTransitionOverlay(isGameOver, () => {
+                        isAnimating = false;
                         handleSideSwitching();
                     });
                 }, 800);
             } else {
+                isAnimating = false;
                 if (!isSoloMode && myRole === "home") broadcastGameState();
                 evaluateTurnLockout();
             }
