@@ -429,11 +429,11 @@
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">4</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">5</span> Single</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">6</span> Strike Out</div>
-        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">3</span> Walk</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">3</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">4</span> Single</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">5</span> Ground Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">6</span> Fly Out</div>
-        <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">4</span> Walk</div>
+        <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">4</span> Fielder's Choice</div>
         <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">5</span> Pop Out</div>
         <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">6</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">5</span> Triple</div>
@@ -549,11 +549,11 @@
         "2-4": { name: "Strike Out", type: "out" , color: "#e74c3c"},
         "2-5": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
         "2-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
-        "3-3": { name: "Walk", type: "walk", color: "#2ecc71" },
+        "3-3": { name: "Strike Out", type: "out", color: "#e74c3c" },
         "3-4": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" }, 
         "3-5": { name: "Ground Out", type: "out", color: "#e74c3c" },
         "3-6": { name: "Fly Out", type: "out", color: "#e74c3c" },
-        "4-4": { name: "Walk", type: "walk", color: "#2ecc71" },
+        "4-4": { name: "Fielder's Choice", type: "fielders-choice", color: "#e67e22" },
         "4-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
         "4-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
         "5-5": { name: "TRIPLE!!!", type: "hit", bases: 3, color: "#e67e22" }, 
@@ -1000,10 +1000,10 @@
         } else {
             if (gameState.isTopInning) {
                 nextInningStr = `Bottom of the ${ordinal(gameState.inning)}`;
-                nextTeam = `${getNickname(gameState.homeTeam)} are at bat`;
+                nextTeam = `${getNickname(gameState.homeTeam)} is at bat`;
             } else {
                 nextInningStr = `Top of the ${ordinal(gameState.inning + 1)}`;
-                nextTeam = `${getNickname(gameState.visitorTeam)} are at bat`;
+                nextTeam = `${getNickname(gameState.visitorTeam)} is at bat`;
             }
             
             overlay.innerHTML = `SIDE RETIRED<br><span style="font-size: 0.6em; color: #f1c40f;">${nextInningStr}</span><br><span style="font-size: 0.5em; color: #fff;">${nextTeam}</span>`;
@@ -1095,6 +1095,24 @@
                     gameState.outs += 2;
                     gameState.runners.shift(); 
                     document.getElementById("game-log").innerText = `Grounded into a Double Play!`;
+                }
+                break;
+
+            case "fielders-choice":
+                // Lead runner is thrown out, batter reaches 1st
+                if (gameState.runners.length === 0) {
+                    // Nobody on — batter just reaches like a single, no out
+                    stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
+                    gameState.runners.push(1);
+                    document.getElementById("game-log").innerText = `Fielder's Choice — ${activeTeamNick} reaches on the play!`;
+                } else {
+                    // Lead runner (highest base) is erased, batter goes to 1st
+                    gameState.outs++;
+                    gameState.runners.sort((a, b) => b - a);
+                    gameState.runners.shift(); // remove lead runner
+                    stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
+                    gameState.runners.push(1);
+                    document.getElementById("game-log").innerText = `Fielder's Choice — lead runner out, batter safe at 1st!`;
                 }
                 break;
 
