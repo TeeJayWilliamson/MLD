@@ -562,6 +562,52 @@
         "6-6": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" }
     };
 
+    // Team colors: [primary, dark shadow, light highlight]
+    const teamColors = {
+        "Arizona Diamondbacks":  ["#A71930", "#6b0f1e", "#E3D4AD"],  // red + sedona red trim
+        "Atlanta Braves":        ["#CE1141", "#8b0b2a", "#13274F"],  // red + navy
+        "Baltimore Orioles":     ["#FC4C02", "#b83500", "#000000"],  // bright orange + black
+        "Boston Red Sox":        ["#BD3039", "#7d1f26", "#0C2340"],  // red + navy
+        "Chicago Cubs":          ["#1164AC", "#0a3f7a", "#CC3433"],  // bright royal blue + red
+        "Chicago White Sox":     ["#C4CED4", "#8a9499", "#27251F"],  // silver + black
+        "Cincinnati Reds":       ["#C6011F", "#840014", "#FFFFFF"],  // red + white
+        "Cleveland Guardians":   ["#E31937", "#9e1126", "#00385D"],  // red + navy
+        "Colorado Rockies":      ["#8B67AC", "#5a3d7a", "#C4CED4"],  // purple + silver
+        "Detroit Tigers":        ["#FA4616", "#b83000", "#0C2340"],  // bright orange + navy
+        "Houston Astros":        ["#EB6E1F", "#a84c12", "#002D62"],  // orange + navy
+        "Kansas City Royals":    ["#1E6BB0", "#134a7a", "#BD9B60"],  // bright royal blue + gold
+        "Los Angeles Angels":    ["#BA0021", "#7a0015", "#FFFFFF"],  // red + white
+        "Los Angeles Dodgers":   ["#1E90FF", "#1260b0", "#FFFFFF"],  // bright dodger blue + white
+        "Miami Marlins":         ["#00A3E0", "#006e97", "#FF6600"],  // blue + orange
+        "Milwaukee Brewers":     ["#FFC52F", "#c49300", "#12284B"],  // gold + navy
+        "Minnesota Twins":       ["#D31145", "#8f0b2e", "#002B5C"],  // red + navy
+        "New York Mets":         ["#FF5910", "#c03c08", "#002D72"],  // orange + blue
+        "New York Yankees":      ["#C4CED4", "#8a9499", "#003087"],  // silver + navy
+        "Oakland Athletics":     ["#EFB21E", "#b07d10", "#003831"],  // gold + green
+        "Philadelphia Phillies": ["#E81828", "#9c1019", "#002D72"],  // red + blue
+        "Pittsburgh Pirates":    ["#FDB827", "#c48d00", "#27251F"],  // gold + black
+        "San Diego Padres":      ["#FFC425", "#c49300", "#2F241D"],  // gold + brown
+        "San Francisco Giants":  ["#FD5A1E", "#c03a0d", "#27251F"],  // orange + black
+        "Seattle Mariners":      ["#4CAF8C", "#2e7a60", "#0C2C56"],  // teal + navy
+        "St. Louis Cardinals":   ["#C41E3A", "#831428", "#FFFFFF"],  // red + white
+        "Tampa Bay Rays":        ["#8FBCE6", "#5a8db5", "#092C5C"],  // light blue + navy
+        "Texas Rangers":         ["#C0111F", "#800b14", "#003278"],  // red + blue
+        "Toronto Blue Jays":     ["#1E90FF", "#1260b0", "#E8291C"],  // bright blue + red
+        "Washington Nationals":  ["#AB0003", "#720002", "#14225A"],  // red + navy
+    };
+
+    function getPegColors(teamName) {
+        const c = teamColors[teamName] || ["#888888", "#555555", "#cccccc"];
+        return { main: c[0], shadow: c[1], highlight: c[2] };
+    }
+
+    function applyPegStyle(peg, teamName) {
+        const c = getPegColors(teamName);
+        peg.style.background = `linear-gradient(135deg, ${c.highlight}55 0%, ${c.main} 60%)`;
+        peg.style.boxShadow = `0 5px 0 ${c.shadow}, 0 6px 8px rgba(0,0,0,0.5)`;
+        peg.style.border = `1.5px solid ${c.highlight}88`;
+    }
+
     window.onload = function() {
         const tSelect = document.getElementById("team-select");
         mlbTeams.forEach(team => {
@@ -576,8 +622,14 @@
         }
     };
 
+    const teamNicknames = {
+        "Chicago White Sox": "WHITE SOX",
+        "Boston Red Sox":    "RED SOX",
+        "Oakland Athletics": "ATHLETICS",
+    };
+
     function getNickname(fullName) {
-        return fullName.split(' ').pop().toUpperCase();
+        return (teamNicknames[fullName] || fullName.split(' ').pop()).toUpperCase();
     }
 
     function validateCode(input) {
@@ -764,9 +816,11 @@
         document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
 
         document.querySelectorAll(".score-val").forEach(el => el.classList.remove("active"));
-        document.getElementById(`out-${gameState.outs}`).classList.add("active");
+        const outEl = document.getElementById(`out-${Math.min(gameState.outs, 3)}`);
+        if (outEl) outEl.classList.add("active");
         if (gameState.inning <= 9) {
-            document.getElementById(`inn-${gameState.inning}`).classList.add("active");
+            const innEl = document.getElementById(`inn-${gameState.inning}`);
+            if (innEl) innEl.classList.add("active");
         }
     }
 
@@ -832,6 +886,12 @@
         const ctx = canvas.getContext("2d");
 
         const isHR = play.bases === 4;
+
+        // Active team color for trail and glow
+        const activeTeamName = gameState.isTopInning ? gameState.visitorTeam : gameState.homeTeam;
+        const teamC = getPegColors(activeTeamName);
+        const trailColor = isHR ? "#f1c40f" : teamC.main;
+        const glowColor  = isHR ? "rgba(255,200,0,0.9)" : teamC.main + "cc";
 
         // Home plate position
         const startX = W * 0.5;
@@ -1044,7 +1104,7 @@
                 const r = 5 * pt.scale * (i / TRAIL_LEN);
                 ctx.save();
                 ctx.globalAlpha = alpha;
-                ctx.fillStyle = isHR ? "#f1c40f" : "#fff";
+                ctx.fillStyle = trailColor;
                 ctx.beginPath();
                 ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
                 ctx.fill();
@@ -1056,7 +1116,7 @@
                 const r = 7 * scale;
                 ctx.save();
                 ctx.globalAlpha = ballAlpha;
-                ctx.shadowColor = isHR ? "rgba(255,200,0,0.9)" : "rgba(255,255,220,0.8)";
+                ctx.shadowColor = glowColor;
                 ctx.shadowBlur = isHR ? 10 * scale : 6 * scale;
                 const grad = ctx.createRadialGradient(pos.x - r * 0.3, pos.y - r * 0.3, r * 0.1, pos.x, pos.y, r);
                 grad.addColorStop(0, "#ffffff");
@@ -1214,7 +1274,7 @@
             case "double-play":
                 if (gameState.runners.includes(1)) {
                     // True double play — runner on 1st erased, batter out
-                    gameState.outs += 2;
+                    gameState.outs = Math.min(gameState.outs + 2, 3);
                     gameState.runners = gameState.runners.filter(b => b !== 1);
                     document.getElementById("game-log").innerText = `Grounded into a Double Play!`;
                 } else {
@@ -1287,11 +1347,9 @@
             peg.style.left = baseCoords[move.start].left;
 
             if (move.team) {
-                peg.style.background = "linear-gradient(135deg, #ff4d4d, #cf0000)";
-                peg.style.boxShadow = "0 5px 0 #7f0000, 0 6px 8px rgba(0,0,0,0.5)";
+                applyPegStyle(peg, gameState.visitorTeam);
             } else {
-                peg.style.background = "linear-gradient(135deg, #3498db, #1d6fa5)";
-                peg.style.boxShadow = "0 5px 0 #0f4366, 0 6px 8px rgba(0,0,0,0.5)";
+                applyPegStyle(peg, gameState.homeTeam);
             }
 
             document.getElementById("field-container").appendChild(peg);
@@ -1339,11 +1397,9 @@
             peg.style.left = baseCoords[base].left;
 
             if (gameState.isTopInning) {
-                peg.style.background = "linear-gradient(135deg, #ff4d4d, #cf0000)";
-                peg.style.boxShadow = "0 5px 0 #7f0000, 0 6px 8px rgba(0,0,0,0.5)";
+                applyPegStyle(peg, gameState.visitorTeam);
             } else {
-                peg.style.background = "linear-gradient(135deg, #3498db, #1d6fa5)";
-                peg.style.boxShadow = "0 5px 0 #0f4366, 0 6px 8px rgba(0,0,0,0.5)";
+                applyPegStyle(peg, gameState.homeTeam);
             }
             document.getElementById("field-container").appendChild(peg);
         });
