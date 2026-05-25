@@ -6,6 +6,10 @@
     <title>MLD Major League Diceball - Online Multiplayer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        html {
+            overflow-x: hidden;
+        }
+
         :root {
             --wood-bg: #edd3b1;
             --field-green: #2e7d32;
@@ -18,10 +22,12 @@
             background-color: #e2d7ca;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .screen {
@@ -29,7 +35,8 @@
             border: 12px solid #b59369;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            width: 500px;
+            width: 100%;
+            max-width: 500px;
             padding: 25px;
             box-sizing: border-box;
             color: var(--text-dark);
@@ -626,7 +633,6 @@
         "Chicago White Sox": "WHITE SOX",
         "Boston Red Sox":    "RED SOX",
         "Oakland Athletics": "ATHLETICS",
-        "Toronto Blue Jays": "BLUE JAYS"
     };
 
     function getNickname(fullName) {
