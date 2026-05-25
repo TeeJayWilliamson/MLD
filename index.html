@@ -235,19 +235,32 @@
             color: #ffb300;
             font-weight: bold;
             display: flex;
-            justify-content: space-between;
-            font-size: 16px;
-            gap: 8px;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 15px;
         }
-        .team-names-row > div {
+        .team-score-line {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .team-at-bat-icon {
+            width: 20px;
+            flex-shrink: 0;
+            color: #fff;
+            text-shadow: 0 0 8px #fff;
+            font-size: 13px;
+        }
+        .team-score-name {
             flex: 1;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .team-names-row > div:last-child {
-            text-align: right;
+        .team-score-runs {
+            flex-shrink: 0;
+            margin-left: 6px;
         }
         .active-team-indicator {
             color: #fff;
@@ -435,6 +448,131 @@
             90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
         }
+        /* --- GAME OVER MODAL --- */
+        #gameover-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.75);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #gameover-modal.show {
+            display: flex;
+            animation: modalFadeIn 0.4s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .gameover-card {
+            background: var(--wood-bg);
+            border: 10px solid #b59369;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            padding: 30px 28px 24px;
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .gameover-eyebrow {
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #9a6e3a;
+            margin-bottom: 6px;
+        }
+        .gameover-headline {
+            font-size: 30px;
+            font-weight: 900;
+            font-family: 'Impact', 'Arial Narrow', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #704422;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+        .gameover-subhead {
+            font-size: 14px;
+            color: #9a6e3a;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .gameover-scoreboard {
+            background: #1e1a15;
+            border-radius: 8px;
+            border: 3px solid #513118;
+            overflow: hidden;
+            margin-bottom: 22px;
+            font-family: 'Courier New', monospace;
+        }
+        .gameover-score-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            gap: 10px;
+        }
+        .gameover-score-row:first-child {
+            border-bottom: 1px solid #333;
+        }
+        .gameover-score-row.winner {
+            background: rgba(255,255,255,0.06);
+        }
+        .gameover-trophy {
+            font-size: 20px;
+            width: 26px;
+            flex-shrink: 0;
+        }
+        .gameover-team {
+            flex: 1;
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffb300;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .gameover-runs {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 8px #00ff00;
+            min-width: 36px;
+            text-align: right;
+        }
+        .gameover-runs.loser {
+            color: #555;
+            text-shadow: none;
+        }
+        .gameover-divider {
+            border: none;
+            border-top: 2px double #b59369;
+            margin: 0 0 20px;
+        }
+        .gameover-btn {
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 0 #1a5276;
+            transition: transform 0.1s;
+        }
+        .gameover-btn:hover { background: #3498db; }
+        .gameover-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a5276; }
     </style>
 </head>
 <body>
@@ -515,8 +653,16 @@
             </div>
         </div>
         <div class="team-names-row">
-            <div id="lbl-visitor">AWAY: 0</div>
-            <div id="lbl-home">HOME: 0</div>
+            <div class="team-score-line">
+                <span class="team-at-bat-icon" id="icon-visitor"></span>
+                <span class="team-score-name" id="lbl-visitor-name">AWAY</span>
+                <span class="team-score-runs" id="lbl-visitor-score">0</span>
+            </div>
+            <div class="team-score-line">
+                <span class="team-at-bat-icon" id="icon-home"></span>
+                <span class="team-score-name" id="lbl-home-name">HOME</span>
+                <span class="team-score-runs" id="lbl-home-score">0</span>
+            </div>
         </div>
         <div id="lbl-status">Initializing Game...</div>
     </div>
@@ -856,11 +1002,12 @@
     }
 
     function updateScoreboardLayout() {
-        const visitorIndicator = gameState.isTopInning ? '<span class="active-team-indicator">⚾</span> ' : '';
-        const homeIndicator = !gameState.isTopInning ? '<span class="active-team-indicator">⚾</span> ' : '';
-
-        document.getElementById("lbl-visitor").innerHTML = `${visitorIndicator}${getNickname(gameState.visitorTeam)}: ${gameState.scores.visitor}`;
-        document.getElementById("lbl-home").innerHTML = `${homeIndicator}${getNickname(gameState.homeTeam)}: ${gameState.scores.home}`;
+        document.getElementById("icon-visitor").innerText    = gameState.isTopInning  ? "⚾" : "";
+        document.getElementById("icon-home").innerText        = !gameState.isTopInning ? "⚾" : "";
+        document.getElementById("lbl-visitor-name").innerText = getNickname(gameState.visitorTeam);
+        document.getElementById("lbl-home-name").innerText    = getNickname(gameState.homeTeam);
+        document.getElementById("lbl-visitor-score").innerText = `: ${gameState.scores.visitor}`;
+        document.getElementById("lbl-home-score").innerText    = `: ${gameState.scores.home}`;
 
         const currentActiveNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
         document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
@@ -1482,18 +1629,67 @@
     }
 
     function executeGameOverProcessing() {
-        let title = "Game Over! ";
-        if (gameState.scores.visitor > gameState.scores.home) title += `${gameState.visitorTeam} Wins!`;
-        else if (gameState.scores.home > gameState.scores.visitor) title += `${gameState.homeTeam} Wins!`;
-        else title += "It's a Tie Ball Game!";
-
-        alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
-
         if (syncInterval) clearInterval(syncInterval);
         if (channel) supabaseClient.removeAllChannels();
-        location.reload();
+
+        const vScore = gameState.scores.visitor;
+        const hScore = gameState.scores.home;
+        const vName  = gameState.visitorTeam;
+        const hName  = gameState.homeTeam;
+        const isTie  = vScore === hScore;
+        const visitorWins = vScore > hScore;
+
+        // Headline
+        const headline = isTie
+            ? "It's a Tie!"
+            : `${getNickname(visitorWins ? vName : hName)} Win!`;
+        document.getElementById("gameover-headline").innerText = headline;
+        document.getElementById("gameover-subhead").innerText  = isTie
+            ? "Dead Heat · Major League Diceball"
+            : `${(visitorWins ? vName : hName)} take the W`;
+
+        // Visitor row
+        document.getElementById("gameover-team-visitor").innerText = vName;
+        document.getElementById("gameover-runs-visitor").innerText = vScore;
+        document.getElementById("gameover-trophy-visitor").innerText = visitorWins ? "🏆" : isTie ? "🤝" : "";
+        document.getElementById("gameover-runs-visitor").className =
+            "gameover-runs" + (visitorWins || isTie ? "" : " loser");
+        if (visitorWins) document.getElementById("gameover-row-visitor").classList.add("winner");
+
+        // Home row
+        document.getElementById("gameover-team-home").innerText = hName;
+        document.getElementById("gameover-runs-home").innerText = hScore;
+        document.getElementById("gameover-trophy-home").innerText = !visitorWins && !isTie ? "🏆" : isTie ? "🤝" : "";
+        document.getElementById("gameover-runs-home").className =
+            "gameover-runs" + (!visitorWins || isTie ? "" : " loser");
+        if (!visitorWins && !isTie) document.getElementById("gameover-row-home").classList.add("winner");
+
+        // Show modal
+        document.getElementById("gameover-modal").classList.add("show");
     }
 </script>
+
+<div id="gameover-modal">
+    <div class="gameover-card">
+        <div class="gameover-eyebrow">Final Score</div>
+        <div class="gameover-headline" id="gameover-headline">Game Over</div>
+        <div class="gameover-subhead" id="gameover-subhead">9 Innings · Major League Diceball</div>
+        <div class="gameover-scoreboard">
+            <div class="gameover-score-row" id="gameover-row-visitor">
+                <div class="gameover-trophy" id="gameover-trophy-visitor"></div>
+                <div class="gameover-team" id="gameover-team-visitor">—</div>
+                <div class="gameover-runs" id="gameover-runs-visitor">0</div>
+            </div>
+            <div class="gameover-score-row" id="gameover-row-home">
+                <div class="gameover-trophy" id="gameover-trophy-home"></div>
+                <div class="gameover-team" id="gameover-team-home">—</div>
+                <div class="gameover-runs" id="gameover-runs-home">0</div>
+            </div>
+        </div>
+        <hr class="gameover-divider">
+        <button class="gameover-btn" onclick="location.reload()">⚾ Play Again</button>
+    </div>
+</div>
 
 </body>
 </html>
