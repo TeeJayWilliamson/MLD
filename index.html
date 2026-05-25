@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLD Major League Diceball - Online Multiplayer</title>
+    <title>MLB Baseball Dice Board Game - Online Multiplayer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -34,6 +34,8 @@
             box-sizing: border-box;
             color: var(--text-dark);
         }
+
+        .hidden { display: none !important; }
 
         h1, h2 {
             text-align: center;
@@ -68,7 +70,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        input { text-transform: uppercase; text-align: center; }
+        input { text-transform: uppercase; text-align: center; letter-spacing: 2px; }
         
         .action-divider {
             text-align: center;
@@ -99,12 +101,14 @@
             width: 100%;
             text-transform: uppercase;
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
         .btn-create { background: #2980b9; }
         .btn-create:hover { background: #3498db; }
         .btn-join { background: #27ae60; }
         .btn-join:hover { background: #2ecc71; }
-        .btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; }
+        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; transform: none; }
 
         .room-display-banner {
             background: #34495e;
@@ -114,19 +118,9 @@
             font-weight: bold;
             border-radius: 6px;
             margin-bottom: 10px;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        .connection-status-alert {
-            background: #f39c12;
-            color: #fff;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 12px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
         }
 
         /* --- DICE CHART --- */
@@ -136,8 +130,8 @@
             gap: 4px;
             font-size: 11px;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.4);
-            padding: 6px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px;
             border-radius: 6px;
             border: 1px solid rgba(0,0,0,0.1);
         }
@@ -154,51 +148,68 @@
             font-size: 10px;
         }
 
-        /* --- SCOREBOARD --- */
+        /* --- UPGRADED SCOREBOARD --- */
         .scoreboard {
             background: #1e1a15;
             color: #00ff00;
-            border-radius: 6px;
-            padding: 12px;
-            margin: 12px 0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
             font-family: 'Courier New', monospace;
-            font-size: 13px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
-            border: 2px solid #513118;
+            font-size: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            border: 3px solid #513118;
         }
         .score-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            align-items: center;
+            margin-bottom: 8px;
         }
-        .score-label { width: 80px; font-weight: bold; color: #fff;}
-        .score-values { display: flex; gap: 11px; }
+        .score-label { width: 85px; font-weight: bold; color: #fff; font-size: 16px;}
+        .score-values { display: flex; gap: 10px; }
         .score-val {
-            width: 16px;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
             text-align: center;
-            color: #444;
+            color: #555;
             background: #111;
             border-radius: 50%;
-            font-size: 11px;
+            font-size: 13px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
         }
         .score-val.active {
             background: #ff0000;
             color: #fff;
-            box-shadow: 0 0 8px #ff0000;
+            box-shadow: 0 0 12px #ff0000;
             font-weight: bold;
+            border-color: #ff0000;
+            transform: scale(1.1);
         }
         .team-names-row {
-            margin-top: 8px;
-            border-top: 1px dashed #444;
-            padding-top: 6px;
+            margin-top: 12px;
+            border-top: 2px dashed #444;
+            padding-top: 12px;
             color: #ffb300;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            font-size: 18px;
+        }
+        .active-team-indicator {
+            color: #fff;
+            text-shadow: 0 0 8px #fff;
+            margin: 0 5px;
         }
         #lbl-status {
             color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 8px;
+            letter-spacing: 1px;
         }
 
         /* --- BASEBALL FIELD & HOLES --- */
@@ -210,7 +221,7 @@
             border-radius: 0 0 220px 220px;
             border: 5px solid #fff;
             overflow: hidden;
-            box-shadow: inset 0 0 25px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
         }
         .infield-dirt {
             position: absolute;
@@ -221,6 +232,7 @@
             height: 190px;
             background-color: var(--dirt-orange);
             border: 2px dashed rgba(255,255,255,0.6);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
         .infield-grass {
             position: absolute;
@@ -230,6 +242,7 @@
             width: 95px;
             height: 95px;
             background-color: var(--field-green);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
 
         .base-hole {
@@ -268,28 +281,42 @@
             border-radius: 50%;
         }
 
+        /* --- POPUP OVERLAYS --- */
         .umpire-overlay {
             position: absolute;
             top: 45%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             border: 3px solid #ffb300;
             color: #fff;
-            padding: 12px 24px;
-            font-size: 24px;
+            padding: 15px 30px;
+            font-size: 26px;
             font-family: 'Impact', sans-serif;
             text-transform: uppercase;
             letter-spacing: 2px;
             border-radius: 8px;
             z-index: 100;
             white-space: nowrap;
+            text-align: center;
             pointer-events: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
             opacity: 0;
         }
+        
+        .transition-overlay {
+            border-color: #3498db; 
+            font-size: 32px;
+            line-height: 1.3;
+            width: 80%;
+            white-space: normal;
+        }
+
         .umpire-overlay.flash {
             animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .transition-overlay.hold-flash {
+            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         /* --- CONTROLS PANEL --- */
@@ -300,35 +327,17 @@
             gap: 10px;
             margin-top: 15px;
         }
-        button.roll-btn {
-            background: #2ecc71;
-            border: none;
-            padding: 12px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #27ae60;
-            transition: transform 0.1s, background 0.2s;
-            width: 80%;
-            text-transform: uppercase;
-        }
-        button.roll-btn:hover { background: #26af5f; }
-        button.roll-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #27ae60; }
-        button.roll-btn:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; opacity: 0.6; }
-
         .dice-display { display: flex; gap: 15px; margin: 5px 0; }
         .die {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             background: white;
             border: 2px solid #333;
             border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
         }
@@ -337,12 +346,13 @@
             background: rgba(0, 0, 0, 0.07);
             border: 1px solid rgba(0, 0, 0, 0.15);
             border-radius: 6px;
-            padding: 8px;
+            padding: 10px;
             width: 100%;
             box-sizing: border-box;
             text-align: center;
             font-weight: bold;
-            min-height: 38px;
+            font-size: 15px;
+            min-height: 40px;
         }
 
         @keyframes wobble {
@@ -356,16 +366,19 @@
             80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
         }
+        @keyframes popHoldFlash {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            15% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
 <div class="screen" id="setup-screen">
     <h2>Major League Diceball</h2>
-    
-    <div id="join-alert-banner" class="connection-status-alert" style="display: none;">
-        Connecting to room...
-    </div>
 
     <div class="setup-group">
         <label for="team-select">Choose Your Team</label>
@@ -381,36 +394,35 @@
     <div id="join-panel">
         <div class="setup-group">
             <label for="room-input">Enter 4-Digit Room Code</label>
-            <input type="text" id="room-input" maxlength="4" placeholder="e.g. 5402" oninput="handleCodeTyping(this)">
+            <input type="text" id="room-input" maxlength="4" placeholder="Code" oninput="validateCode(this)">
         </div>
         <button class="btn btn-join" id="btn-join-room" onclick="setupRoom(false)" disabled>Join Room (Be Away Team)</button>
     </div>
 </div>
 
-<div class="screen" id="game-screen" style="display: none;">
+<div class="screen hidden" id="game-screen">
     <div class="room-display-banner" id="room-banner">ROOM CODE: ----</div>
-    <h1>Major League Diceball</h1>
 
     <div class="dice-chart">
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Home Run</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">2</span> Double</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Double</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">2</span> Single</div>
         <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">3</span> Fly Out</div>
         <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">4</span> Walk</div>
         <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">5</span> Pop Out</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">6</span> Single</div>
+        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">6</span> Ground Out</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">2</span> Double Play</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">3</span> Ground Out</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">4</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">5</span> Single</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">6</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">3</span> Walk</div>
-        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">4</span> Triple</div>
+        <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">4</span> Single</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">5</span> Ground Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">6</span> Fly Out</div>
         <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">4</span> Walk</div>
         <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">5</span> Pop Out</div>
         <div class="chart-item"><span class="dice-icon">4</span><span class="dice-icon">6</span> Strike Out</div>
-        <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">5</span> Double</div>
+        <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">5</span> Triple</div>
         <div class="chart-item"><span class="dice-icon">5</span><span class="dice-icon">6</span> Sacrifice Fly</div>
         <div class="chart-item"><span class="dice-icon">6</span><span class="dice-icon">6</span> Home Run</div>
     </div>
@@ -439,11 +451,11 @@
                 <span class="score-val" id="inn-9">9</span>
             </div>
         </div>
-        <div class="score-row team-names-row">
+        <div class="team-names-row">
             <div id="lbl-visitor">AWAY: 0</div>
             <div id="lbl-home">HOME: 0</div>
-            <div id="lbl-status">CONNECTING...</div>
         </div>
+        <div id="lbl-status">Initializing Game...</div>
     </div>
 
     <div class="field-container" id="field-container">
@@ -456,20 +468,21 @@
         <div class="base-hole" id="hole-3">3B</div>
 
         <div class="umpire-overlay" id="umpire-overlay">SINGLE!</div>
+        
+        <div class="umpire-overlay transition-overlay" id="transition-overlay" style="display: none;">SIDE RETIRED</div>
     </div>
 
     <div class="controls">
-        <div class="log-box" id="game-log">Waiting for opponent to connect...</div>
+        <div class="log-box" id="game-log">Waiting for opponent to join...</div>
         <div class="dice-display">
             <div class="die" id="die1">1</div>
             <div class="die" id="die2">1</div>
         </div>
-        <button class="roll-btn" id="roll-btn" onclick="rollDice()" disabled>Waiting Your Turn</button>
+        <button class="btn roll-btn" id="roll-btn" onclick="rollDice()" disabled>Waiting Your Turn</button>
     </div>
 </div>
 
 <script>
-    // --- SUPABASE CONFIGURATION ---
     const SUBABASE_URL = "https://gkzrcrgcfxoofawojbff.supabase.co"; 
     const SUPABASE_KEY = "sb_publishable_VbxQZ1xI3HBUXP9KPYUN6A_ku-P0r5X";
     const supabaseClient = supabase.createClient(SUBABASE_URL, SUPABASE_KEY);
@@ -492,15 +505,10 @@
         { bottom: '95px', left: '27%' }   
     ];
 
-    // FIX: myRole starts as "" and is only set once the handshake is complete.
-    // opponentTeamFound is used as the discovery guard instead of myRole,
-    // so it cannot be clobbered by a role assignment race condition.
     let myRole = "";
     let myTeam = "";
     let roomCode = "";
     let channel = null;
-    let opponentTeamFound = "";
-    let discoveryInterval = null;
     let syncInterval = null;
 
     const gameState = {
@@ -513,26 +521,27 @@
         runners: [] 
     };
 
+    // Rebalanced Play Chart (.250 Batting Average equivalent)
     const playChart = {
-        "1-1": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" },
-        "1-2": { name: "DOUBLE!!", type: "hit", bases: 2, color: "#3498db" },
+        "1-1": { name: "DOUBLE!!", type: "hit", bases: 2, color: "#3498db" }, // Was HR
+        "1-2": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" }, // Was Double
         "1-3": { name: "Fly Out", type: "out", color: "#e74c3c" },
         "1-4": { name: "Walk", type: "walk", color: "#2ecc71" },
         "1-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
-        "1-6": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
+        "1-6": { name: "Ground Out", type: "out", color: "#e74c3c" }, // Was Single
         "2-2": { name: "DOUBLE PLAY!", type: "double-play", color: "#c0392b" },
         "2-3": { name: "Ground Out", type: "out", color: "#e74c3c" },
         "2-4": { name: "Strike Out", type: "out" , color: "#e74c3c"},
         "2-5": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
         "2-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
         "3-3": { name: "Walk", type: "walk", color: "#2ecc71" },
-        "3-4": { name: "TRIPLE!!!", type: "hit", bases: 3, color: "#e67e22" },
+        "3-4": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" }, // Was Triple
         "3-5": { name: "Ground Out", type: "out", color: "#e74c3c" },
         "3-6": { name: "Fly Out", type: "out", color: "#e74c3c" },
         "4-4": { name: "Walk", type: "walk", color: "#2ecc71" },
         "4-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
         "4-6": { name: "Strike Out", type: "out", color: "#e74c3c" },
-        "5-5": { name: "Double!!", type: "hit", bases: 2, color: "#3498db" },
+        "5-5": { name: "TRIPLE!!!", type: "hit", bases: 3, color: "#e67e22" }, // Was Double
         "5-6": { name: "Sacrifice Fly", type: "sac-fly", color: "#e67e22" },
         "6-6": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" }
     };
@@ -555,92 +564,44 @@
         return fullName.split(' ').pop().toUpperCase();
     }
 
-    // --- PRE-JOIN / DISCOVERY PHASE ---
-    function handleCodeTyping(input) {
-        let code = input.value.trim();
-        if (code.length === 4) {
-            roomCode = code;
-            connectPreJoinDiscovery(code);
+    function validateCode(input) {
+        const btn = document.getElementById("btn-join-room");
+        btn.disabled = input.value.trim().length !== 4;
+    }
+
+    function setupRoom(isHost) {
+        myTeam = document.getElementById("team-select").value;
+        myRole = isHost ? "home" : "visitor";
+        roomCode = isHost ? Math.floor(1000 + Math.random() * 9000).toString() : document.getElementById("room-input").value.trim();
+
+        if (isHost) {
+            gameState.homeTeam = myTeam;
         } else {
-            document.getElementById("join-alert-banner").style.display = "none";
-            document.getElementById("btn-join-room").disabled = true;
-            if (discoveryInterval) clearInterval(discoveryInterval);
-        }
-    }
-
-    function connectPreJoinDiscovery(code) {
-        const banner = document.getElementById("join-alert-banner");
-        banner.style.display = "block";
-        banner.style.background = "#f39c12";
-        banner.innerText = `Searching for room ${code}...`;
-
-        // FIX: Reset discovery state but do NOT set myRole here.
-        // myRole stays "" until the visitor actually joins via setupRoom(false).
-        opponentTeamFound = "";
-        if (discoveryInterval) clearInterval(discoveryInterval);
-
-        createAndSubscribeChannel(code);
-    }
-
-    // --- OMNIBUS CHANNEL ARCHITECTURE ---
-    // All event listeners are attached once at subscription time and never torn down
-    // until the game ends. setupRoom(false) reuses the already-subscribed channel
-    // instead of rebuilding it, avoiding the race condition.
-    function createAndSubscribeChannel(code) {
-        if (channel) {
-            supabaseClient.removeAllChannels();
+            gameState.visitorTeam = myTeam;
         }
 
-        channel = supabaseClient.channel(`room-${code}`, {
-            config: { broadcast: { self: false } }
-        });
+        document.getElementById("setup-screen").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
+
+        initMultiplayerChannel();
+    }
+
+    function initMultiplayerChannel() {
+        channel = supabaseClient.channel(`room-${roomCode}`);
 
         channel
-            .on("broadcast", { event: "discovery_ping" }, () => {
-                // Only the confirmed home host replies to pings
-                if (myRole === "home") {
-                    channel.send({
-                        type: "broadcast",
-                        event: "discovery_reply",
-                        payload: { hostTeam: myTeam }
-                    });
-                }
-            })
-            .on("broadcast", { event: "discovery_reply" }, (payload) => {
-                // FIX: Guard on opponentTeamFound === "" instead of myRole === "".
-                // This prevents the race where myRole gets set to "visitor" by
-                // setupRoom(false) before this async reply arrives, which would
-                // have caused the old guard (myRole === "") to silently drop the reply.
-                if (opponentTeamFound === "" && payload.payload && payload.payload.hostTeam) {
-                    clearInterval(discoveryInterval);
-                    opponentTeamFound = payload.payload.hostTeam;
-
-                    const banner = document.getElementById("join-alert-banner");
-                    banner.style.background = "#27ae60";
-                    banner.innerText = `Connected! Opponent is the ${opponentTeamFound}. Pick an opposing team.`;
-
-                    const selectEl = document.getElementById("team-select");
-                    if (selectEl.value === opponentTeamFound) {
-                        let alternateIndex = (mlbTeams.indexOf(opponentTeamFound) + 1) % mlbTeams.length;
-                        selectEl.selectedIndex = alternateIndex;
-                    }
-                    document.getElementById("btn-join-room").disabled = false;
-                }
-            })
             .on("broadcast", { event: "join_intent" }, (payload) => {
                 if (myRole === "home") {
-                    if (syncInterval) clearInterval(syncInterval);
                     gameState.visitorTeam = payload.payload.visitorTeam;
-                    document.getElementById("game-log").innerText = `${gameState.visitorTeam} entered the dugout! Play Ball!`;
+                    document.getElementById("game-log").innerText = `${gameState.visitorTeam} has entered the dugout! Play Ball!`;
                     broadcastGameState();
-
-                    // Heartbeat to prevent desyncs
-                    syncInterval = setInterval(broadcastGameState, 3000);
                 }
             })
             .on("broadcast", { event: "sync" }, (payload) => {
-                if (myRole === "visitor") {
-                    handleStateSync(payload.payload);
+                // Ignore syncs if we are currently mid-animation (to avoid snapping pegs)
+                if (!document.getElementById("roll-btn").disabled || document.getElementById("game-log").innerText.includes("Waiting")) {
+                     handleStateSync(payload.payload);
                 }
             })
             .on("broadcast", { event: "roll" }, (payload) => {
@@ -649,83 +610,26 @@
             .subscribe((status) => {
                 if (status === "SUBSCRIBED") {
                     if (myRole === "home") {
-                        document.getElementById("game-log").innerText = "Room created! Tell Player 2 to enter code: " + code;
-                    } else if (myRole === "") {
-                        // Visitor discovery: start pinging after confirmed subscription
-                        sendDiscoveryPing();
-                        discoveryInterval = setInterval(sendDiscoveryPing, 500);
+                        document.getElementById("game-log").innerText = `Room active! Tell Player 2 to enter code: ${roomCode}`;
+                        // Host maintains the heartbeat of the game state
+                        syncInterval = setInterval(broadcastGameState, 2500);
+                    } else {
+                        // Visitor pings the host to announce their arrival
+                        channel.send({
+                            type: "broadcast",
+                            event: "join_intent",
+                            payload: { visitorTeam: myTeam }
+                        });
                     }
                 }
             });
-    }
 
-    function sendDiscoveryPing() {
-        if (channel) {
-            channel.send({
-                type: "broadcast",
-                event: "discovery_ping",
-                payload: {}
-            });
-        }
-    }
-
-    // --- MAIN GAME LIFECYCLE ---
-    function setupRoom(isHost) {
-        myTeam = document.getElementById("team-select").value;
-
-        if (isHost) {
-            if (discoveryInterval) clearInterval(discoveryInterval);
-            myRole = "home";
-            roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-            gameState.homeTeam = myTeam;
-
-            document.getElementById("setup-screen").style.display = "none";
-            document.getElementById("game-screen").style.display = "block";
-            document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
-
-            // Host creates the channel fresh
-            createAndSubscribeChannel(roomCode);
-            updateScoreboardLayout();
-            evaluateTurnLockout();
-
-        } else {
-            // FIX: Do NOT call createAndSubscribeChannel again here.
-            // The visitor is already subscribed to the correct channel via
-            // connectPreJoinDiscovery. Rebuilding the channel would kill the
-            // live connection right before join_intent pings need to go out.
-            if (discoveryInterval) clearInterval(discoveryInterval);
-
-            myRole = "visitor";
-            gameState.visitorTeam = myTeam;
-
-            document.getElementById("setup-screen").style.display = "none";
-            document.getElementById("game-screen").style.display = "block";
-            document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
-
-            updateScoreboardLayout();
-            evaluateTurnLockout();
-
-            // Ping join_intent on the already-open channel until host acks via sync
-            syncInterval = setInterval(() => {
-                if (channel) {
-                    channel.send({
-                        type: "broadcast",
-                        event: "join_intent",
-                        payload: { visitorTeam: myTeam }
-                    });
-                }
-            }, 600);
-        }
+        updateScoreboardLayout();
+        evaluateTurnLockout();
     }
 
     function handleStateSync(data) {
         if (!data || !data.gameState) return;
-
-        // Visitor clears its join_intent interval once it receives the first sync
-        if (myRole === "visitor" && syncInterval) {
-            clearInterval(syncInterval);
-            syncInterval = null;
-        }
 
         gameState.visitorTeam = data.gameState.visitorTeam;
         gameState.homeTeam = data.gameState.homeTeam;
@@ -756,7 +660,6 @@
         if (gameState.visitorTeam === "Away Team") {
             btn.disabled = true;
             btn.innerText = "Connecting Match...";
-            document.getElementById("game-log").innerText = "Synchronizing dugouts, please wait...";
             return;
         }
 
@@ -765,7 +668,9 @@
         if (isMyTurn) {
             btn.disabled = false;
             btn.innerText = "Your Turn! Roll Dice";
-            document.getElementById("game-log").innerText = "It's your turn to bat!";
+            if (!document.getElementById("game-log").innerText.includes("Play Ball")) {
+                document.getElementById("game-log").innerText = "It's your turn to bat!";
+            }
         } else {
             btn.disabled = true;
             const currentBatter = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
@@ -775,8 +680,11 @@
     }
 
     function updateScoreboardLayout() {
-        document.getElementById("lbl-visitor").innerText = `${getNickname(gameState.visitorTeam)}: ${gameState.scores.visitor}`;
-        document.getElementById("lbl-home").innerText = `${getNickname(gameState.homeTeam)}: ${gameState.scores.home}`;
+        const visitorIndicator = gameState.isTopInning ? '<span class="active-team-indicator">⚾</span> ' : '';
+        const homeIndicator = !gameState.isTopInning ? '<span class="active-team-indicator">⚾</span> ' : '';
+
+        document.getElementById("lbl-visitor").innerHTML = `${visitorIndicator}${getNickname(gameState.visitorTeam)}: ${gameState.scores.visitor}`;
+        document.getElementById("lbl-home").innerHTML = `${homeIndicator}${getNickname(gameState.homeTeam)}: ${gameState.scores.home}`;
 
         const currentActiveNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
         document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
@@ -794,19 +702,19 @@
         const d1 = Math.floor(Math.random() * 6) + 1;
         const d2 = Math.floor(Math.random() * 6) + 1;
 
-        // Broadcast roll to both players; both sides run executeVisualTurn
         channel.send({
             type: "broadcast",
             event: "roll",
             payload: { d1: d1, d2: d2 }
         });
 
-        // FIX: The roller also needs to execute the turn locally since
-        // broadcast with self:false won't echo back to the sender.
         executeVisualTurn(d1, d2);
     }
 
     function executeVisualTurn(d1, d2) {
+        // Disable buttons on both sides immediately to lock UI during animations
+        document.getElementById("roll-btn").disabled = true;
+
         const d1El = document.getElementById("die1");
         const d2El = document.getElementById("die2");
 
@@ -839,6 +747,38 @@
         overlay.classList.add("flash");
 
         setTimeout(onDone, 1100);
+    }
+
+    function flashTransitionOverlay(isGameOver, onDone) {
+        const overlay = document.getElementById("transition-overlay");
+        let nextInningStr = "";
+        let nextTeam = "";
+
+        if (isGameOver) {
+            overlay.innerHTML = `BALL GAME!<br><span style="font-size: 0.5em; color: #fff;">Calculating Final Score...</span>`;
+            overlay.style.borderColor = "#f1c40f";
+        } else {
+            if (gameState.isTopInning) {
+                nextInningStr = `BOTTOM OF INNING ${gameState.inning}`;
+                nextTeam = `${getNickname(gameState.homeTeam)} AT BAT`;
+            } else {
+                nextInningStr = `TOP OF INNING ${gameState.inning + 1}`;
+                nextTeam = `${getNickname(gameState.visitorTeam)} AT BAT`;
+            }
+            
+            overlay.innerHTML = `SIDE RETIRED<br><span style="font-size: 0.6em; color: #f1c40f;">${nextInningStr}</span><br><span style="font-size: 0.5em; color: #fff;">${nextTeam}</span>`;
+            overlay.style.borderColor = "#3498db";
+        }
+
+        overlay.style.display = "block";
+        overlay.classList.remove("hold-flash");
+        void overlay.offsetWidth;
+        overlay.classList.add("hold-flash");
+
+        setTimeout(() => {
+            overlay.style.display = "none";
+            onDone();
+        }, 3400); // Wait for the full CSS animation to finish
     }
 
     function processPlayCalculations(play) {
@@ -908,11 +848,15 @@
                 break;
 
             case "double-play":
-                gameState.outs += 2;
-                if (gameState.runners.length > 0) {
-                    gameState.runners.shift();
+                // Context-aware Double Play Logic applied here
+                if (gameState.runners.length === 0) {
+                    gameState.outs++;
+                    document.getElementById("game-log").innerText = `${activeTeamNick} grounds out!`;
+                } else {
+                    gameState.outs += 2;
+                    gameState.runners.shift(); 
+                    document.getElementById("game-log").innerText = `Grounded into a Double Play!`;
                 }
-                document.getElementById("game-log").innerText = `Double Play!`;
                 break;
 
             case "out":
@@ -928,9 +872,16 @@
             renderPegPositionsDirectly();
 
             if (gameState.outs >= 3) {
+                // Ensure state shows 3 outs before transitioning
+                if (myRole === "home") broadcastGameState();
+                
+                let isGameOver = (gameState.inning >= 9 && !gameState.isTopInning);
+                
                 setTimeout(() => {
-                    handleSideSwitching();
-                }, 600);
+                    flashTransitionOverlay(isGameOver, () => {
+                        handleSideSwitching();
+                    });
+                }, 800);
             } else {
                 if (myRole === "home") broadcastGameState();
                 evaluateTurnLockout();
@@ -1025,7 +976,6 @@
 
         if (gameState.isTopInning) {
             gameState.isTopInning = false;
-            document.getElementById("game-log").innerText = `Bottom of Inning ${gameState.inning}. ${gameState.homeTeam} hitting!`;
         } else {
             gameState.isTopInning = true;
             gameState.inning++;
@@ -1034,7 +984,6 @@
                 executeGameOverProcessing();
                 return;
             }
-            document.getElementById("game-log").innerText = `Inning ${gameState.inning}! ${gameState.visitorTeam} up!`;
         }
 
         updateScoreboardLayout();
@@ -1050,7 +999,6 @@
 
         alert(`${title}\n\nFinal Score:\n${gameState.visitorTeam}: ${gameState.scores.visitor}\n${gameState.homeTeam}: ${gameState.scores.home}`);
 
-        if (discoveryInterval) clearInterval(discoveryInterval);
         if (syncInterval) clearInterval(syncInterval);
         if (channel) supabaseClient.removeAllChannels();
         location.reload();
