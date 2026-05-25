@@ -805,7 +805,12 @@
             const key = d1 <= d2 ? `${d1}-${d2}` : `${d2}-${d1}`;
             const play = playChart[key];
 
-            flashUmpireOverlay(play, () => {
+            // If it rolls double play but bases are empty, show as Ground Out
+            const displayPlay = (play.type === "double-play" && gameState.runners.length === 0)
+                ? { ...play, name: "Ground Out" }
+                : play;
+
+            flashUmpireOverlay(displayPlay, () => {
                 if (play.type === "hit") {
                     animateBallFlight(play, () => {
                         processPlayCalculations(play);
