@@ -616,483 +616,6 @@
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">4</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">5</span> Single</div>
         <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">6</span> Strike Out</div>
-        <div class="chart-item"><span class="dice-ic            font-size: 11px;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        .chart-item { display: flex; align-items: center; gap: 4px; }
-        .dice-icon {
-            background: white;
-            border: 1px solid #333;
-            border-radius: 3px;
-            width: 14px;
-            height: 14px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-
-        /* --- UPGRADED SCOREBOARD --- */
-        .scoreboard {
-            background: #1e1a15;
-            color: #00ff00;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 16px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-            border: 3px solid #513118;
-            box-sizing: border-box;
-            width: 100%;
-            overflow: hidden;
-        }
-        .score-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            gap: 6px;
-        }
-        .score-label { 
-            font-weight: bold; 
-            color: #fff; 
-            font-size: 13px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            width: 52px;
-        }
-        .score-values { 
-            display: flex; 
-            gap: 4px;
-            flex-wrap: nowrap;
-            flex: 1;
-            justify-content: flex-end;
-        }
-        .score-val {
-            width: 22px;
-            height: 22px;
-            min-width: 22px;
-            line-height: 22px;
-            text-align: center;
-            color: #555;
-            background: #111;
-            border-radius: 50%;
-            font-size: 11px;
-            border: 1px solid #333;
-            transition: all 0.3s ease;
-            flex-shrink: 1;
-        }
-        @media (max-width: 400px) {
-            .score-val {
-                width: 19px;
-                height: 19px;
-                min-width: 19px;
-                line-height: 19px;
-                font-size: 10px;
-            }
-            .score-values { gap: 3px; }
-        }
-        .score-val.active {
-            background: #ff0000;
-            color: #fff;
-            box-shadow: 0 0 12px #ff0000;
-            font-weight: bold;
-            border-color: #ff0000;
-            transform: scale(1.1);
-        }
-        .team-names-row {
-            margin-top: 12px;
-            border-top: 2px dashed #444;
-            padding-top: 12px;
-            color: #ffb300;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 15px;
-        }
-        .team-score-line {
-            display: flex;
-            align-items: center;
-            gap: 0;
-        }
-        .team-at-bat-icon {
-            width: 20px;
-            flex-shrink: 0;
-            color: #fff;
-            text-shadow: 0 0 8px #fff;
-            font-size: 13px;
-        }
-        .team-score-name {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .team-score-runs {
-            flex-shrink: 0;
-            margin-left: 6px;
-        }
-        .active-team-indicator {
-            color: #fff;
-            text-shadow: 0 0 8px #fff;
-            margin: 0 3px;
-        }
-        #lbl-status {
-            color: #00ff00;
-            text-shadow: 0 0 5px #00ff00;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 8px;
-            letter-spacing: 1px;
-        }
-
-        /* --- BASEBALL FIELD & HOLES --- */
-        .field-container {
-            position: relative;
-            width: 100%;
-            height: 270px;
-            background-color: var(--field-green);
-            border-radius: 0 0 220px 220px;
-            border: 5px solid #fff;
-            overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
-        }
-        .infield-dirt {
-            position: absolute;
-            bottom: -45px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 190px;
-            height: 190px;
-            background-color: var(--dirt-orange);
-            border: 2px dashed rgba(255,255,255,0.6);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
-        .infield-grass {
-            position: absolute;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 95px;
-            height: 95px;
-            background-color: var(--field-green);
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        .base-hole {
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #22150c;
-            border-radius: 50%;
-            box-shadow: inset 0 4px 6px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 9px;
-            color: rgba(255,255,255,0.3);
-            font-weight: bold;
-            transform: translate(-50%, 50%);
-        }
-
-        .runner-peg {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            transform: translate(-50%, 50%);
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 10;
-        }
-        .runner-peg::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 6px;
-            height: 6px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 50%;
-        }
-
-        /* --- BALL FLIGHT ANIMATION --- */
-        #ball-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-        .umpire-overlay {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: rgba(0, 0, 0, 0.9);
-            border: 3px solid #ffb300;
-            color: #fff;
-            padding: 15px 30px;
-            font-size: 26px;
-            font-family: 'Impact', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 8px;
-            z-index: 100;
-            white-space: nowrap;
-            text-align: center;
-            pointer-events: none;
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
-            opacity: 0;
-        }
-        
-        .transition-overlay {
-            border-color: #3498db; 
-            font-size: 32px;
-            line-height: 1.3;
-            width: 80vw;
-            max-width: 400px;
-            white-space: normal;
-            left: 50vw !important;
-        }
-
-        .umpire-overlay.flash {
-            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .transition-overlay.hold-flash {
-            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* --- CONTROLS PANEL --- */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .dice-display { display: flex; gap: 15px; margin: 5px 0; }
-        .die {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
-            font-weight: bold;
-            box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
-        }
-        .rolling { animation: wobble 0.15s infinite alternate; }
-        .log-box {
-            background: rgba(0, 0, 0, 0.07);
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            padding: 10px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-            font-weight: bold;
-            font-size: 15px;
-            min-height: 40px;
-        }
-
-        @keyframes wobble {
-            0% { transform: rotate(-15deg); }
-            100% { transform: rotate(15deg); }
-        }
-        @keyframes popFlash {
-            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-            20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-            35% { transform: translate(-50%, -50%) scale(1); }
-            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-        }
-        @keyframes popHoldFlash {
-            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-            10% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-            15% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-        }
-        /* --- GAME OVER MODAL --- */
-        #gameover-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.75);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #gameover-modal.show {
-            display: flex;
-            animation: modalFadeIn 0.4s ease;
-        }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.92); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-        .gameover-card {
-            background: var(--wood-bg);
-            border: 10px solid #b59369;
-            border-radius: 14px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-            padding: 30px 28px 24px;
-            width: 100%;
-            max-width: 420px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .gameover-eyebrow {
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #9a6e3a;
-            margin-bottom: 6px;
-        }
-        .gameover-headline {
-            font-size: 30px;
-            font-weight: 900;
-            font-family: 'Impact', 'Arial Narrow', sans-serif;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #704422;
-            line-height: 1.1;
-            margin-bottom: 6px;
-        }
-        .gameover-subhead {
-            font-size: 14px;
-            color: #9a6e3a;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-        }
-        .gameover-scoreboard {
-            background: #1e1a15;
-            border-radius: 8px;
-            border: 3px solid #513118;
-            overflow: hidden;
-            margin-bottom: 22px;
-            font-family: 'Courier New', monospace;
-        }
-        .gameover-score-row {
-            display: flex;
-            align-items: center;
-            padding: 10px 14px;
-            gap: 10px;
-        }
-        .gameover-score-row:first-child {
-            border-bottom: 1px solid #333;
-        }
-        .gameover-score-row.winner {
-            background: rgba(255,255,255,0.06);
-        }
-        .gameover-trophy {
-            font-size: 20px;
-            width: 26px;
-            flex-shrink: 0;
-        }
-        .gameover-team {
-            flex: 1;
-            text-align: left;
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffb300;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .gameover-runs {
-            font-size: 28px;
-            font-weight: bold;
-            color: #00ff00;
-            text-shadow: 0 0 8px #00ff00;
-            min-width: 36px;
-            text-align: right;
-        }
-        .gameover-runs.loser {
-            color: #555;
-            text-shadow: none;
-        }
-        .gameover-divider {
-            border: none;
-            border-top: 2px double #b59369;
-            margin: 0 0 20px;
-        }
-        .gameover-btn {
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 13px;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 0 #1a5276;
-            transition: transform 0.1s;
-        }
-        .gameover-btn:hover { background: #3498db; }
-        .gameover-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a5276; }
-    </style>
-</head>
-<body>
-
-<div class="screen" id="setup-screen">
-    <h2>Major League Diceball</h2>
-
-    <div class="setup-group">
-        <label for="team-select">Choose Your Team</label>
-        <select id="team-select"></select>
-    </div>
-
-    <button class="btn btn-solo" id="btn-solo" onclick="setupSolo()">Play vs CPU</button>
-
-    <div class="action-divider" id="ui-divider">MULTIPLAYER</div>
-
-    <div id="host-panel">
-        <button class="btn btn-create" id="btn-create-room" onclick="setupRoom(true)">Create New Room (Be Home Team)</button>
-    </div>
-
-    <div style="margin-top: 15px;" id="join-panel">
-        <div class="setup-group">
-            <input type="text" id="room-input" maxlength="4" placeholder="Enter 4-Digit Code" oninput="validateCode(this)">
-        </div>
-        <button class="btn btn-join" id="btn-join-room" onclick="setupRoom(false)" disabled>Join Room (Be Away Team)</button>
-    </div>
-</div>
-
-<div class="screen hidden" id="game-screen">
-    <div class="room-display-banner" id="room-banner">ROOM CODE: ----</div>
-
-    <div class="dice-chart">
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Double</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">2</span> Single</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">3</span> Fly Out</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">4</span> Walk</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">5</span> Pop Out</div>
-        <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">6</span> Ground Out</div>
-        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">2</span> Double Play Risk</div>
-        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">3</span> Ground Out</div>
-        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">4</span> Strike Out</div>
-        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">5</span> Single</div>
-        <div class="chart-item"><span class="dice-icon">2</span><span class="dice-icon">6</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">3</span> Strike Out</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">4</span> Single</div>
         <div class="chart-item"><span class="dice-icon">3</span><span class="dice-icon">5</span> Ground Out</div>
@@ -1540,6 +1063,8 @@
             // If it rolls double play but no runner on 1st, show as Ground Out
             const displayPlay = (play.type === "double-play" && !gameState.runners.includes(1))
                 ? { ...play, name: "Ground Out" }
+                : (play.type === "hit" && play.bases === 4 && gameState.runners.length === 3)
+                ? { ...play, name: "GRAND SLAM!!" }
                 : play;
 
             flashUmpireOverlay(displayPlay, () => {
@@ -1894,6 +1419,7 @@
         switch(play.type) {
             case "hit":
                 let nextRunners = [];
+                const runnersBeforeHit = gameState.runners.slice(); // snapshot before changes
                 gameState.runners.forEach(base => {
                     let finalBase = base + play.bases;
                     stepsToAnimate.push({ start: base, end: finalBase, team: gameState.isTopInning });
@@ -1906,7 +1432,11 @@
                 else nextRunners.push(play.bases);
 
                 gameState.runners = nextRunners;
-                document.getElementById("game-log").innerText = `${activeTeamNick} hits a ${play.name}!`;
+                if (play.bases === 4 && runnersBeforeHit.length === 3) {
+                    document.getElementById("game-log").innerText = `${activeTeamNick}: GRAND SLAM!! 🎆`;
+                } else {
+                    document.getElementById("game-log").innerText = `${activeTeamNick} hits a ${play.name}!`;
+                }
                 break;
 
             case "walk":
@@ -1942,16 +1472,26 @@
                 } else {
                     gameState.outs++;
                     let sacRunners = [];
+                    let sacRunScored = false;
                     gameState.runners.forEach(base => {
                         if (base === 3) {
+                            // Runner on 3rd tags up and scores
                             stepsToAnimate.push({ start: 3, end: 4, team: gameState.isTopInning });
                             runsScored++;
+                            sacRunScored = true;
                         } else {
-                            sacRunners.push(base);
+                            // Runners on 1st/2nd tag up and advance one base
+                            let tagBase = base + 1;
+                            stepsToAnimate.push({ start: base, end: tagBase, team: gameState.isTopInning });
+                            sacRunners.push(tagBase);
                         }
                     });
                     gameState.runners = sacRunners;
-                    document.getElementById("game-log").innerText = `Sac Fly! Out recorded, run scores!`;
+                    if (sacRunScored) {
+                        document.getElementById("game-log").innerText = `${activeTeamNick}: Sac Fly! Out recorded, run scores!`;
+                    } else {
+                        document.getElementById("game-log").innerText = `${activeTeamNick}: Sac Fly — out recorded, runners advance!`;
+                    }
                 }
                 break;
 
@@ -2002,10 +1542,15 @@
                     // Lead runner (highest base) is erased, batter goes to 1st
                     gameState.outs++;
                     gameState.runners.sort((a, b) => b - a);
-                    gameState.runners.shift(); // remove lead runner
+                    gameState.runners.shift(); // remove lead runner (thrown out)
+                    // If a runner is still on 1st, they must advance to 2nd to make room for batter
+                    if (gameState.runners.includes(1)) {
+                        gameState.runners = gameState.runners.map(b => b === 1 ? 2 : b);
+                        stepsToAnimate.push({ start: 1, end: 2, team: gameState.isTopInning });
+                    }
                     stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
                     gameState.runners.push(1);
-                    document.getElementById("game-log").innerText = `Fielder's Choice — lead runner out, batter safe at 1st!`;
+                    document.getElementById("game-log").innerText = `${activeTeamNick}: Fielder's Choice — lead runner out, batter safe at 1st!`;
                 }
                 break;
 
@@ -2055,7 +1600,7 @@
                 setTimeout(() => {
                     flashTransitionOverlay(isGameOver, () => {
                         isAnimating = false;
-                        if (skipBottom) {
+                        if (skipBottom || gameOverAfterBottom) {
                             executeGameOverProcessing();
                         } else {
                             handleSideSwitching();
