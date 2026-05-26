@@ -631,6 +631,498 @@
         }
         @keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.92); }
+            to   {        }
+
+        /* Fallback for any other .screen */
+        .screen {
+            background-color: var(--wood-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 24px 20px;
+            box-sizing: border-box;
+            color: var(--text-dark);
+        }
+
+        .hidden { display: none !important; }
+
+        .setup-body h2, #game-screen h1, #game-screen h2 {
+            text-align: center;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #704422;
+            border-bottom: 3px double #b59369;
+            padding-bottom: 5px;
+        }
+
+        /* --- TEAM SETUP SCREEN --- */
+        .setup-rules-box {
+            margin-top: 18px;
+            background: rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .setup-rules-title {
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #704422;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .setup-rules-grid {
+            display: grid;
+            grid-template-columns: auto 1fr auto 1fr;
+            gap: 4px 8px;
+            font-size: 11px;
+        }
+        .rule-dice {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            text-align: center;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+        .rule-dice.hit    { background: #1a4a1a; color: #4eff4e; border: 1px solid #2d7a2d; }
+        .rule-dice.out    { background: #3a1010; color: #ff6060; border: 1px solid #6a2020; }
+        .rule-dice.special{ background: #2a2000; color: #ffc040; border: 1px solid #5a4400; }
+        .rule-dice.homer  { background: #3a2800; color: #f1c40f; border: 1px solid #8a6000; box-shadow: 0 0 4px #f1c40f88; }
+        .rule-text {
+            color: #3a2010;
+            font-weight: 600;
+            align-self: center;
+            font-size: 11px;
+        }
+        .setup-group {
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #513118;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        select, input {
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 2px solid #b59369;
+            background: white;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        input { text-transform: uppercase; text-align: center; letter-spacing: 2px; }
+        
+        .action-divider {
+            text-align: center;
+            margin: 16px 0;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 2px;
+            position: relative;
+            color: #704422;
+        }
+        .action-divider::before, .action-divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 2px;
+            background: #b59369;
+        }
+        .action-divider::before { left: 0; }
+        .action-divider::after { right: 0; }
+
+        .btn {
+            color: white;
+            padding: 10px 12px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .btn-create { background: #2980b9; }
+        .btn-create:hover { background: #3498db; }
+        .btn-join { background: #27ae60; }
+        .btn-join:hover { background: #2ecc71; }
+        .btn-solo { background: #8e44ad; margin-bottom: 15px;}
+        .btn-solo:hover { background: #9b59b6; }
+        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; transform: none; }
+        .roll-btn { background: #c0392b; font-size: 20px; padding: 12px; width: 100%; flex-shrink: 0; }
+        .roll-btn:not(:disabled):hover { background: #e74c3c; }
+
+        .room-display-banner {
+            background: #34495e;
+            color: #fff;
+            text-align: center;
+            padding: 4px 8px;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        /* --- DICE CHART --- */
+        .dice-chart {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            font-size: 10px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 5px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .chart-item { display: flex; align-items: center; gap: 4px; }
+        .dice-icon {
+            background: white;
+            border: 1px solid #333;
+            border-radius: 3px;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        /* --- UPGRADED SCOREBOARD --- */
+        .scoreboard {
+            background: #141210;
+            color: #39ff14;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            border: 3px solid #6b3e1a;
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 6px;
+        }
+        .score-label { 
+            font-weight: bold; 
+            color: #fff; 
+            font-size: 13px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            width: 52px;
+        }
+        .score-values { 
+            display: flex; 
+            gap: 4px;
+            flex-wrap: nowrap;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        .score-val {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            line-height: 22px;
+            text-align: center;
+            color: #555;
+            background: #111;
+            border-radius: 50%;
+            font-size: 11px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            flex-shrink: 1;
+        }
+        @media (max-width: 400px) {
+            .score-val {
+                width: 19px;
+                height: 19px;
+                min-width: 19px;
+                line-height: 19px;
+                font-size: 10px;
+            }
+            .score-values { gap: 3px; }
+        }
+        .score-val.active {
+            background: #ff3030;
+            color: #fff;
+            box-shadow: 0 0 14px #ff3030, 0 0 4px #ff3030;
+            font-weight: bold;
+            border-color: #ff6060;
+            transform: scale(1.15);
+        }
+        .team-names-row {
+            margin-top: 6px;
+            border-top: 2px dashed #444;
+            padding-top: 6px;
+            color: #ffd000;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 14px;
+        }
+        .team-score-line {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .team-at-bat-icon {
+            width: 20px;
+            flex-shrink: 0;
+            color: #fff;
+            text-shadow: 0 0 8px #fff;
+            font-size: 13px;
+        }
+        .team-score-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .team-score-runs {
+            flex-shrink: 0;
+            margin-left: 6px;
+        }
+        .active-team-indicator {
+            color: #fff;
+            text-shadow: 0 0 8px #fff;
+            margin: 0 3px;
+        }
+        #lbl-status {
+            color: #39ff14;
+            text-shadow: 0 0 6px #39ff14;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* --- BASEBALL FIELD & HOLES --- */
+        .field-container {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            min-height: 160px;
+            background-color: var(--field-green);
+            border-radius: 0 0 220px 220px;
+            border: 5px solid #fff;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+        }
+        .infield-dirt {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 190px;
+            height: 190px;
+            background-color: var(--dirt-orange);
+            border: 2px dashed rgba(255,255,255,0.6);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .infield-grass {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 95px;
+            height: 95px;
+            background-color: var(--field-green);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .base-hole {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #22150c;
+            border-radius: 50%;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: bold;
+            transform: translate(-50%, 50%);
+        }
+
+        .runner-peg {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, 50%);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+        }
+        .runner-peg::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+        }
+
+        /* --- BALL FLIGHT ANIMATION --- */
+        #ball-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+        .umpire-overlay {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ffb300;
+            color: #fff;
+            padding: 15px 30px;
+            font-size: 26px;
+            font-family: 'Impact', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            z-index: 100;
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            opacity: 0;
+        }
+        
+        .transition-overlay {
+            border-color: #3498db; 
+            font-size: 32px;
+            line-height: 1.3;
+            width: 80vw;
+            max-width: 400px;
+            white-space: normal;
+            left: 50vw !important;
+        }
+
+        .umpire-overlay.flash {
+            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .transition-overlay.hold-flash {
+            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* --- CONTROLS PANEL --- */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .dice-display { display: flex; gap: 12px; margin: 2px 0; }
+        .die {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+        }
+        .rolling { animation: wobble 0.15s infinite alternate; }
+        .log-box {
+            background: rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 0 10px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            height: 36px;
+            line-height: 36px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes wobble {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+        @keyframes popFlash {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            35% { transform: translate(-50%, -50%) scale(1); }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+        @keyframes popHoldFlash {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            15% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+        /* --- GAME OVER MODAL --- */
+        #gameover-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.75);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #gameover-modal.show {
+            display: flex;
+            animation: modalFadeIn 0.4s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.92); }
             to   { opacity: 1; transform: scale(1); }
         }
         .gameover-card {
