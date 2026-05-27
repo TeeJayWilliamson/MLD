@@ -47,7 +47,6 @@
             overflow: hidden;
         }
 
-        /* Setup screen — fills viewport */
         #setup-screen {
             width: 100%;
             max-width: 500px;
@@ -125,7 +124,6 @@
             flex: 1;
         }
 
-        /* Game screen — fills full viewport, no scroll */
         #game-screen {
             background-color: var(--wood-bg);
             width: 100%;
@@ -141,7 +139,6 @@
             overflow: hidden;
         }
 
-        /* Fallback for any other .screen */
         .screen {
             background-color: var(--wood-bg);
             width: 100%;
@@ -163,7 +160,6 @@
             padding-bottom: 5px;
         }
 
-        /* --- TEAM SETUP SCREEN --- */
         .setup-rules-box {
             margin-top: 18px;
             background: rgba(0,0,0,0.06);
@@ -284,12 +280,39 @@
             padding: 4px 8px;
             font-weight: bold;
             border-radius: 6px;
-            margin-bottom: 5px;
+            margin-bottom: 0;
             font-size: 13px;
             letter-spacing: 2px;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
             flex-shrink: 0;
         }
+
+        .banner-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-bottom: 5px;
+        }
+
+        .home-btn {
+            background: #4a3828;
+            color: #e8c87a;
+            border: 2px solid #8a6040;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+            transition: background 0.1s, transform 0.1s;
+            white-space: nowrap;
+        }
+        .home-btn:hover { background: #5e4a34; }
+        .home-btn:active { transform: translateY(1px); }
 
         /* --- DICE CHART --- */
         .dice-chart {
@@ -317,7 +340,7 @@
             font-size: 10px;
         }
 
-        /* --- UPGRADED SCOREBOARD --- */
+        /* --- SCOREBOARD --- */
         .scoreboard {
             background: #141210;
             color: #39ff14;
@@ -421,11 +444,6 @@
             flex-shrink: 0;
             margin-left: 6px;
         }
-        .active-team-indicator {
-            color: #fff;
-            text-shadow: 0 0 8px #fff;
-            margin: 0 3px;
-        }
         #lbl-status {
             color: #39ff14;
             text-shadow: 0 0 6px #39ff14;
@@ -435,7 +453,7 @@
             letter-spacing: 1px;
         }
 
-        /* --- BASEBALL FIELD & HOLES --- */
+        /* --- BASEBALL FIELD --- */
         .field-container {
             position: relative;
             width: 100%;
@@ -449,11 +467,11 @@
         }
         .infield-dirt {
             position: absolute;
-            bottom: -45px;
+            bottom: -60px;
             left: 50%;
             transform: translateX(-50%) rotate(45deg);
-            width: 190px;
-            height: 190px;
+            width: 260px;
+            height: 260px;
             background-color: var(--dirt-orange);
             border: 2px dashed rgba(255,255,255,0.6);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
@@ -463,8 +481,8 @@
             bottom: 15px;
             left: 50%;
             transform: translateX(-50%) rotate(45deg);
-            width: 95px;
-            height: 95px;
+            width: 130px;
+            height: 130px;
             background-color: var(--field-green);
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
@@ -505,7 +523,7 @@
             border-radius: 50%;
         }
 
-        /* --- BALL FLIGHT ANIMATION --- */
+        /* --- BALL FLIGHT --- */
         #ball-canvas {
             position: absolute;
             top: 0;
@@ -554,7 +572,7 @@
             animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* --- CONTROLS PANEL --- */
+        /* --- CONTROLS --- */
         .controls {
             display: flex;
             flex-direction: column;
@@ -613,505 +631,14 @@
             90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
         }
+
         /* --- GAME OVER MODAL --- */
         #gameover-modal {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: rgba(0,0,0,0.75);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #gameover-modal.show {
-            display: flex;
-            animation: modalFadeIn 0.4s ease;
-        }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.92); }
-            to   {        }
-
-        /* Fallback for any other .screen */
-        .screen {
-            background-color: var(--wood-bg);
-            width: 100%;
-            max-width: 500px;
-            padding: 24px 20px;
-            box-sizing: border-box;
-            color: var(--text-dark);
-        }
-
-        .hidden { display: none !important; }
-
-        .setup-body h2, #game-screen h1, #game-screen h2 {
-            text-align: center;
-            margin-top: 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #704422;
-            border-bottom: 3px double #b59369;
-            padding-bottom: 5px;
-        }
-
-        /* --- TEAM SETUP SCREEN --- */
-        .setup-rules-box {
-            margin-top: 18px;
-            background: rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 10px;
-            padding: 12px 14px;
-        }
-        .setup-rules-title {
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #704422;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        .setup-rules-grid {
-            display: grid;
-            grid-template-columns: auto 1fr auto 1fr;
-            gap: 4px 8px;
-            font-size: 11px;
-        }
-        .rule-dice {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 4px;
-            text-align: center;
-            white-space: nowrap;
-            letter-spacing: 1px;
-        }
-        .rule-dice.hit    { background: #1a4a1a; color: #4eff4e; border: 1px solid #2d7a2d; }
-        .rule-dice.out    { background: #3a1010; color: #ff6060; border: 1px solid #6a2020; }
-        .rule-dice.special{ background: #2a2000; color: #ffc040; border: 1px solid #5a4400; }
-        .rule-dice.homer  { background: #3a2800; color: #f1c40f; border: 1px solid #8a6000; box-shadow: 0 0 4px #f1c40f88; }
-        .rule-text {
-            color: #3a2010;
-            font-weight: 600;
-            align-self: center;
-            font-size: 11px;
-        }
-        .setup-group {
-            margin: 12px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        label {
-            font-weight: bold;
-            font-size: 13px;
-            text-transform: uppercase;
-            color: #513118;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-        select, input {
-            padding: 10px;
-            font-size: 15px;
-            border-radius: 6px;
-            border: 2px solid #b59369;
-            background: white;
-            font-weight: bold;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        input { text-transform: uppercase; text-align: center; letter-spacing: 2px; }
-        
-        .action-divider {
-            text-align: center;
-            margin: 16px 0;
-            font-weight: bold;
-            font-size: 12px;
-            letter-spacing: 2px;
-            position: relative;
-            color: #704422;
-        }
-        .action-divider::before, .action-divider::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 2px;
-            background: #b59369;
-        }
-        .action-divider::before { left: 0; }
-        .action-divider::after { right: 0; }
-
-        .btn {
-            color: white;
-            padding: 10px 12px;
-            font-size: 17px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-        .btn-create { background: #2980b9; }
-        .btn-create:hover { background: #3498db; }
-        .btn-join { background: #27ae60; }
-        .btn-join:hover { background: #2ecc71; }
-        .btn-solo { background: #8e44ad; margin-bottom: 15px;}
-        .btn-solo:hover { background: #9b59b6; }
-        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
-        .btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; transform: none; }
-        .roll-btn { background: #c0392b; font-size: 20px; padding: 12px; width: 100%; flex-shrink: 0; }
-        .roll-btn:not(:disabled):hover { background: #e74c3c; }
-
-        .room-display-banner {
-            background: #34495e;
-            color: #fff;
-            text-align: center;
-            padding: 4px 8px;
-            font-weight: bold;
-            border-radius: 6px;
-            margin-bottom: 5px;
-            font-size: 13px;
-            letter-spacing: 2px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
-            flex-shrink: 0;
-        }
-
-        /* --- DICE CHART --- */
-        .dice-chart {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            font-size: 10px;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 5px 6px;
-            border-radius: 6px;
-            border: 1px solid rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-        .chart-item { display: flex; align-items: center; gap: 4px; }
-        .dice-icon {
-            background: white;
-            border: 1px solid #333;
-            border-radius: 3px;
-            width: 14px;
-            height: 14px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-
-        /* --- UPGRADED SCOREBOARD --- */
-        .scoreboard {
-            background: #141210;
-            color: #39ff14;
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin: 5px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-            border: 3px solid #6b3e1a;
-            box-sizing: border-box;
-            width: 100%;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .score-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            gap: 6px;
-        }
-        .score-label { 
-            font-weight: bold; 
-            color: #fff; 
-            font-size: 13px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            width: 52px;
-        }
-        .score-values { 
-            display: flex; 
-            gap: 4px;
-            flex-wrap: nowrap;
-            flex: 1;
-            justify-content: flex-end;
-        }
-        .score-val {
-            width: 22px;
-            height: 22px;
-            min-width: 22px;
-            line-height: 22px;
-            text-align: center;
-            color: #555;
-            background: #111;
-            border-radius: 50%;
-            font-size: 11px;
-            border: 1px solid #333;
-            transition: all 0.3s ease;
-            flex-shrink: 1;
-        }
-        @media (max-width: 400px) {
-            .score-val {
-                width: 19px;
-                height: 19px;
-                min-width: 19px;
-                line-height: 19px;
-                font-size: 10px;
-            }
-            .score-values { gap: 3px; }
-        }
-        .score-val.active {
-            background: #ff3030;
-            color: #fff;
-            box-shadow: 0 0 14px #ff3030, 0 0 4px #ff3030;
-            font-weight: bold;
-            border-color: #ff6060;
-            transform: scale(1.15);
-        }
-        .team-names-row {
-            margin-top: 6px;
-            border-top: 2px dashed #444;
-            padding-top: 6px;
-            color: #ffd000;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            font-size: 14px;
-        }
-        .team-score-line {
-            display: flex;
-            align-items: center;
-            gap: 0;
-        }
-        .team-at-bat-icon {
-            width: 20px;
-            flex-shrink: 0;
-            color: #fff;
-            text-shadow: 0 0 8px #fff;
-            font-size: 13px;
-        }
-        .team-score-name {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .team-score-runs {
-            flex-shrink: 0;
-            margin-left: 6px;
-        }
-        .active-team-indicator {
-            color: #fff;
-            text-shadow: 0 0 8px #fff;
-            margin: 0 3px;
-        }
-        #lbl-status {
-            color: #39ff14;
-            text-shadow: 0 0 6px #39ff14;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 4px;
-            letter-spacing: 1px;
-        }
-
-        /* --- BASEBALL FIELD & HOLES --- */
-        .field-container {
-            position: relative;
-            width: 100%;
-            flex: 1;
-            min-height: 160px;
-            background-color: var(--field-green);
-            border-radius: 0 0 220px 220px;
-            border: 5px solid #fff;
-            overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
-        }
-        .infield-dirt {
-            position: absolute;
-            bottom: -45px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 190px;
-            height: 190px;
-            background-color: var(--dirt-orange);
-            border: 2px dashed rgba(255,255,255,0.6);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
-        .infield-grass {
-            position: absolute;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 95px;
-            height: 95px;
-            background-color: var(--field-green);
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        .base-hole {
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #22150c;
-            border-radius: 50%;
-            box-shadow: inset 0 4px 6px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 9px;
-            color: rgba(255,255,255,0.3);
-            font-weight: bold;
-            transform: translate(-50%, 50%);
-        }
-
-        .runner-peg {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            transform: translate(-50%, 50%);
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 10;
-        }
-        .runner-peg::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 6px;
-            height: 6px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 50%;
-        }
-
-        /* --- BALL FLIGHT ANIMATION --- */
-        #ball-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-        .umpire-overlay {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: rgba(0, 0, 0, 0.9);
-            border: 3px solid #ffb300;
-            color: #fff;
-            padding: 15px 30px;
-            font-size: 26px;
-            font-family: 'Impact', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 8px;
-            z-index: 100;
-            white-space: nowrap;
-            text-align: center;
-            pointer-events: none;
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
-            opacity: 0;
-        }
-        
-        .transition-overlay {
-            border-color: #3498db; 
-            font-size: 32px;
-            line-height: 1.3;
-            width: 80vw;
-            max-width: 400px;
-            white-space: normal;
-            left: 50vw !important;
-        }
-
-        .umpire-overlay.flash {
-            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .transition-overlay.hold-flash {
-            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* --- CONTROLS PANEL --- */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            margin-top: 6px;
-            flex-shrink: 0;
-        }
-        .dice-display { display: flex; gap: 12px; margin: 2px 0; }
-        .die {
-            width: 44px;
-            height: 44px;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
-        }
-        .rolling { animation: wobble 0.15s infinite alternate; }
-        .log-box {
-            background: rgba(0, 0, 0, 0.07);
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            padding: 0 10px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            height: 36px;
-            line-height: 36px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        @keyframes wobble {
-            0% { transform: rotate(-15deg); }
-            100% { transform: rotate(15deg); }
-        }
-        @keyframes popFlash {
-            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-            20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-            35% { transform: translate(-50%, -50%) scale(1); }
-            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-        }
-        @keyframes popHoldFlash {
-            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-            10% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-            15% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            90% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-        }
-        /* --- GAME OVER MODAL --- */
-        #gameover-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.75);
+            background: rgba(0,0,0,0.85);
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -1126,16 +653,16 @@
             to   { opacity: 1; transform: scale(1); }
         }
         .gameover-card {
-    background: #d2b48c;
-    border: 10px solid #b59369;
-    border-radius: 14px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-    padding: 30px 28px 24px;
-    width: 100%;
-    max-width: 420px;
-    box-sizing: border-box;
-    text-align: center;
-    color: #2b1a0f;
+            background: #d2b48c;
+            border: 10px solid #b59369;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            padding: 30px 28px 24px;
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            text-align: center;
+            color: #2b1a0f;
         }
         .gameover-eyebrow {
             font-size: 12px;
@@ -1292,7 +819,10 @@
 </div>
 
 <div class="screen hidden" id="game-screen">
-    <div class="room-display-banner" id="room-banner">ROOM CODE: ----</div>
+    <div class="banner-row">
+        <button class="home-btn" onclick="if(confirm('Return to main menu? Current game will be lost.'))location.reload();">⌂ Menu</button>
+        <div class="room-display-banner" id="room-banner" style="flex:1;">ROOM CODE: ----</div>
+    </div>
 
     <div class="dice-chart">
         <div class="chart-item"><span class="dice-icon">1</span><span class="dice-icon">1</span> Double</div>
@@ -1397,11 +927,12 @@
         "Toronto Blue Jays", "Washington Nationals"
     ];
 
+    // FIX 2b: enlarged base coordinates to match bigger infield
     const baseCoords = [
-        { bottom: '4%',  left: '50%' },   // home plate
-        { bottom: '23%', left: '70%' },   // 1st base
-        { bottom: '45%', left: '50%' },   // 2nd base
-        { bottom: '23%', left: '30%' }    // 3rd base
+        { bottom: '3%',  left: '50%' },   // home plate
+        { bottom: '28%', left: '73%' },   // 1st base
+        { bottom: '56%', left: '50%' },   // 2nd base
+        { bottom: '28%', left: '27%' }    // 3rd base
     ];
 
     let myRole = "";
@@ -1447,38 +978,37 @@
         "6-6": { name: "HOME RUN!", type: "hit", bases: 4, color: "#f1c40f" }
     };
 
-    // Team colors: [bright primary, dark shadow, accent highlight]
     const teamColors = {
-        "Arizona Diamondbacks":  ["#A71930", "#5e0d1a", "#E8C48A"],  // Sedona Red / sand gold
-        "Atlanta Braves":        ["#CE1141", "#7a0926", "#13274F"],  // Bright red / navy
-        "Baltimore Orioles":     ["#FC4C02", "#9e2f00", "#F5C518"],  // Vivid orange / gold
-        "Boston Red Sox":        ["#E03A44", "#8a1a20", "#0D2B56"],  // Red / deep navy
-        "Chicago Cubs":          ["#1E88E5", "#0d4f8a", "#CC3433"],  // Bright Cubbie blue / red
-        "Chicago White Sox":     ["#C0C0C0", "#555555", "#111111"],  // Silver / black
-        "Cincinnati Reds":       ["#E00020", "#8a0013", "#FFFFFF"],  // Vivid red / white
-        "Cleveland Guardians":   ["#E31937", "#8a0f21", "#002B5C"],  // Red / navy
-        "Colorado Rockies":      ["#9B4FC5", "#5a1f7a", "#C4CED4"],  // Bright purple / silver
-        "Detroit Tigers":        ["#FA4616", "#a02c0c", "#0C2340"],  // Vivid orange / navy
-        "Houston Astros":        ["#F4911E", "#b05c0a", "#002D62"],  // Bright orange / navy
-        "Kansas City Royals":    ["#1E90FF", "#0d52a0", "#C09A5B"],  // Bright royal blue / gold
-        "Los Angeles Angels":    ["#E53030", "#8a1515", "#C4CED4"],  // Bright red / silver
-        "Los Angeles Dodgers":   ["#1E7FD8", "#0d4a85", "#FFFFFF"],  // Bright Dodger blue / white
-        "Miami Marlins":         ["#00C4F0", "#007a9e", "#FF6600"],  // Bright teal / orange
-        "Milwaukee Brewers":     ["#FFC52F", "#a07800", "#13294B"],  // Gold / navy
-        "Minnesota Twins":       ["#D31145", "#7a0926", "#CEAC5E"],  // Red / gold
-        "New York Mets":         ["#FF5910", "#b03300", "#002D72"],  // Bright orange / blue
-        "New York Yankees":      ["#C0C0C0", "#555555", "#0C1B33"],  // Silver / navy
-        "Oakland Athletics":     ["#EFB21E", "#9a6e0a", "#003831"],  // Gold / green
-        "Philadelphia Phillies": ["#E81828", "#8a0e16", "#002D72"],  // Red / navy
-        "Pittsburgh Pirates":    ["#FDB827", "#b07800", "#111111"],  // Gold / black
-        "San Diego Padres":      ["#FFC425", "#a07800", "#2F241D"],  // Gold / brown
-        "San Francisco Giants":  ["#FD5A1E", "#b03300", "#27251F"],  // Vivid orange / black
-        "Seattle Mariners":      ["#00C2A8", "#007a6a", "#0C2C56"],  // Bright teal / navy
-        "St. Louis Cardinals":   ["#E53030", "#8a1515", "#FEDB00"],  // Red / yellow
-        "Tampa Bay Rays":        ["#8FBCE6", "#4a7aaa", "#092C5C"],  // Columbia blue / navy
-        "Texas Rangers":         ["#C0111F", "#700a12", "#003278"],  // Red / blue
-        "Toronto Blue Jays":     ["#1E90FF", "#0d52a0", "#FFFFFF"],  // Bright blue / white
-        "Washington Nationals":  ["#E42026", "#8a1013", "#14225A"],  // Red / navy
+        "Arizona Diamondbacks":  ["#A71930", "#5e0d1a", "#E8C48A"],
+        "Atlanta Braves":        ["#CE1141", "#7a0926", "#13274F"],
+        "Baltimore Orioles":     ["#FC4C02", "#9e2f00", "#F5C518"],
+        "Boston Red Sox":        ["#E03A44", "#8a1a20", "#0D2B56"],
+        "Chicago Cubs":          ["#1E88E5", "#0d4f8a", "#CC3433"],
+        "Chicago White Sox":     ["#C0C0C0", "#555555", "#111111"],
+        "Cincinnati Reds":       ["#E00020", "#8a0013", "#FFFFFF"],
+        "Cleveland Guardians":   ["#E31937", "#8a0f21", "#002B5C"],
+        "Colorado Rockies":      ["#9B4FC5", "#5a1f7a", "#C4CED4"],
+        "Detroit Tigers":        ["#FA4616", "#a02c0c", "#0C2340"],
+        "Houston Astros":        ["#F4911E", "#b05c0a", "#002D62"],
+        "Kansas City Royals":    ["#1E90FF", "#0d52a0", "#C09A5B"],
+        "Los Angeles Angels":    ["#E53030", "#8a1515", "#C4CED4"],
+        "Los Angeles Dodgers":   ["#1E7FD8", "#0d4a85", "#FFFFFF"],
+        "Miami Marlins":         ["#00C4F0", "#007a9e", "#FF6600"],
+        "Milwaukee Brewers":     ["#FFC52F", "#a07800", "#13294B"],
+        "Minnesota Twins":       ["#D31145", "#7a0926", "#CEAC5E"],
+        "New York Mets":         ["#FF5910", "#b03300", "#002D72"],
+        "New York Yankees":      ["#C0C0C0", "#555555", "#0C1B33"],
+        "Oakland Athletics":     ["#EFB21E", "#9a6e0a", "#003831"],
+        "Philadelphia Phillies": ["#E81828", "#8a0e16", "#002D72"],
+        "Pittsburgh Pirates":    ["#FDB827", "#b07800", "#111111"],
+        "San Diego Padres":      ["#FFC425", "#a07800", "#2F241D"],
+        "San Francisco Giants":  ["#FD5A1E", "#b03300", "#27251F"],
+        "Seattle Mariners":      ["#00C2A8", "#007a6a", "#0C2C56"],
+        "St. Louis Cardinals":   ["#E53030", "#8a1515", "#FEDB00"],
+        "Tampa Bay Rays":        ["#8FBCE6", "#4a7aaa", "#092C5C"],
+        "Texas Rangers":         ["#C0111F", "#700a12", "#003278"],
+        "Toronto Blue Jays":     ["#1E90FF", "#0d52a0", "#FFFFFF"],
+        "Washington Nationals":  ["#E42026", "#8a1013", "#14225A"],
     };
 
     function getPegColors(teamName) {
@@ -1523,14 +1053,12 @@
         btn.disabled = input.value.trim().length !== 4;
     }
 
-    // --- NEW: SOLO MODE SETUP ---
     function setupSolo() {
         isSoloMode = true;
         myRole = "home"; 
         myTeam = document.getElementById("team-select").value;
         gameState.homeTeam = myTeam;
 
-        // Assign a random opponent
         let cpuTeams = mlbTeams.filter(t => t !== myTeam);
         gameState.visitorTeam = cpuTeams[Math.floor(Math.random() * cpuTeams.length)];
 
@@ -1540,10 +1068,9 @@
         document.getElementById("game-log").innerText = "Play Ball!";
 
         updateScoreboardLayout();
-        evaluateTurnLockout(); // Will trigger CPU's first turn since it's Top of 1st
+        evaluateTurnLockout();
     }
 
-    // --- MULTIPLAYER SETUP ---
     function setupRoom(isHost) {
         isSoloMode = false;
         myTeam = document.getElementById("team-select").value;
@@ -1570,7 +1097,6 @@
             .on("broadcast", { event: "join_intent" }, (payload) => {
                 if (myRole === "home") {
                     if (payload.payload.visitorTeam === gameState.homeTeam) {
-                        // Reject - same team selected
                         channel.send({
                             type: "broadcast",
                             event: "join_rejected",
@@ -1644,19 +1170,15 @@
     function evaluateTurnLockout() {
         const btn = document.getElementById("roll-btn");
 
-        // --- SOLO MODE LOGIC ---
         if (isSoloMode) {
             if (!gameState.isTopInning) {
-                // Bottom of the inning: User's turn
                 btn.disabled = false;
                 btn.innerText = "Your Turn! Roll Dice";
                 cpuTurnPending = false;
             } else {
-                // Top of the inning: CPU's turn
                 btn.disabled = true;
                 btn.innerText = `CPU (${getNickname(gameState.visitorTeam)}) is batting...`;
                 
-                // If there are less than 3 outs, trigger the CPU roll automatically after 2 seconds
                 if (gameState.outs < 3 && !cpuTurnPending) {
                     cpuTurnPending = true;
                     setTimeout(() => {
@@ -1668,7 +1190,6 @@
             return;
         }
 
-        // --- MULTIPLAYER LOGIC ---
         if (gameState.visitorTeam === "Away Team") {
             btn.disabled = true;
             btn.innerText = "Connecting Match...";
@@ -1709,7 +1230,6 @@
             const innEl = document.getElementById(`inn-${gameState.inning}`);
             if (innEl) innEl.classList.add("active");
         }
-        // Extra innings: highlight the inning row with a badge
         const innRow = document.querySelector(".score-row:nth-child(2) .score-label");
         if (gameState.inning > 9) {
             function ordinalSuffix(n) {
@@ -1760,7 +1280,6 @@
             const key = d1 <= d2 ? `${d1}-${d2}` : `${d2}-${d1}`;
             const play = playChart[key];
 
-            // If it rolls double play but no runner on 1st, show as Ground Out
             const displayPlay = (play.type === "double-play" && !gameState.runners.includes(1))
                 ? { ...play, name: "Ground Out" }
                 : (play.type === "hit" && play.bases === 4 && gameState.runners.length === 3)
@@ -1790,38 +1309,35 @@
 
         const isHR = play.bases === 4;
 
-        // Active team color for trail and glow
         const activeTeamName = gameState.isTopInning ? gameState.visitorTeam : gameState.homeTeam;
         const teamC = getPegColors(activeTeamName);
         const trailColor = isHR ? "#f1c40f" : teamC.main;
         const glowColor  = isHR ? "rgba(255,200,0,0.9)" : teamC.main + "cc";
 
-        // Home plate position
         const startX = W * 0.5;
         const startY = H - 18;
 
-        // Landing zone configs per hit type — single shallow, double mid, triple deep
         const configs = {
-            1: { minDist: 0.18, maxDist: 0.32 },  // single: shallow infield/short outfield
-            2: { minDist: 0.40, maxDist: 0.58 },  // double: mid-outfield gap
-            3: { minDist: 0.68, maxDist: 0.88 },  // triple: warning track deep
+            1: { minDist: 0.18, maxDist: 0.32 },
+            2: { minDist: 0.40, maxDist: 0.58 },
+            3: { minDist: 0.68, maxDist: 0.88 },
         };
 
-        // Random direction angle (-55 to +55 from centre)
-        const angleDeg = (Math.random() * 110) - 55;
+        // FIX 3: constrain HR to fair territory (no foul balls) — ±38 degrees from center
+        const maxAngle = isHR ? 38 : 55;
+        const angleDeg = (Math.random() * maxAngle * 2) - maxAngle;
         const angleRad = (angleDeg * Math.PI) / 180;
 
         let endX, endY, ctrlX, ctrlY, shadowCtrlY;
 
         if (isHR) {
-            // Exit point: send the ball well beyond the top of the canvas
             const exitRadius = H * 1.55;
             endX = startX + Math.sin(angleRad) * exitRadius;
             endY = startY - Math.cos(angleRad) * exitRadius;
 
             const midX = (startX + endX) / 2;
             ctrlX = midX + (Math.random() - 0.5) * 30;
-            ctrlY = startY - H * 1.15; // peak well above canvas
+            ctrlY = startY - H * 1.15;
             shadowCtrlY = ctrlY;
         } else {
             const cfg = configs[play.bases] || configs[1];
@@ -1831,7 +1347,6 @@
             endX = startX + Math.sin(angleRad) * radius;
             endY = startY - Math.cos(angleRad) * radius;
 
-            // Triples arc higher than singles
             const arcFactor = play.bases === 3 ? 0.90 : play.bases === 2 ? 0.78 : 0.60;
             const peakHeight = radius * arcFactor;
             const midX = (startX + endX) / 2;
@@ -1840,7 +1355,6 @@
             shadowCtrlY = startY - peakHeight * 0.18;
         }
 
-        // Duration scales with distance — triples feel like a rocket
         const duration = isHR ? 1050 : play.bases === 3 ? 920 : play.bases === 2 ? 720 : 520;
         const startTime = performance.now();
 
@@ -1859,47 +1373,42 @@
             return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
 
-        // ---- FIREWORKS for Home Run ----
         const FW_DURATION = 2800;
         let fwStartTime = null;
 
-        // Generate several shells that pop at staggered times
         const fwPalettes = [
-            ["#f1c40f", "#f39c12", "#fff"],          // gold
-            ["#e74c3c", "#ff6b6b", "#fff"],          // red
-            ["#3498db", "#74b9ff", "#fff"],          // blue
-            ["#2ecc71", "#55efc4", "#fff"],          // green
-            ["#9b59b6", "#d980fa", "#fff"],          // purple
+            ["#f1c40f", "#f39c12", "#fff"],
+            ["#e74c3c", "#ff6b6b", "#fff"],
+            ["#3498db", "#74b9ff", "#fff"],
+            ["#2ecc71", "#55efc4", "#fff"],
+            ["#9b59b6", "#d980fa", "#fff"],
         ];
 
         function makeShell(delay, cx, cy, palette, particleCount) {
             return {
-                delay,
-                cx, cy,
-                palette,
+                delay, cx, cy, palette,
                 particles: Array.from({ length: particleCount }, (_, i) => {
                     const a = (i / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
                     const speed = 38 + Math.random() * 42;
                     return {
-                        angle: a,
-                        speed,
+                        angle: a, speed,
                         color: palette[Math.floor(Math.random() * palette.length)],
                         size: 2 + Math.random() * 3,
-                        tail: Math.random() > 0.5, // some particles have tails
+                        tail: Math.random() > 0.5,
                     };
                 }),
             };
         }
 
         const fwShells = [
-            makeShell(0,    W * 0.50, H * 0.22, fwPalettes[0], 28),  // gold centre, instant
-            makeShell(320,  W * 0.28, H * 0.32, fwPalettes[1], 22),  // red left
-            makeShell(320,  W * 0.72, H * 0.28, fwPalettes[2], 22),  // blue right
-            makeShell(700,  W * 0.40, H * 0.15, fwPalettes[4], 20),  // purple top-left
-            makeShell(700,  W * 0.62, H * 0.18, fwPalettes[2], 20),  // blue top-right
-            makeShell(1100, W * 0.50, H * 0.10, fwPalettes[3], 26),  // green grand finale top
-            makeShell(1100, W * 0.22, H * 0.30, fwPalettes[0], 18),  // gold far left
-            makeShell(1100, W * 0.78, H * 0.26, fwPalettes[1], 18),  // red far right
+            makeShell(0,    W * 0.50, H * 0.22, fwPalettes[0], 28),
+            makeShell(320,  W * 0.28, H * 0.32, fwPalettes[1], 22),
+            makeShell(320,  W * 0.72, H * 0.28, fwPalettes[2], 22),
+            makeShell(700,  W * 0.40, H * 0.15, fwPalettes[4], 20),
+            makeShell(700,  W * 0.62, H * 0.18, fwPalettes[2], 20),
+            makeShell(1100, W * 0.50, H * 0.10, fwPalettes[3], 26),
+            makeShell(1100, W * 0.22, H * 0.30, fwPalettes[0], 18),
+            makeShell(1100, W * 0.78, H * 0.26, fwPalettes[1], 18),
         ];
 
         function drawFireworks(now) {
@@ -1931,7 +1440,6 @@
                     ctx.arc(px, py, Math.max(0.3, r), 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Tail sparkle on some particles
                     if (p.tail && st < 0.7) {
                         const tx = px - Math.cos(p.angle) * 8 * st;
                         const ty = py - Math.sin(p.angle) * 8 * st;
@@ -1944,7 +1452,6 @@
                 });
             });
 
-            // "GONE!" text — fades in, holds, fades out
             const textT = totalElapsed / FW_DURATION;
             const textAlpha = textT < 0.12 ? textT / 0.12 : textT > 0.78 ? 1 - (textT - 0.78) / 0.22 : 1;
             ctx.save();
@@ -1974,23 +1481,17 @@
 
             const pos = getBezierPoint(te, startX, startY, ctrlX, ctrlY, endX, endY);
 
-            // Perspective scale
             const minScale = isHR ? 0.22 : 0.38;
             const scale = isHR
-                ? Math.max(0.05, minScale + (1 - minScale) * (1 - t)) // shrinks as it flies away
+                ? Math.max(0.05, minScale + (1 - minScale) * (1 - t))
                 : minScale + (1 - minScale) * Math.abs(Math.sin(t * Math.PI));
 
-            // For HR, fade ball out as it exits canvas top
             const ballAlpha = isHR ? Math.max(0, 1 - Math.max(0, (t - 0.55) / 0.35)) : 1;
 
-            // Shadow (non-HR only) — tracks ball X, stays near ground Y
             if (!isHR) {
-                // Shadow x follows the ball's horizontal position exactly
                 const shadowX = pos.x;
-                // Shadow y linearly interpolates from startY to endY (ground level)
                 const shadowY = startY + (endY - startY) * te;
-                // Ball height above ground: when ball is high, shadow is small/faint
-                const ballHeight = shadowY - pos.y; // positive = ball is above ground
+                const ballHeight = shadowY - pos.y;
                 const maxHeight = startY - ctrlY;
                 const heightFrac = Math.max(0, Math.min(1, ballHeight / maxHeight));
                 const shadowAlpha = 0.45 - heightFrac * 0.32;
@@ -2004,7 +1505,6 @@
                 ctx.restore();
             }
 
-            // Trail
             trail.push({ x: pos.x, y: pos.y, scale, alpha: ballAlpha });
             if (trail.length > TRAIL_LEN) trail.shift();
 
@@ -2020,7 +1520,6 @@
                 ctx.restore();
             });
 
-            // Ball
             if (ballAlpha > 0) {
                 const r = 7 * scale;
                 ctx.save();
@@ -2051,7 +1550,6 @@
             if (t < 1) {
                 requestAnimationFrame(draw);
             } else if (isHR) {
-                // Trigger fireworks show
                 requestAnimationFrame(drawFireworks);
             } else {
                 setTimeout(() => {
@@ -2079,8 +1577,6 @@
 
     function flashTransitionOverlay(isGameOver, onDone) {
         const overlay = document.getElementById("transition-overlay");
-        let nextInningStr = "";
-        let nextTeam = "";
 
         function ordinal(n) {
             const s = ["th","st","nd","rd"], v = n % 100;
@@ -2091,6 +1587,8 @@
             overlay.innerHTML = `BALL GAME!<br><span style="font-size: 0.5em; color: #fff;">Calculating Final Score...</span>`;
             overlay.style.borderColor = "#f1c40f";
         } else {
+            let nextInningStr = "";
+            let nextTeam = "";
             if (gameState.isTopInning) {
                 nextInningStr = `Bottom of the ${ordinal(gameState.inning)}`;
                 nextTeam = `${getNickname(gameState.homeTeam)} are at bat`;
@@ -2098,7 +1596,6 @@
                 nextInningStr = `Top of the ${ordinal(gameState.inning + 1)}`;
                 nextTeam = `${getNickname(gameState.visitorTeam)} are at bat`;
             }
-            
             overlay.innerHTML = `SIDE RETIRED<br><span style="font-size: 0.6em; color: #f1c40f;">${nextInningStr}</span><br><span style="font-size: 0.5em; color: #fff;">${nextTeam}</span>`;
             overlay.style.borderColor = "#3498db";
         }
@@ -2125,7 +1622,7 @@
         switch(play.type) {
             case "hit":
                 let nextRunners = [];
-                const runnersBeforeHit = gameState.runners.slice(); // snapshot before changes
+                const runnersBeforeHit = gameState.runners.slice();
                 gameState.runners.forEach(base => {
                     let finalBase = base + play.bases;
                     stepsToAnimate.push({ start: base, end: finalBase, team: gameState.isTopInning });
@@ -2172,7 +1669,6 @@
 
             case "sac-fly":
                 if (gameState.outs >= 2 || gameState.runners.length === 0) {
-                    // 2 outs or bases empty — just a fly out
                     gameState.outs++;
                     document.getElementById("game-log").innerText = `${activeTeamNick} — Fly Out!`;
                 } else {
@@ -2181,12 +1677,10 @@
                     let sacRunScored = false;
                     gameState.runners.forEach(base => {
                         if (base === 3) {
-                            // Runner on 3rd tags up and scores
                             stepsToAnimate.push({ start: 3, end: 4, team: gameState.isTopInning });
                             runsScored++;
                             sacRunScored = true;
                         } else {
-                            // Runners on 1st/2nd tag up and advance one base
                             let tagBase = base + 1;
                             stepsToAnimate.push({ start: base, end: tagBase, team: gameState.isTopInning });
                             sacRunners.push(tagBase);
@@ -2203,7 +1697,6 @@
 
             case "fly-out":
                 gameState.outs++;
-                // Only runners on 2nd or 3rd can realistically tag up
                 let flyOutRunners = [];
                 let anyTagged = false;
                 gameState.runners.forEach(base => {
@@ -2214,7 +1707,7 @@
                         else flyOutRunners.push(tagBase);
                         anyTagged = true;
                     } else {
-                        flyOutRunners.push(base); // runner on 1st stays put
+                        flyOutRunners.push(base);
                     }
                 });
                 gameState.runners = flyOutRunners;
@@ -2227,29 +1720,23 @@
 
             case "double-play":
                 if (gameState.runners.includes(1)) {
-                    // True double play — runner on 1st erased, batter out
                     gameState.outs = Math.min(gameState.outs + 2, 3);
                     gameState.runners = gameState.runners.filter(b => b !== 1);
                     document.getElementById("game-log").innerText = `${activeTeamNick} ground into a Double Play!`;
                 } else {
-                    // No runner on 1st — can't turn two, just a ground out
                     gameState.outs++;
                     document.getElementById("game-log").innerText = `${activeTeamNick} ground out!`;
                 }
                 break;
 
             case "fielders-choice":
-                // Lead runner is thrown out, batter reaches 1st
                 if (gameState.runners.length === 0) {
-                    // Nobody on — only play is first base, batter is out
                     gameState.outs++;
                     document.getElementById("game-log").innerText = `${activeTeamNick}: Fielder's Choice — out at first!`;
                 } else {
-                    // Lead runner (highest base) is erased, batter goes to 1st
                     gameState.outs++;
                     gameState.runners.sort((a, b) => b - a);
-                    gameState.runners.shift(); // remove lead runner (thrown out)
-                    // If a runner is still on 1st, they must advance to 2nd to make room for batter
+                    gameState.runners.shift();
                     if (gameState.runners.includes(1)) {
                         gameState.runners = gameState.runners.map(b => b === 1 ? 2 : b);
                         stepsToAnimate.push({ start: 1, end: 2, team: gameState.isTopInning });
@@ -2268,7 +1755,6 @@
 
         gameState.scores[activeTeamKey] += runsScored;
 
-        // Walk-off check: bottom of 9th or later, home team now leads after this play
         const isWalkoff = !gameState.isTopInning
             && gameState.inning >= 9
             && gameState.scores.home > gameState.scores.visitor;
@@ -2291,12 +1777,10 @@
             if (gameState.outs >= 3) {
                 if (!isSoloMode && myRole === "home") broadcastGameState();
 
-                // End of top of inning in 9th+: if home already leads, skip the bottom
                 const skipBottom = gameState.isTopInning
                     && gameState.inning >= 9
                     && gameState.scores.home > gameState.scores.visitor;
 
-                // End of bottom of inning: game over only if past 9 innings AND not tied
                 const gameOverAfterBottom = !gameState.isTopInning
                     && gameState.inning >= 9
                     && gameState.scores.home !== gameState.scores.visitor;
@@ -2408,7 +1892,6 @@
             gameState.isTopInning = true;
             gameState.inning++;
 
-            // After 9+ innings, only end if the game isn't tied
             if (gameState.inning > 9 && gameState.scores.home !== gameState.scores.visitor) {
                 executeGameOverProcessing();
                 return;
@@ -2417,7 +1900,7 @@
 
         updateScoreboardLayout();
         if (!isSoloMode && myRole === "home") broadcastGameState();
-        evaluateTurnLockout(); // In Solo Mode, this triggers the CPU to start rolling if it's the Top of the Inning
+        evaluateTurnLockout();
     }
 
     function executeGameOverProcessing() {
@@ -2431,7 +1914,6 @@
         const isTie  = vScore === hScore;
         const visitorWins = vScore > hScore;
 
-        // Headline
         const headline = isTie
             ? "It's a Tie!"
             : `${getNickname(visitorWins ? vName : hName)} Win!`;
@@ -2441,7 +1923,6 @@
             ? "Dead Heat · Major League Diceball"
             : `${(visitorWins ? vName : hName)} take the W · ${inningLabel}`;
 
-        // Visitor row
         document.getElementById("gameover-team-visitor").innerText = vName;
         document.getElementById("gameover-runs-visitor").innerText = vScore;
         document.getElementById("gameover-trophy-visitor").innerText = visitorWins ? "🏆" : isTie ? "🤝" : "";
@@ -2449,7 +1930,6 @@
             "gameover-runs" + (visitorWins || isTie ? "" : " loser");
         if (visitorWins) document.getElementById("gameover-row-visitor").classList.add("winner");
 
-        // Home row
         document.getElementById("gameover-team-home").innerText = hName;
         document.getElementById("gameover-runs-home").innerText = hScore;
         document.getElementById("gameover-trophy-home").innerText = !visitorWins && !isTie ? "🏆" : isTie ? "🤝" : "";
@@ -2457,7 +1937,6 @@
             "gameover-runs" + (!visitorWins || isTie ? "" : " loser");
         if (!visitorWins && !isTie) document.getElementById("gameover-row-home").classList.add("winner");
 
-        // Show modal
         document.getElementById("gameover-modal").classList.add("show");
     }
 </script>
