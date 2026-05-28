@@ -560,10 +560,10 @@
         }
 
         .umpire-overlay.flash {
-            animation: popFlash 1.0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .transition-overlay.hold-flash {
-            animation: popHoldFlash 3.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         /* --- CONTROLS --- */
@@ -589,7 +589,7 @@
             font-weight: bold;
             box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
         }
-        .rolling { animation: wobble 0.1s infinite alternate; }
+        .rolling { animation: wobble 0.15s infinite alternate; }
         .log-box {
             background: rgba(0, 0, 0, 0.07);
             border: 1px solid rgba(0, 0, 0, 0.15);
@@ -1738,7 +1738,7 @@
                     setTimeout(() => {
                         cpuTurnPending = false;
                         rollDice();
-                    }, 1200); 
+                    }, 2000); 
                 }
             }
             return;
@@ -1849,7 +1849,7 @@
                     processPlayCalculations(play);
                 }
             });
-        }, 400);
+        }, 600);
     }
 
     function animateBallFlight(play, onDone) {
@@ -1908,7 +1908,7 @@
             shadowCtrlY = startY - peakHeight * 0.18;
         }
 
-        const duration = isHR ? 850 : play.bases === 3 ? 750 : play.bases === 2 ? 550 : 350;
+        const duration = isHR ? 1050 : play.bases === 3 ? 920 : play.bases === 2 ? 720 : 520;
         const startTime = performance.now();
 
         let trail = [];
@@ -2125,7 +2125,7 @@
         void overlay.offsetWidth;
         overlay.classList.add("flash");
 
-        setTimeout(onDone, 800);
+        setTimeout(onDone, 1100);
     }
 
     function flashTransitionOverlay(isGameOver, onDone) {
@@ -2161,7 +2161,7 @@
         setTimeout(() => {
             overlay.style.display = "none";
             onDone();
-        }, 2200); 
+        }, 3400); 
     }
 
     function processPlayCalculations(play) {
@@ -2328,6 +2328,8 @@
                 break;
         }
 
+        // HARD GUARD: Impossible to score a valid run if the play creates the 3rd out (unless it's a 2-out hit, but hits don't add outs).
+        // Standard baseball run-down logic excluded for simple dice mechanics.
         if (gameState.outs >= 3 && ["out", "fly-out", "sac-fly", "fielders-choice", "double-play"].includes(play.type)) {
             runsScored = 0;
         }
@@ -2432,7 +2434,7 @@
             });
 
             stepCount++;
-            setTimeout(processSingleGlobalStep, 250);
+            setTimeout(processSingleGlobalStep, 450);
         }
 
         setTimeout(processSingleGlobalStep, 50);
