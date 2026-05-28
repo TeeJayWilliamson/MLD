@@ -58,7 +58,7 @@
         }
         .setup-hero {
             background: linear-gradient(160deg, #1e3a1e 0%, #2e7d32 50%, #1a3a1a 100%);
-            padding: 32px 24px 24px; /* Increased from 22px 24px 18px */
+            padding: 32px 24px 24px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -77,12 +77,12 @@
             );
         }
         .setup-hero-diamond {
-            width: 88px; /* Increased from 74px */
-            height: 88px; /* Increased from 74px */
+            width: 88px;
+            height: 88px;
             background: rgba(255,255,255,0.08);
             border: 3px solid rgba(255,255,255,0.2);
             transform: rotate(45deg);
-            margin: 0 auto 16px; /* Increased spacing beneath diamond */
+            margin: 0 auto 16px;
             position: relative;
             border-radius: 4px;
         }
@@ -92,12 +92,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 40px; /* Increased from 32px */
+            font-size: 40px;
             filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
         }
         .setup-hero h1 {
             color: #f1c40f;
-            font-size: 28px; /* Increased from 24px */
+            font-size: 28px;
             font-family: 'Impact', 'Arial Narrow', sans-serif;
             font-weight: 900;
             letter-spacing: 4px;
@@ -110,7 +110,7 @@
         }
         .setup-hero-sub {
             color: rgba(255,255,255,0.65);
-            font-size: 12px; /* Increased from 11px */
+            font-size: 12px;
             letter-spacing: 3px;
             text-transform: uppercase;
             position: relative;
@@ -166,13 +166,13 @@
             background: rgba(0,0,0,0.06);
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: 10px;
-            padding: 6px 10px; /* Snugged up from 8px 12px */
+            padding: 6px 10px;
             flex: 1;
             min-height: 0;
-            overflow-y: auto; /* Changed to auto so short screens scroll internally instead of breaking the app view */
+            overflow-y: auto;
         }
         .setup-rules-title {
-            font-size: 10px; /* Slightly smaller header */
+            font-size: 10px;
             font-weight: bold;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -183,14 +183,14 @@
         .setup-rules-grid {
             display: grid;
             grid-template-columns: auto 1fr auto 1fr;
-            gap: 2px 6px; /* Reduced from 3px 8px to pull items closer together */
-            font-size: 10px; /* Compact presentation */
+            gap: 2px 6px;
+            font-size: 10px;
         }
         .rule-dice {
             font-family: 'Courier New', monospace;
             font-weight: bold;
-            font-size: 15px; /* Reduced from 10px */
-            padding: 1px 4px; /* Tighter custom padding */
+            font-size: 15px;
+            padding: 1px 4px;
             border-radius: 4px;
             text-align: center;
             white-space: nowrap;
@@ -205,17 +205,17 @@
             color: #3a2010;
             font-weight: 600;
             align-self: center;
-            font-size: 10px; /* Matches grid size */
+            font-size: 10px;
         }
-.setup-group {
-            margin: 6px 0; /* Reduced from 8px to save vertical space */
+        .setup-group {
+            margin: 6px 0;
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
         .action-divider {
             text-align: center;
-            margin: 8px 0; /* Reduced from 10px to save vertical space */
+            margin: 8px 0;
             font-weight: bold;
             font-size: 11px;
             letter-spacing: 2px;
@@ -243,24 +243,6 @@
         }
         input { text-transform: uppercase; text-align: center; letter-spacing: 2px; }
         
-        .action-divider {
-            text-align: center;
-            margin: 10px 0;
-            font-weight: bold;
-            font-size: 11px;
-            letter-spacing: 2px;
-            position: relative;
-            color: #704422;
-        }
-.action-divider {
-            text-align: center;
-            margin: 8px 0; /* Reduced from 10px to save vertical space */
-            font-weight: bold;
-            font-size: 11px;
-            letter-spacing: 2px;
-            position: relative;
-            color: #704422;
-        }
         .btn {
             color: white;
             padding: 9px 12px;
@@ -578,10 +560,10 @@
         }
 
         .umpire-overlay.flash {
-            animation: popFlash 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: popFlash 1.0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .transition-overlay.hold-flash {
-            animation: popHoldFlash 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: popHoldFlash 3.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         /* --- CONTROLS --- */
@@ -607,22 +589,22 @@
             font-weight: bold;
             box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
         }
-        .rolling { animation: wobble 0.15s infinite alternate; }
+        .rolling { animation: wobble 0.1s infinite alternate; }
         .log-box {
             background: rgba(0, 0, 0, 0.07);
             border: 1px solid rgba(0, 0, 0, 0.15);
             border-radius: 6px;
-            padding: 0 10px;
+            padding: 6px 10px;
             width: 100%;
             box-sizing: border-box;
             text-align: center;
             font-weight: bold;
-            font-size: 14px;
-            height: 36px;
-            line-height: 36px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+            font-size: 13px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
         }
 
         @keyframes wobble {
@@ -770,6 +752,545 @@
         }
         .gameover-btn:hover { background: #3498db; }
         .gameover-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a5276; }
+
+        /* ═══════════════════════════════════════════════════
+           SEASON MODE — ROGUELITE
+        ═══════════════════════════════════════════════════ */
+        .btn-season { background: linear-gradient(135deg, #c0392b, #8e1a0e); }
+        .btn-season:hover { background: linear-gradient(135deg, #e74c3c, #a93226); }
+
+        /* ── Season hub screen ── */
+        #season-screen {
+            background: #0d0d0d;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .season-hero {
+            background: linear-gradient(160deg,#1a0a00,#3d1a00,#1a0a00);
+            padding: 20px 20px 14px;
+            text-align: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .season-hero h2 {
+            font-family: 'Impact','Arial Narrow',sans-serif;
+            font-size: 26px;
+            letter-spacing: 4px;
+            color: #f1c40f;
+            text-shadow: 0 0 20px rgba(241,196,15,0.5);
+            margin: 0 0 2px;
+            border: none;
+            padding: 0;
+        }
+        .season-hero-sub {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+        }
+        .season-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        /* ── Season stat bar ── */
+        .season-stat-bar {
+            background: #1a1208;
+            border: 2px solid #5a3a10;
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            gap: 0;
+            justify-content: space-around;
+        }
+        .season-stat {
+            text-align: center;
+            flex: 1;
+        }
+        .season-stat-val {
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            color: #f1c40f;
+            text-shadow: 0 0 8px rgba(241,196,15,0.4);
+            line-height: 1;
+        }
+        .season-stat-lbl {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        /* ── Deck viewer ── */
+        .season-section-title {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        .deck-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+        .deck-card {
+            background: #1a1208;
+            border-radius: 6px;
+            padding: 5px 4px 4px;
+            text-align: center;
+            border: 1px solid #333;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .deck-card.upgraded { border-color: #f1c40f88; }
+        .deck-card.cursed   { border-color: #e74c3c88; }
+        .deck-card-dice {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .deck-card-name {
+            font-size: 9px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        .deck-card-name.type-hit     { color: #2ecc71; }
+        .deck-card-name.type-out     { color: #e74c3c; }
+        .deck-card-name.type-special { color: #f39c12; }
+        .deck-card-name.type-homer   { color: #f1c40f; text-shadow: 0 0 6px #f1c40f88; }
+        .deck-card-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 9px;
+            background: #f1c40f;
+            color: #000;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .deck-card-badge.curse { background: #e74c3c; color: #fff; }
+
+        /* ── Opponent preview ── */
+        .opponent-card {
+            background: #1a1208;
+            border: 2px solid #5a3a10;
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+        .opponent-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .opponent-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f1c40f;
+            margin-bottom: 4px;
+        }
+        .opponent-difficulty {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 6px;
+        }
+        .diff-pip {
+            width: 14px;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+        }
+        .diff-pip.lit { background: #e74c3c; box-shadow: 0 0 4px #e74c3c88; }
+        .opponent-deck-preview {
+            font-size: 10px;
+            color: #888;
+            font-family: 'Courier New', monospace;
+        }
+        .opp-stat-good { color: #2ecc71; }
+        .opp-stat-bad  { color: #e74c3c; }
+
+        /* ── Action buttons ── */
+        .season-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 0 0 4px;
+        }
+        .btn-play-game {
+            background: linear-gradient(135deg, #27ae60, #1a6e3c);
+            font-size: 18px;
+            padding: 13px;
+        }
+        .btn-play-game:hover { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .btn-reset-season {
+            background: #1a1208;
+            border: 1px solid #5a3a10;
+            color: #888;
+            font-size: 12px;
+            padding: 7px;
+        }
+        .btn-reset-season:hover { border-color: #e74c3c; color: #e74c3c; }
+
+        /* ── Draft screen ── */
+        #draft-screen {
+            background: #0a0a0a;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .draft-hero {
+            background: linear-gradient(160deg,#080012,#1a0030,#080012);
+            padding: 16px 20px 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .draft-hero h2 {
+            font-family: 'Impact','Arial Narrow',sans-serif;
+            font-size: 24px;
+            letter-spacing: 3px;
+            color: #d980fa;
+            text-shadow: 0 0 20px rgba(217,128,250,0.5);
+            margin: 0 0 2px;
+            border: none;
+            padding: 0;
+        }
+        .draft-hero-sub {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+        }
+        .draft-chips-bar {
+            background: #12001a;
+            padding: 6px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New',monospace;
+            font-size: 13px;
+            color: #d980fa;
+            flex-shrink: 0;
+            border-bottom: 1px solid #2a0040;
+        }
+        .draft-result-banner {
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+        .draft-result-banner.win  { background: #0d3320; color: #2ecc71; border-bottom: 1px solid #1a5232; }
+        .draft-result-banner.loss { background: #2a0a0a; color: #e74c3c; border-bottom: 1px solid #5a1515; }
+        .draft-result-banner.tie  { background: #1a1500; color: #f1c40f; border-bottom: 1px solid #4a3800; }
+        .draft-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px;
+            min-height: 0;
+        }
+        .draft-prompt {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .draft-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .draft-option {
+            background: #12001a;
+            border: 2px solid #3a0060;
+            border-radius: 10px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.1s;
+            position: relative;
+        }
+        .draft-option:hover {
+            border-color: #d980fa;
+            background: #1a0030;
+            transform: translateX(3px);
+        }
+        .draft-option.selected {
+            border-color: #d980fa;
+            background: #220040;
+            box-shadow: 0 0 16px rgba(217,128,250,0.2);
+        }
+        .draft-option.curse-option {
+            border-color: #5a0a0a;
+        }
+        .draft-option.curse-option:hover {
+            border-color: #e74c3c;
+            background: #1a0505;
+        }
+        .draft-option-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .draft-option-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .draft-option-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #eee;
+            flex: 1;
+        }
+        .draft-option-rarity {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .rarity-common   { background: #1a3a1a; color: #2ecc71; }
+        .rarity-rare     { background: #0d1a3a; color: #3498db; }
+        .rarity-epic     { background: #2a0040; color: #d980fa; }
+        .rarity-cursed   { background: #3a0000; color: #e74c3c; }
+        .draft-swap-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            flex-wrap: wrap;
+        }
+        .swap-from {
+            background: #1a1208;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+        .swap-from.type-out { border-color: #e74c3c55; color: #e74c3c; }
+        .swap-from.type-hit { border-color: #2ecc7155; color: #2ecc71; }
+        .swap-arrow { color: #888; font-size: 12px; }
+        .swap-to {
+            background: #1a1208;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .swap-to.type-hit    { border: 1px solid #2ecc71; color: #2ecc71; }
+        .swap-to.type-homer  { border: 1px solid #f1c40f; color: #f1c40f; text-shadow: 0 0 4px #f1c40f88; }
+        .swap-to.type-out    { border: 1px solid #e74c3c; color: #e74c3c; }
+        .swap-to.type-special{ border: 1px solid #f39c12; color: #f39c12; }
+        .draft-option-desc {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .draft-confirm-btn {
+            background: linear-gradient(135deg, #8e44ad, #5a1a80);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 0 #3a0060;
+            transition: transform 0.1s;
+            margin-top: 4px;
+        }
+        .draft-confirm-btn:hover:not(:disabled) { background: linear-gradient(135deg, #9b59b6, #7d3c98); }
+        .draft-confirm-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #3a0060; }
+        .draft-confirm-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; color: #666; }
+        
+        .draft-reroll-btn {
+            background: #1a1208;
+            border: 1px solid #5a3a10;
+            color: #f1c40f;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .draft-reroll-btn:hover:not(:disabled) { border-color: #f1c40f; background: #2a1f0a; }
+        .draft-reroll-btn:disabled { color: #666; border-color: #333; cursor: not-allowed; }
+
+        .draft-skip-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #555;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .draft-skip-btn:hover { border-color: #888; color: #aaa; }
+
+        /* ── Season over screen ── */
+        #season-over-screen {
+            background: #0a0a0a;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .season-over-hero {
+            padding: 30px 20px 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .season-over-trophy { font-size: 60px; margin-bottom: 8px; }
+        .season-over-hero h2 {
+            font-family: 'Impact','Arial Narrow',sans-serif;
+            font-size: 28px;
+            letter-spacing: 4px;
+            margin: 0 0 4px;
+            border: none;
+            padding: 0;
+        }
+        .season-over-hero h2.championship { color: #f1c40f; text-shadow: 0 0 30px rgba(241,196,15,0.6); }
+        .season-over-hero h2.eliminated   { color: #e74c3c; }
+        .season-over-sub { font-size: 12px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .season-over-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 20px 20px;
+            min-height: 0;
+        }
+        .season-record-box {
+            background: #1a1208;
+            border: 2px solid #5a3a10;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        .season-record-main {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f1c40f;
+            margin-bottom: 4px;
+        }
+        .season-record-sub { font-size: 12px; color: #888; letter-spacing: 2px; }
+        .season-unlocks-title {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .season-unlocks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .season-unlock-item {
+            background: #0a0a14;
+            border: 1px solid #2a0040;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .season-over-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .btn-new-season {
+            background: linear-gradient(135deg,#f1c40f,#d4a017);
+            color: #1a0a00;
+            font-size: 18px;
+            padding: 14px;
+            font-weight: 900;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 0 #8a6000;
+            transition: transform 0.1s;
+        }
+        .btn-new-season:hover { background: linear-gradient(135deg,#f4d03f,#f1c40f); }
+        .btn-new-season:active { transform: translateY(3px); }
+        .btn-main-menu-season {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            font-size: 13px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-main-menu-season:hover { border-color: #888; color: #aaa; }
+
     </style>
 </head>
 <body>
@@ -787,6 +1308,7 @@
         </div>
 
         <button class="btn btn-solo" id="btn-solo" onclick="setupSolo()">⚾&nbsp; Play vs CPU</button>
+        <button class="btn btn-season" id="btn-season" onclick="openSeasonMode()" style="margin-top:6px;">🎲&nbsp; Season Mode — Roguelite</button>
 
         <div class="action-divider" id="ui-divider">MULTIPLAYER</div>
 
@@ -832,7 +1354,7 @@
 
 <div class="screen hidden" id="game-screen">
     <div class="banner-row">
-        <button class="home-btn" onclick="if(confirm('Return to main menu? Current game will be lost.'))location.reload();">⌂ Menu</button>
+        <button class="home-btn" onclick="returnToMenu()">⌂ Menu</button>
         <div class="room-display-banner" id="room-banner" style="flex:1;">ROOM CODE: ----</div>
     </div>
 
@@ -939,7 +1461,6 @@
         "Toronto Blue Jays", "Washington Nationals"
     ];
 
-    // FIX 2b: enlarged base coordinates to match bigger infield
     const baseCoords = [
         { bottom: '3%',  left: '50%' },   // home plate
         { bottom: '28%', left: '73%' },   // 1st base
@@ -1065,7 +1586,24 @@
         btn.disabled = input.value.trim().length !== 4;
     }
 
+    function returnToMenu() {
+        if(window._inSeasonGame) {
+            if(confirm("Forfeit this season game and return to hub? This will count as a loss.")) {
+                season.losses++;
+                season.gameNum++;
+                saveSeason();
+                showScreen("season-screen");
+                renderSeasonHub();
+            }
+        } else {
+            if(confirm('Return to main menu? Current game will be lost.')) {
+                location.reload();
+            }
+        }
+    }
+
     function setupSolo() {
+        window._inSeasonGame = false;
         isSoloMode = true;
         myRole = "home"; 
         myTeam = document.getElementById("team-select").value;
@@ -1076,6 +1614,7 @@
 
         document.getElementById("setup-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
+        document.getElementById("transition-overlay").style.display = "none";
         document.getElementById("room-banner").innerText = `SOLO EXHIBITION`;
         document.getElementById("game-log").innerText = "Play Ball!";
 
@@ -1084,6 +1623,7 @@
     }
 
     function setupRoom(isHost) {
+        window._inSeasonGame = false;
         isSoloMode = false;
         myTeam = document.getElementById("team-select").value;
         myRole = isHost ? "home" : "visitor";
@@ -1097,7 +1637,9 @@
 
         document.getElementById("setup-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
+        document.getElementById("transition-overlay").style.display = "none";
         document.getElementById("room-banner").innerText = `ROOM CODE: ${roomCode}`;
+        document.getElementById("game-log").innerText = isHost ? "Waiting for opponent..." : "Play Ball!";
 
         initMultiplayerChannel();
     }
@@ -1196,7 +1738,7 @@
                     setTimeout(() => {
                         cpuTurnPending = false;
                         rollDice();
-                    }, 2000); 
+                    }, 1200); 
                 }
             }
             return;
@@ -1213,7 +1755,7 @@
         if (isMyTurn) {
             btn.disabled = false;
             btn.innerText = "Your Turn! Roll Dice";
-            if (!document.getElementById("game-log").innerText.includes("Play Ball")) {
+            if (!document.getElementById("game-log").innerText.includes("Play Ball") && !document.getElementById("game-log").innerText.includes("Waiting")) {
                 document.getElementById("game-log").innerText = "It's your turn to bat!";
             }
         } else {
@@ -1290,7 +1832,7 @@
             d2El.innerText = d2;
 
             const key = d1 <= d2 ? `${d1}-${d2}` : `${d2}-${d1}`;
-            const play = playChart[key];
+            const play = (typeof getActivePlayChart === "function" ? getActivePlayChart() : playChart)[key];
 
             const displayPlay = (play.type === "double-play" && !gameState.runners.includes(1))
                 ? { ...play, name: "Ground Out" }
@@ -1307,7 +1849,7 @@
                     processPlayCalculations(play);
                 }
             });
-        }, 600);
+        }, 400);
     }
 
     function animateBallFlight(play, onDone) {
@@ -1330,12 +1872,11 @@
         const startY = H - 18;
 
         const configs = {
-            1: { minDist: 0.18, maxDist: 0.32 },
-            2: { minDist: 0.40, maxDist: 0.58 },
-            3: { minDist: 0.68, maxDist: 0.88 },
+            1: { minDist: 0.30, maxDist: 0.45 },
+            2: { minDist: 0.55, maxDist: 0.75 },
+            3: { minDist: 0.75, maxDist: 0.95 },
         };
 
-        // FIX 3: constrain HR to fair territory (no foul balls) — ±38 degrees from center
         const maxAngle = isHR ? 38 : 55;
         const angleDeg = (Math.random() * maxAngle * 2) - maxAngle;
         const angleRad = (angleDeg * Math.PI) / 180;
@@ -1367,7 +1908,7 @@
             shadowCtrlY = startY - peakHeight * 0.18;
         }
 
-        const duration = isHR ? 1050 : play.bases === 3 ? 920 : play.bases === 2 ? 720 : 520;
+        const duration = isHR ? 850 : play.bases === 3 ? 750 : play.bases === 2 ? 550 : 350;
         const startTime = performance.now();
 
         let trail = [];
@@ -1584,7 +2125,7 @@
         void overlay.offsetWidth;
         overlay.classList.add("flash");
 
-        setTimeout(onDone, 1100);
+        setTimeout(onDone, 800);
     }
 
     function flashTransitionOverlay(isGameOver, onDone) {
@@ -1620,7 +2161,7 @@
         setTimeout(() => {
             overlay.style.display = "none";
             onDone();
-        }, 3400); 
+        }, 2200); 
     }
 
     function processPlayCalculations(play) {
@@ -1679,12 +2220,14 @@
                 document.getElementById("game-log").innerText = `${activeTeamNick} draw a Walk!`;
                 break;
 
-            case "sac-fly":
-                if (gameState.outs >= 2 || gameState.runners.length === 0) {
-                    gameState.outs++;
+            case "sac-fly": {
+                const sacIsThirdOut = gameState.outs >= 2;
+                gameState.outs++;
+                if (sacIsThirdOut || gameState.runners.length === 0) {
+                    // Just record the out. Map all runners to hold so they don't vanish.
+                    gameState.runners.forEach(base => stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning }));
                     document.getElementById("game-log").innerText = `${activeTeamNick} — Fly Out!`;
                 } else {
-                    gameState.outs++;
                     let sacRunners = [];
                     let sacRunScored = false;
                     gameState.runners.forEach(base => {
@@ -1693,35 +2236,42 @@
                             runsScored++;
                             sacRunScored = true;
                         } else {
-                            let tagBase = base + 1;
-                            stepsToAnimate.push({ start: base, end: tagBase, team: gameState.isTopInning });
-                            sacRunners.push(tagBase);
+                            stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning });
+                            sacRunners.push(base);
                         }
                     });
                     gameState.runners = sacRunners;
                     if (sacRunScored) {
-                        document.getElementById("game-log").innerText = `${activeTeamNick} — Sac Fly! Run scores!`;
+                        document.getElementById("game-log").innerText = `${activeTeamNick} — Sac Fly! Runner tags and scores!`;
                     } else {
-                        document.getElementById("game-log").innerText = `${activeTeamNick} — Sac Fly, runners advance!`;
+                        document.getElementById("game-log").innerText = `${activeTeamNick} — Sac Fly, no runner on 3rd. Out recorded.`;
                     }
                 }
                 break;
+            }
 
-            case "fly-out":
+            case "fly-out": {
+                const flyIsThirdOut = gameState.outs >= 2;
                 gameState.outs++;
                 let flyOutRunners = [];
                 let anyTagged = false;
-                gameState.runners.forEach(base => {
-                    if (base >= 2) {
-                        let tagBase = base + 1;
-                        stepsToAnimate.push({ start: base, end: tagBase, team: gameState.isTopInning });
-                        if (tagBase > 3) runsScored++;
-                        else flyOutRunners.push(tagBase);
-                        anyTagged = true;
-                    } else {
-                        flyOutRunners.push(base);
-                    }
-                });
+                if (!flyIsThirdOut) {
+                    gameState.runners.forEach(base => {
+                        if (base >= 2) {
+                            let tagBase = base + 1;
+                            stepsToAnimate.push({ start: base, end: tagBase, team: gameState.isTopInning });
+                            if (tagBase > 3) runsScored++;
+                            else flyOutRunners.push(tagBase);
+                            anyTagged = true;
+                        } else {
+                            stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning });
+                            flyOutRunners.push(base);
+                        }
+                    });
+                } else {
+                    gameState.runners.forEach(base => stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning }));
+                    flyOutRunners = gameState.runners.slice();
+                }
                 gameState.runners = flyOutRunners;
                 if (anyTagged) {
                     document.getElementById("game-log").innerText = `${activeTeamNick}: Fly Out — runners tag up!`;
@@ -1729,14 +2279,17 @@
                     document.getElementById("game-log").innerText = `${activeTeamNick}: Fly Out!`;
                 }
                 break;
+            }
 
             case "double-play":
                 if (gameState.runners.includes(1)) {
                     gameState.outs = Math.min(gameState.outs + 2, 3);
                     gameState.runners = gameState.runners.filter(b => b !== 1);
+                    gameState.runners.forEach(base => stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning }));
                     document.getElementById("game-log").innerText = `${activeTeamNick} ground into a Double Play!`;
                 } else {
                     gameState.outs++;
+                    gameState.runners.forEach(base => stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning }));
                     document.getElementById("game-log").innerText = `${activeTeamNick} ground out!`;
                 }
                 break;
@@ -1748,21 +2301,35 @@
                 } else {
                     gameState.outs++;
                     gameState.runners.sort((a, b) => b - a);
-                    gameState.runners.shift();
-                    if (gameState.runners.includes(1)) {
-                        gameState.runners = gameState.runners.map(b => b === 1 ? 2 : b);
-                        stepsToAnimate.push({ start: 1, end: 2, team: gameState.isTopInning });
-                    }
+                    gameState.runners.shift(); // lead runner is removed
+                    
+                    let nextRunners = [];
+                    gameState.runners.forEach(b => {
+                        if (b === 1) { // Forced to 2nd if there's someone at 1st
+                            nextRunners.push(2);
+                            stepsToAnimate.push({ start: 1, end: 2, team: gameState.isTopInning });
+                        } else {
+                            nextRunners.push(b);
+                            stepsToAnimate.push({ start: b, end: b, team: gameState.isTopInning });
+                        }
+                    });
+                    nextRunners.push(1);
                     stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
-                    gameState.runners.push(1);
+                    gameState.runners = nextRunners;
+                    
                     document.getElementById("game-log").innerText = `${activeTeamNick}: Fielder's Choice — lead runner out, batter safe at 1st!`;
                 }
                 break;
 
             case "out":
                 gameState.outs++;
+                gameState.runners.forEach(base => stepsToAnimate.push({ start: base, end: base, team: gameState.isTopInning }));
                 document.getElementById("game-log").innerText = `${activeTeamNick} — ${play.name}!`;
                 break;
+        }
+
+        if (gameState.outs >= 3 && ["out", "fly-out", "sac-fly", "fielders-choice", "double-play"].includes(play.type)) {
+            runsScored = 0;
         }
 
         gameState.scores[activeTeamKey] += runsScored;
@@ -1865,7 +2432,7 @@
             });
 
             stepCount++;
-            setTimeout(processSingleGlobalStep, 450);
+            setTimeout(processSingleGlobalStep, 250);
         }
 
         setTimeout(processSingleGlobalStep, 50);
@@ -1916,6 +2483,10 @@
     }
 
     function executeGameOverProcessing() {
+        if (window._inSeasonGame) {
+            seasonGameOver();
+            return;
+        }
         if (syncInterval) clearInterval(syncInterval);
         if (channel) supabaseClient.removeAllChannels();
 
@@ -1951,6 +2522,581 @@
 
         document.getElementById("gameover-modal").classList.add("show");
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  SEASON MODE — ROGUELITE ENGINE
+    // ═══════════════════════════════════════════════════════════════════
+
+    const BASE_DECK = {
+        "1-1": { name: "DOUBLE!!",        type: "hit",           bases: 2, color: "#3498db"  },
+        "1-2": { name: "Single!",         type: "hit",           bases: 1, color: "#2ecc71"  },
+        "1-3": { name: "Fly Out",         type: "fly-out",       color: "#e74c3c"            },
+        "1-4": { name: "Walk",            type: "walk",          color: "#2ecc71"            },
+        "1-5": { name: "Pop Out",         type: "out",           color: "#e74c3c"            },
+        "1-6": { name: "Ground Out",      type: "out",           color: "#e74c3c"            },
+        "2-2": { name: "DOUBLE PLAY!",    type: "double-play",   color: "#c0392b"            },
+        "2-3": { name: "Ground Out",      type: "out",           color: "#e74c3c"            },
+        "2-4": { name: "Strike Out",      type: "out",           color: "#e74c3c"            },
+        "2-5": { name: "Single!",         type: "hit",           bases: 1, color: "#2ecc71"  },
+        "2-6": { name: "Strike Out",      type: "out",           color: "#e74c3c"            },
+        "3-3": { name: "Strike Out",      type: "out",           color: "#e74c3c"            },
+        "3-4": { name: "Single!",         type: "hit",           bases: 1, color: "#2ecc71"  },
+        "3-5": { name: "Ground Out",      type: "out",           color: "#e74c3c"            },
+        "3-6": { name: "Fly Out",         type: "fly-out",       color: "#e74c3c"            },
+        "4-4": { name: "Fielder's Choice",type: "fielders-choice",color: "#e67e22"           },
+        "4-5": { name: "Pop Out",         type: "out",           color: "#e74c3c"            },
+        "4-6": { name: "Strike Out",      type: "out",           color: "#e74c3c"            },
+        "5-5": { name: "TRIPLE!!!",       type: "hit",           bases: 3, color: "#e67e22"  },
+        "5-6": { name: "Sacrifice Fly",   type: "sac-fly",       color: "#e67e22"            },
+        "6-6": { name: "HOME RUN!",       type: "hit",           bases: 4, color: "#f1c40f"  },
+    };
+
+    let season = null;
+    const SEASON_KEY = "mld_season_v3";
+    const SEASON_LENGTH = 5;
+
+    const CPU_TIERS = [
+        { label: "Farm Team",    difficulty: 1, mods: [] },
+        { label: "Double-A",     difficulty: 2, mods: [{ slot:"2-4", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }] },
+        { label: "Triple-A",     difficulty: 3, mods: [
+            { slot:"2-4", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } },
+            { slot:"3-3", to:{ name:"Walk",    type:"walk",         color:"#2ecc71" } },
+        ]},
+        { label: "The Bigs",     difficulty: 4, mods: [
+            { slot:"2-4", to:{ name:"Single!", type:"hit",  bases:1, color:"#2ecc71" } },
+            { slot:"3-3", to:{ name:"Walk",    type:"walk",          color:"#2ecc71" } },
+            { slot:"4-6", to:{ name:"Double!!", type:"hit", bases:2, color:"#3498db" } },
+        ]},
+        { label: "World Series", difficulty: 5, mods: [
+            { slot:"2-4", to:{ name:"Single!",  type:"hit",  bases:1, color:"#2ecc71" } },
+            { slot:"3-3", to:{ name:"Walk",     type:"walk",          color:"#2ecc71" } },
+            { slot:"4-6", to:{ name:"Double!!", type:"hit",  bases:2, color:"#3498db" } },
+            { slot:"2-6", to:{ name:"Single!",  type:"hit",  bases:1, color:"#2ecc71" } },
+            { slot:"1-5", to:{ name:"TRIPLE!!!",type:"hit",  bases:3, color:"#e67e22" } },
+        ]},
+    ];
+
+    const ALL_DRAFT_CARDS = [
+        {
+            id:"c_pop_single", title:"Eye at the Plate", icon:"👁️", rarity:"common", isCurse:false,
+            desc:"Turn a Pop Out into a Single. Small edge, zero downside.",
+            swaps:[{ slot:"1-5", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }]
+        },
+        {
+            id:"c_k_walk", title:"Patient Hitter", icon:"🚶", rarity:"common", isCurse:false,
+            desc:"One Strike Out becomes a Walk. A free base is a free base.",
+            swaps:[{ slot:"2-4", to:{ name:"Walk", type:"walk", color:"#2ecc71" } }]
+        },
+        {
+            id:"c_go_single", title:"Infield Hit", icon:"🏃", rarity:"common", isCurse:false,
+            desc:"Replace a Ground Out with a hustle Single.",
+            swaps:[{ slot:"2-3", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }]
+        },
+        {
+            id:"c_k2_single", title:"Contact Hitter", icon:"🤙", rarity:"common", isCurse:false,
+            desc:"Replace 3·3 Strike Out with a solid Single.",
+            swaps:[{ slot:"3-3", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }]
+        },
+        {
+            id:"c_fo_single", title:"Texas Leaguer", icon:"☁️", rarity:"common", isCurse:false,
+            desc:"A Fly Out becomes a bloop Single.",
+            swaps:[{ slot:"3-6", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }]
+        },
+        {
+            id:"r_pop_double", title:"Gap Shot", icon:"💥", rarity:"rare", isCurse:false,
+            desc:"Pop Out becomes a ringing Double. Real damage.",
+            swaps:[{ slot:"1-5", to:{ name:"DOUBLE!!", type:"hit", bases:2, color:"#3498db" } }]
+        },
+        {
+            id:"r_go_double", title:"Down the Line", icon:"📏", rarity:"rare", isCurse:false,
+            desc:"Ground Out upgraded to a Double.",
+            swaps:[{ slot:"3-5", to:{ name:"DOUBLE!!", type:"hit", bases:2, color:"#3498db" } }]
+        },
+        {
+            id:"r_k_double", title:"Barrel It", icon:"🛢️", rarity:"rare", isCurse:false,
+            desc:"4·6 Strike Out becomes a Double. You guessed right.",
+            swaps:[{ slot:"4-6", to:{ name:"DOUBLE!!", type:"hit", bases:2, color:"#3498db" } }]
+        },
+        {
+            id:"r_fo_walk", title:"Mistake Pitch", icon:"😬", rarity:"rare", isCurse:false,
+            desc:"Fly Out → Walk. The pitcher loses the zone.",
+            swaps:[{ slot:"1-3", to:{ name:"Walk", type:"walk", color:"#2ecc71" } }]
+        },
+        {
+            id:"r_dp_single", title:"Just Missed It", icon:"😮‍💨", rarity:"rare", isCurse:false,
+            desc:"Double Play risk becomes a weak Single — still alive!",
+            swaps:[{ slot:"2-2", to:{ name:"Single!", type:"hit", bases:1, color:"#2ecc71" } }]
+        },
+        {
+            id:"r_popout_sacfly", title:"Deep Enough", icon:"🕊️", rarity:"rare", isCurse:false,
+            desc:"Pop Out becomes a Sacrifice Fly. Out, but it might score a run.",
+            swaps:[{ slot:"4-5", to:{ name:"Sacrifice Fly", type:"sac-fly", color:"#e67e22" } }]
+        },
+        {
+            id:"e_go_triple", title:"Gapper!", icon:"🌠", rarity:"epic", isCurse:false,
+            desc:"Replace a boring Ground Out with a screaming Triple.",
+            swaps:[{ slot:"1-6", to:{ name:"TRIPLE!!!", type:"hit", bases:3, color:"#e67e22" } }]
+        },
+        {
+            id:"e_k_hr", title:"Swing for the Fences", icon:"💫", rarity:"epic", isCurse:false,
+            desc:"2·6 Strike Out becomes a Home Run. High risk was already taken; now claim the reward.",
+            swaps:[{ slot:"2-6", to:{ name:"HOME RUN!", type:"hit", bases:4, color:"#f1c40f" } }]
+        },
+        {
+            id:"e_fo_triple", title:"Off the Wall", icon:"🏟️", rarity:"epic", isCurse:false,
+            desc:"Fly Out turns into a bases-clearing Triple.",
+            swaps:[{ slot:"3-6", to:{ name:"TRIPLE!!!", type:"hit", bases:3, color:"#e67e22" } }]
+        },
+        {
+            id:"e_fc_hr", title:"Wrong Play", icon:"🤦", rarity:"epic", isCurse:false,
+            desc:"Fielder's Choice becomes a Home Run. They played for the out; you played for the seats.",
+            swaps:[{ slot:"4-4", to:{ name:"HOME RUN!", type:"hit", bases:4, color:"#f1c40f" } }]
+        },
+        {
+            id:"x_hr_dp", title:"Butcher's Bill", icon:"🩸", rarity:"cursed", isCurse:true,
+            desc:"Pop Out → HOME RUN.   BUT   Single (3·4) → Double Play. Big highs, brutal lows.",
+            swaps:[
+                { slot:"4-5", to:{ name:"HOME RUN!", type:"hit", bases:4, color:"#f1c40f" } },
+                { slot:"3-4", to:{ name:"DOUBLE PLAY!", type:"double-play", color:"#c0392b" } },
+            ]
+        },
+        {
+            id:"x_triple_k", title:"All or Nothing", icon:"⚡", rarity:"cursed", isCurse:true,
+            desc:"Ground Out (3·5) → TRIPLE.   BUT   Walk (1·4) → Strike Out. Traded patience for power.",
+            swaps:[
+                { slot:"3-5", to:{ name:"TRIPLE!!!", type:"hit", bases:3, color:"#e67e22" } },
+                { slot:"1-4", to:{ name:"Strike Out", type:"out", color:"#e74c3c" } },
+            ]
+        },
+        {
+            id:"x_hr2_fo2", title:"Dead Pull Hitter", icon:"🎯", rarity:"cursed", isCurse:true,
+            desc:"Strike Out (2·4) → HOME RUN.   BUT   Single (2·5) → Fly Out. Pull or bust.",
+            swaps:[
+                { slot:"2-4", to:{ name:"HOME RUN!", type:"hit", bases:4, color:"#f1c40f" } },
+                { slot:"2-5", to:{ name:"Fly Out", type:"fly-out", color:"#e74c3c" } },
+            ]
+        },
+        {
+            id:"x_double_dp", title:"Power at a Price", icon:"💣", rarity:"cursed", isCurse:true,
+            desc:"Strike Out (3·3) → DOUBLE.   BUT   Fielder's Choice → Double Play. More pop, more risk.",
+            swaps:[
+                { slot:"3-3", to:{ name:"DOUBLE!!", type:"hit", bases:2, color:"#3498db" } },
+                { slot:"4-4", to:{ name:"DOUBLE PLAY!", type:"double-play", color:"#c0392b" } },
+            ]
+        },
+        {
+            id:"x_walk_go", title:"Aggressive Baserunning", icon:"💨", rarity:"cursed", isCurse:true,
+            desc:"Pop Out (4·5) → Walk.   BUT   another Walk → Ground Out. On base, but not patiently.",
+            swaps:[
+                { slot:"4-5", to:{ name:"Walk", type:"walk", color:"#2ecc71" } },
+                { slot:"5-6", to:{ name:"Ground Out", type:"out", color:"#e74c3c" } },
+            ]
+        },
+    ];
+
+    const MIN_OUTS = 8;
+    function countOutsInDeck(deck) {
+        return Object.values(deck).filter(e =>
+            ["out","fly-out","double-play"].includes(e.type)
+        ).length;
+    }
+    function isDraftCardSafe(card, deck) {
+        const testDeck = Object.assign({}, deck);
+        card.swaps.forEach(sw => { testDeck[sw.slot] = sw.to; });
+        return countOutsInDeck(testDeck) >= MIN_OUTS;
+    }
+
+    function loadSeason() {
+        try {
+            const raw = localStorage.getItem(SEASON_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        return null;
+    }
+    function saveSeason() {
+        localStorage.setItem(SEASON_KEY, JSON.stringify(season));
+    }
+    function newSeasonObj(teamName) {
+        return {
+            teamName,
+            deck: JSON.parse(JSON.stringify(BASE_DECK)),
+            wins: 0,
+            losses: 0,
+            gameNum: 1,
+            chips: 0,
+            appliedUpgrades: [],
+            complete: false,
+        };
+    }
+
+    function openSeasonMode() {
+        season = loadSeason();
+        const selectedTeam = document.getElementById("team-select").value;
+
+        if (!season || season.complete) {
+            season = newSeasonObj(selectedTeam);
+            saveSeason();
+        }
+
+        showScreen("season-screen");
+        renderSeasonHub();
+    }
+
+    function renderSeasonHub() {
+        document.getElementById("ss-wins").innerText    = season.wins;
+        document.getElementById("ss-losses").innerText  = season.losses;
+        document.getElementById("ss-game-num").innerText = season.gameNum;
+        document.getElementById("ss-chips").innerText   = season.chips;
+
+        const grid = document.getElementById("ss-deck-grid");
+        grid.innerHTML = "";
+        Object.entries(season.deck).forEach(([key, entry]) => {
+            const isUpgraded = JSON.stringify(BASE_DECK[key]) !== JSON.stringify(entry);
+            const typeClass = entry.type === "hit"
+                ? (entry.bases === 4 ? "type-homer" : "type-hit")
+                : ["out","fly-out","double-play"].includes(entry.type) ? "type-out" : "type-special";
+            const isCursedSlot = entry._cursed;
+            const card = document.createElement("div");
+            card.className = `deck-card${isUpgraded ? " upgraded" : ""}${isCursedSlot ? " cursed" : ""}`;
+            card.innerHTML = `
+                <div class="deck-card-dice">${key}</div>
+                <div class="deck-card-name ${typeClass}">${entry.name}</div>
+                ${isUpgraded ? `<div class="deck-card-badge${isCursedSlot ? " curse" : ""}">★</div>` : ""}
+            `;
+            grid.appendChild(card);
+        });
+
+        const tierIdx = Math.min(season.gameNum - 1, CPU_TIERS.length - 1);
+        const tier = CPU_TIERS[tierIdx];
+        const oppTeams = mlbTeams.filter(t => t !== season.teamName);
+        const oppTeam = oppTeams[(season.gameNum * 7) % oppTeams.length];
+
+        document.getElementById("ss-opp-name").innerText = oppTeam;
+        const diffDiv = document.getElementById("ss-opp-diff");
+        diffDiv.innerHTML = "";
+        for (let i = 1; i <= 5; i++) {
+            const pip = document.createElement("div");
+            pip.className = `diff-pip${i <= tier.difficulty ? " lit" : ""}`;
+            diffDiv.appendChild(pip);
+        }
+        const cpuDeck = buildCPUDeck(tierIdx);
+        const cpuHits = Object.values(cpuDeck).filter(e => e.type === "hit" || e.type === "walk").length;
+        const cpuOuts = countOutsInDeck(cpuDeck);
+        document.getElementById("ss-opp-preview").innerHTML =
+            `<span class="opp-stat-good">${cpuHits} hits/walks</span> &nbsp;·&nbsp; <span class="opp-stat-bad">${cpuOuts} outs</span> &nbsp;·&nbsp; ${tier.label}`;
+    }
+
+    function buildCPUDeck(tierIdx) {
+        const tier = CPU_TIERS[Math.min(tierIdx, CPU_TIERS.length - 1)];
+        const deck = JSON.parse(JSON.stringify(BASE_DECK));
+        tier.mods.forEach(mod => { deck[mod.slot] = mod.to; });
+        return deck;
+    }
+
+    function startSeasonGame() {
+        isSoloMode = true;
+        myRole = "home";
+        myTeam = season.teamName;
+
+        const tierIdx = Math.min(season.gameNum - 1, CPU_TIERS.length - 1);
+        const tier    = CPU_TIERS[tierIdx];
+        const oppTeams = mlbTeams.filter(t => t !== season.teamName);
+        const oppTeam  = oppTeams[(season.gameNum * 7) % oppTeams.length];
+
+        window._seasonPlayerDeck = JSON.parse(JSON.stringify(season.deck));
+        window._seasonCPUDeck    = buildCPUDeck(tierIdx);
+        window._inSeasonGame     = true;
+
+        gameState.homeTeam    = season.teamName;
+        gameState.visitorTeam = oppTeam;
+        gameState.inning      = 1;
+        gameState.isTopInning = true;
+        gameState.outs        = 0;
+        gameState.scores      = { visitor: 0, home: 0 };
+        gameState.runners     = [];
+
+        updateInGameDiceChart(season.deck);
+
+        showScreen("game-screen");
+        document.getElementById("transition-overlay").style.display = "none";
+        document.getElementById("room-banner").innerText = `${tier.label.toUpperCase()} · GAME ${season.gameNum}`;
+        document.getElementById("game-log").innerText = "Play Ball!";
+
+        updateScoreboardLayout();
+        evaluateTurnLockout();
+    }
+
+    function getActivePlayChart() {
+        if (window._inSeasonGame) {
+            return gameState.isTopInning
+                ? window._seasonCPUDeck
+                : window._seasonPlayerDeck;
+        }
+        return playChart;
+    }
+
+    function updateInGameDiceChart(deck) {
+        const container = document.querySelector("#game-screen .dice-chart");
+        if (!container) return;
+        container.innerHTML = "";
+        Object.entries(deck).forEach(([key, entry]) => {
+            const div = document.createElement("div");
+            div.className = "chart-item";
+            const [d1, d2] = key.split("-");
+            const isUpgraded = JSON.stringify(BASE_DECK[key]) !== JSON.stringify(entry);
+            div.innerHTML = `<span class="dice-icon">${d1}</span><span class="dice-icon">${d2}</span> <span style="${isUpgraded ? "color:#f1c40f;font-weight:900;" : ""}">${entry.name}</span>`;
+            container.appendChild(div);
+        });
+    }
+
+    function seasonGameOver() {
+        const vScore = gameState.scores.visitor;
+        const hScore = gameState.scores.home;
+        window._inSeasonGame = false;
+
+        if (hScore > vScore) {
+            season.wins++;
+            season.chips += 3 + Math.max(0, hScore - vScore);
+        } else if (vScore > hScore) {
+            season.losses++;
+            season.chips += 1;
+        } else {
+            season.chips += 2; 
+        }
+
+        season.gameNum++;
+
+        const seasonOver = season.wins >= SEASON_LENGTH || season.losses >= SEASON_LENGTH || season.gameNum > SEASON_LENGTH * 2;
+
+        if (syncInterval) clearInterval(syncInterval);
+
+        executeGameOverProcessing();
+
+        const goBtn = document.querySelector("#gameover-modal .gameover-btn");
+        if (goBtn) {
+            const isWin = hScore > vScore;
+            const isTie = hScore === vScore;
+            goBtn.innerText = seasonOver ? "🏆 See Season Results" : "🎲 Draft & Continue";
+            goBtn.onclick = () => {
+                document.getElementById("gameover-modal").classList.remove("show");
+                saveSeason();
+                if (seasonOver) {
+                    showSeasonOver();
+                } else {
+                    openDraftScreen(isWin, isTie, vScore, hScore);
+                }
+            };
+        }
+    }
+
+    let _selectedDraftCard = null;
+
+    const SCOUT_INTROS = [
+        "A scout slides into the dugout with three envelopes...",
+        "Someone in a trench coat is waiting by the bullpen...",
+        "A courier drops three sealed offers on the bench.",
+        "Word gets around. Three teams want to make a deal.",
+        "The scout leans over and whispers: 'I got options for you.'",
+        "Three proposals. One pick. Choose wisely.",
+        "A manila folder lands on the manager's desk. Three pages inside.",
+        "The phone rings. Calls from three different area codes.",
+    ];
+
+    function openDraftScreen(isWin, isTie, awayScore, homeScore, isReroll = false) {
+        showScreen("draft-screen");
+
+        if (!isReroll) {
+            const banner = document.getElementById("draft-result-banner");
+            banner.classList.remove("hidden","win","loss","tie");
+            const earned = isWin ? 3 + Math.max(0, homeScore - awayScore) : isTie ? 2 : 1;
+            const ptWord = earned === 1 ? "pt" : "pts";
+            const hiScore = Math.max(awayScore, homeScore);
+            const loScore = Math.min(awayScore, homeScore);
+            
+            if (isWin) {
+                banner.className = "draft-result-banner win";
+                banner.innerText = `⚾ Win  ${hiScore}–${loScore}   +${earned} scout ${ptWord}`;
+            } else if (isTie) {
+                banner.className = "draft-result-banner tie";
+                banner.innerText = `🤝 Tie  ${hiScore}–${loScore}   +${earned} scout ${ptWord}`;
+            } else {
+                banner.className = "draft-result-banner loss";
+                banner.innerText = `💔 Loss  ${hiScore}–${loScore}   +${earned} scout ${ptWord}`;
+            }
+        }
+
+        document.getElementById("draft-chips-bar").innerText = `🕵️ ${season.chips} scout pts`;
+
+        const promptEl = document.getElementById("draft-prompt");
+        if (promptEl) promptEl.innerText = SCOUT_INTROS[Math.floor(Math.random() * SCOUT_INTROS.length)];
+
+        const usedIds = season.appliedUpgrades.map(u => u.id);
+        const pool = ALL_DRAFT_CARDS
+            .filter(c => !usedIds.includes(c.id))
+            .filter(c => isDraftCardSafe(c, season.deck));
+
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+
+        const choices = pool.slice(0, 3);
+        _selectedDraftCard = null;
+
+        const optContainer = document.getElementById("draft-options");
+        optContainer.innerHTML = "";
+
+        if (choices.length === 0) {
+            optContainer.innerHTML = `<div style="text-align:center;color:#888;padding:20px;">The scouts have nothing left to offer. Your deck is fully upgraded.</div>`;
+            document.getElementById("draft-confirm-btn").disabled = true;
+            document.getElementById("draft-confirm-btn").innerText = "Nothing to deal — all upgrades taken";
+            document.getElementById("draft-reroll-btn").disabled = true;
+            return;
+        }
+
+        choices.forEach((card, idx) => {
+            const div = document.createElement("div");
+            div.className = `draft-option${card.isCurse ? " curse-option" : ""}`;
+            div.id = `draft-opt-${idx}`;
+
+            const swapRows = card.swaps.map(sw => {
+                const fromEntry = season.deck[sw.slot];
+                const fromType = ["out","fly-out","double-play"].includes(fromEntry.type) ? "type-out" : "type-hit";
+                const toType = sw.to.type === "hit"
+                    ? (sw.to.bases === 4 ? "type-homer" : "type-hit")
+                    : ["out","fly-out","double-play"].includes(sw.to.type) ? "type-out" : "type-special";
+                return `<div class="draft-swap-row">
+                    <span class="swap-from ${fromType}">${sw.slot}: ${fromEntry.name}</span>
+                    <span class="swap-arrow">→</span>
+                    <span class="swap-to ${toType}">${sw.to.name}</span>
+                </div>`;
+            }).join("");
+
+            div.innerHTML = `
+                <div class="draft-option-header">
+                    <div class="draft-option-icon">${card.icon}</div>
+                    <div class="draft-option-title">${card.title}</div>
+                    <div class="draft-option-rarity rarity-${card.rarity}">${card.rarity.toUpperCase()}</div>
+                </div>
+                ${swapRows}
+                <div class="draft-option-desc">${card.desc}</div>
+            `;
+            div.addEventListener("click", () => selectDraftCard(card, idx, choices.length));
+            optContainer.appendChild(div);
+        });
+
+        const confirmBtn = document.getElementById("draft-confirm-btn");
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = "Pick an offer first";
+        
+        const rerollBtn = document.getElementById("draft-reroll-btn");
+        if (season.chips >= 2) {
+            rerollBtn.disabled = false;
+            rerollBtn.innerText = "🎲 Reroll Offers (Cost: 2 pts)";
+        } else {
+            rerollBtn.disabled = true;
+            rerollBtn.innerText = "🎲 Not enough pts to Reroll";
+        }
+    }
+
+    function selectDraftCard(card, idx, total) {
+        _selectedDraftCard = card;
+        for (let i = 0; i < total; i++) {
+            const el = document.getElementById(`draft-opt-${i}`);
+            if (el) el.classList.remove("selected");
+        }
+        const sel = document.getElementById(`draft-opt-${idx}`);
+        if (sel) sel.classList.add("selected");
+
+        const confirmBtn = document.getElementById("draft-confirm-btn");
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = `✓ Take the deal — "${card.title}"`;
+    }
+
+    function confirmDraftPick() {
+        if (!_selectedDraftCard) return;
+        applyDraftCard(_selectedDraftCard);
+        saveSeason();
+        showScreen("season-screen");
+        renderSeasonHub();
+    }
+    
+    function rerollDraft() {
+        if (season.chips >= 2) {
+            season.chips -= 2;
+            saveSeason();
+            openDraftScreen(false, false, 0, 0, true);
+        }
+    }
+
+    function skipDraft() {
+        saveSeason();
+        showScreen("season-screen");
+        renderSeasonHub();
+    }
+
+    function applyDraftCard(card) {
+        card.swaps.forEach(sw => {
+            season.deck[sw.slot] = Object.assign({}, sw.to);
+            if (card.isCurse) season.deck[sw.slot]._cursed = true;
+        });
+        season.appliedUpgrades.push({ id: card.id, title: card.title, icon: card.icon, isCurse: card.isCurse });
+    }
+
+    function showSeasonOver() {
+        season.complete = true;
+        saveSeason();
+        showScreen("season-over-screen");
+
+        const won = season.wins >= SEASON_LENGTH;
+        document.getElementById("so-trophy").innerText   = won ? "🏆" : "💔";
+        document.getElementById("so-headline").className  = `championship${won ? "" : " eliminated"}`;
+        document.getElementById("so-headline").innerText  = won ? "CHAMPIONS!" : "ELIMINATED";
+        document.getElementById("so-sub").innerText       = won
+            ? `${season.teamName} wins the pennant!`
+            : `${season.teamName} bows out — better luck next run.`;
+        document.getElementById("so-record").innerText    = `${season.wins}–${season.losses}`;
+
+        const list = document.getElementById("so-unlocks-list");
+        list.innerHTML = "";
+        if (season.appliedUpgrades.length === 0) {
+            list.innerHTML = `<div style="color:#555;font-size:12px;text-align:center;padding:8px;">No upgrades applied this season.</div>`;
+        } else {
+            season.appliedUpgrades.forEach(u => {
+                const item = document.createElement("div");
+                item.className = "season-unlock-item";
+                item.innerHTML = `<span style="font-size:18px;">${u.icon}</span> <span style="color:${u.isCurse ? "#e74c3c" : "#d980fa"};">${u.title}</span>${u.isCurse ? ' <span style="font-size:10px;color:#888;">(cursed)</span>' : ""}`;
+                list.appendChild(item);
+            });
+        }
+    }
+
+    function startNewSeason() {
+        season = newSeasonObj(season.teamName);
+        saveSeason();
+        showScreen("season-screen");
+        renderSeasonHub();
+    }
+
+    function confirmResetSeason() {
+        if (confirm("Reset your season? All deck upgrades will be lost.")) {
+            localStorage.removeItem(SEASON_KEY);
+            season = newSeasonObj(season.teamName || document.getElementById("team-select").value);
+            saveSeason();
+            renderSeasonHub();
+        }
+    }
+
+    function showScreen(id) {
+        ["setup-screen","game-screen","season-screen","draft-screen","season-over-screen"]
+            .forEach(s => {
+                const el = document.getElementById(s);
+                if (el) el.classList.add("hidden");
+            });
+        const target = document.getElementById(id);
+        if (target) target.classList.remove("hidden");
+    }
+
 </script>
 
 <div id="gameover-modal">
@@ -1972,6 +3118,90 @@
         </div>
         <hr class="gameover-divider">
         <button class="gameover-btn" onclick="location.reload()">⚾ Play Again</button>
+    </div>
+</div>
+
+<div id="season-screen" class="hidden">
+    <div class="season-hero">
+        <h2>🎲 SEASON MODE</h2>
+        <div class="season-hero-sub">Build your deck · Run the gauntlet · Win the pennant</div>
+    </div>
+    <div class="season-body">
+        <div class="season-stat-bar">
+            <div class="season-stat">
+                <div class="season-stat-val" id="ss-wins">0</div>
+                <div class="season-stat-lbl">Wins</div>
+            </div>
+            <div class="season-stat">
+                <div class="season-stat-val" id="ss-losses">0</div>
+                <div class="season-stat-lbl">Losses</div>
+            </div>
+            <div class="season-stat">
+                <div class="season-stat-val" id="ss-game-num">1</div>
+                <div class="season-stat-lbl">Game</div>
+            </div>
+            <div class="season-stat">
+                <div class="season-stat-val" id="ss-chips">0</div>
+                <div class="season-stat-lbl">🕵️ Scout Pts</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="season-section-title">Your Dice Deck</div>
+            <div class="deck-grid" id="ss-deck-grid"></div>
+        </div>
+
+        <div class="opponent-card">
+            <div class="opponent-label">Next Opponent</div>
+            <div class="opponent-name" id="ss-opp-name">Loading...</div>
+            <div class="opponent-difficulty" id="ss-opp-diff"></div>
+            <div class="opponent-deck-preview" id="ss-opp-preview">—</div>
+        </div>
+    </div>
+    <div class="season-actions">
+        <button class="btn btn-play-game" onclick="startSeasonGame()">⚾ Play Next Game</button>
+        <div style="display:flex; gap:6px; width:100%;">
+            <button class="btn btn-reset-season" style="flex:1;" onclick="confirmResetSeason()">↺ Reset Season</button>
+            <button class="btn btn-reset-season" style="flex:1;" onclick="location.reload()">⌂ Main Menu</button>
+        </div>
+    </div>
+</div>
+
+<div id="draft-screen" class="hidden">
+    <div class="draft-hero">
+        <h2>🃏 DRAFT</h2>
+        <div class="draft-hero-sub">A scout wants to make a deal</div>
+    </div>
+    <div class="draft-chips-bar" id="draft-chips-bar">🕵️ 0 scout pts</div>
+    <div class="draft-result-banner hidden" id="draft-result-banner">—</div>
+    <div class="draft-body">
+        <div class="draft-prompt" id="draft-prompt">A scout slides into the dugout with three envelopes...</div>
+        <div class="draft-options" id="draft-options"></div>
+        <button class="draft-confirm-btn" id="draft-confirm-btn" onclick="confirmDraftPick()" disabled>
+            Open an envelope first
+        </button>
+        <button class="draft-reroll-btn" id="draft-reroll-btn" onclick="rerollDraft()">🎲 Reroll Offers (Cost: 2 pts)</button>
+        <button class="draft-skip-btn" onclick="skipDraft()">Decline offers — keep my deck as-is</button>
+    </div>
+</div>
+
+<div id="season-over-screen" class="hidden">
+    <div class="season-over-hero">
+        <div class="season-over-trophy" id="so-trophy">🏆</div>
+        <h2 id="so-headline" class="championship">CHAMPIONS!</h2>
+        <div class="season-over-sub" id="so-sub">You won the pennant</div>
+    </div>
+    <div class="season-over-body">
+        <div class="season-record-box">
+            <div class="season-record-main" id="so-record">0-0</div>
+            <div class="season-record-sub">SEASON RECORD</div>
+        </div>
+        <div class="season-unlocks-title">Deck Upgrades Applied This Season</div>
+        <div class="season-unlocks-list" id="so-unlocks-list"></div>
+        <div class="season-over-btns">
+            <button class="btn-new-season" onclick="startNewSeason()">🎲 New Season</button>
+            <button class="btn-main-menu-season" onclick="location.reload()">← Main Menu</button>
+        </div>
     </div>
 </div>
 
