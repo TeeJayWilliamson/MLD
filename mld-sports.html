@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLD Sports — Roll to Win</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ── Design tokens ── */
+:root {
+    --black:   #080808;
+    --ink:     #0f0f0f;
+    --panel:   #141414;
+    --border:  #1e1e1e;
+    --mid:     #2e2e2e;
+    --muted:   #555;
+    --dim:     #888;
+    --silver:  #ccc;
+    --white:   #f5f5f5;
+
+    --gold:    #e8b84b;
+    --gold-lo: #a07830;
+    --green:   #22c55e;
+    --red:     #ef4444;
+    --blue:    #3b82f6;
+    --purple:  #a78bfa;
+
+    --f-display: 'Bebas Neue', sans-serif;
+    --f-body:    'DM Sans', sans-serif;
+    --f-mono:    'DM Mono', monospace;
+}
+
+body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ── Utilities ── */
+.tag {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+}
+.tag-gold   { background: rgba(232,184,75,0.12); color: var(--gold); border: 1px solid rgba(232,184,75,0.25); }
+.tag-green  { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.tag-blue   { background: rgba(59,130,246,0.1); color: var(--blue);  border: 1px solid rgba(59,130,246,0.2); }
+.tag-muted  { background: rgba(255,255,255,0.05); color: var(--dim); border: 1px solid var(--border); }
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 60px;
+    background: rgba(8,8,8,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+    font-family: var(--f-display);
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav-logo-dice {
+    width: 28px;
+    height: 28px;
+    background: var(--gold);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--black);
+    animation: diceSpin 8s ease-in-out infinite;
+}
+@keyframes diceSpin {
+    0%, 90%, 100% { transform: rotate(0deg); }
+    95% { transform: rotate(90deg); }
+}
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+}
+.nav-links a {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--dim);
+    transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+    background: var(--gold);
+    color: var(--black) !important;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-weight: 700 !important;
+    transition: filter 0.15s !important;
+}
+.nav-cta:hover { filter: brightness(1.1); }
+@media (max-width: 600px) {
+    .nav-links { display: none; }
+    nav { padding: 0 20px; }
+}
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 32px 60px;
+}
+
+/* Animated grid background */
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(232,184,75,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,184,75,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+    animation: gridDrift 20s ease-in-out infinite alternate;
+}
+@keyframes gridDrift {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-20px) scale(1.02); }
+}
+
+/* Big floating dice */
+.hero-dice-float {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    height: 420px;
+    opacity: 0.07;
+    pointer-events: none;
+}
+.hero-dice-float svg {
+    width: 100%;
+    height: 100%;
+    animation: floatDice 6s ease-in-out infinite;
+}
+@keyframes floatDice {
+    0%, 100% { transform: translateY(0) rotate(12deg); }
+    50%       { transform: translateY(-24px) rotate(18deg); }
+}
+@media (max-width: 768px) {
+    .hero-dice-float { width: 280px; height: 280px; right: -60px; opacity: 0.05; }
+}
+
+.hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
+.hero-eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s ease forwards;
+}
+.hero-eyebrow::before {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+}
+.hero-headline {
+    font-family: var(--f-display);
+    font-size: clamp(72px, 12vw, 130px);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s ease forwards;
+}
+.hero-headline span {
+    color: var(--gold);
+    display: block;
+}
+.hero-sub {
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--dim);
+    max-width: 460px;
+    line-height: 1.6;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s ease forwards;
+}
+.hero-sub strong { color: var(--silver); font-weight: 500; }
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.45s ease forwards;
+}
+.btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    font-family: var(--f-body);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-ghost {
+    background: transparent;
+    color: var(--silver);
+    font-family: var(--f-body);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--mid); color: var(--white); transform: translateY(-1px); }
+
+.hero-stats {
+    display: flex;
+    gap: 0;
+    margin-top: 60px;
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.6s ease forwards;
+}
+.hero-stat {
+    flex: 1;
+    padding-right: 28px;
+}
+.hero-stat + .hero-stat {
+    padding-left: 28px;
+    padding-right: 28px;
+    border-left: 1px solid var(--border);
+}
+.hero-stat-val {
+    font-family: var(--f-display);
+    font-size: 40px;
+    letter-spacing: 2px;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.hero-stat-val span { color: var(--gold); }
+.hero-stat-lbl {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   MARQUEE TICKER
+══════════════════════════════════════════ */
+.ticker {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--ink);
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+}
+.ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 24s linear infinite;
+    gap: 0;
+}
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.ticker-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.dot-gold   { background: var(--gold); }
+.dot-green  { background: var(--green); }
+.dot-blue   { background: var(--blue); }
+.dot-purple { background: var(--purple); }
+.dot-red    { background: var(--red); }
+@keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* ══════════════════════════════════════════
+   SECTION COMMON
+══════════════════════════════════════════ */
+section {
+    padding: 96px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.section-eyebrow {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-eyebrow::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--gold);
+}
+.section-title {
+    font-family: var(--f-display);
+    font-size: clamp(42px, 6vw, 72px);
+    letter-spacing: 2px;
+    color: var(--white);
+    line-height: 0.95;
+    margin-bottom: 16px;
+}
+.section-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--dim);
+    max-width: 500px;
+    line-height: 1.7;
+}
+
+/* ══════════════════════════════════════════
+   GAMES GRID
+══════════════════════════════════════════ */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 52px;
+}
+@media (max-width: 768px) {
+    .games-grid { grid-template-columns: 1fr; }
+}
+.game-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.game-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.game-card:first-child::before  { background: radial-gradient(ellipse at 0% 100%, rgba(34,197,94,0.08) 0%, transparent 60%); }
+.game-card:nth-child(2)::before { background: radial-gradient(ellipse at 0% 100%, rgba(59,130,246,0.08) 0%, transparent 60%); }
+.game-card:nth-child(3)::before { background: radial-gradient(ellipse at 0% 100%, rgba(167,139,250,0.08) 0%, transparent 60%); }
+.game-card:hover { border-color: var(--mid); }
+.game-card:hover::before { opacity: 1; }
+
+.game-card-sport {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    transition: transform 0.3s;
+}
+.game-card:hover .game-card-sport { transform: scale(1.1) rotate(-5deg); }
+.game-card-name {
+    font-family: var(--f-display);
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+.game-card-tagline {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    font-weight: 300;
+}
+.game-card-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+.game-card-arrow {
+    font-size: 18px;
+    color: var(--border);
+    transition: color 0.2s, transform 0.2s;
+}
+.game-card:hover .game-card-arrow { color: var(--gold); transform: translateX(4px); }
+
+/* Coming soon overlay */
+.game-card.soon {
+    cursor: default;
+}
+.game-card.soon:hover .game-card-sport { transform: none; }
+.game-card.soon:hover .game-card-arrow { color: var(--border); transform: none; }
+.soon-ribbon {
+    position: absolute;
+    top: 16px;
+    right: -24px;
+    background: var(--mid);
+    color: var(--muted);
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 36px;
+    transform: rotate(30deg);
+    transform-origin: center;
+}
+
+/* ══════════════════════════════════════════
+   HOW IT WORKS
+══════════════════════════════════════════ */
+.how-section {
+    border-top: 1px solid var(--border);
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+.how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-top: 52px;
+}
+@media (max-width: 768px) {
+    .how-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+.how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.how-step {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 32px;
+    position: relative;
+}
+.how-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: 38px;
+    width: 1px;
+    height: calc(100% - 10px);
+    background: var(--border);
+}
+.how-step-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    color: var(--gold);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+.how-step-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+    padding-top: 8px;
+    letter-spacing: 0.5px;
+}
+.how-step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+/* Mini dice chart preview */
+.dice-preview {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.dice-preview-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dice-preview-title {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.dice-preview-dots {
+    display: flex;
+    gap: 5px;
+}
+.dp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.dice-preview-rows {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.dp-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    transition: background 0.15s;
+}
+.dp-row:hover { background: rgba(255,255,255,0.04); }
+.dp-dice {
+    display: flex;
+    gap: 3px;
+}
+.dp-die {
+    width: 20px;
+    height: 20px;
+    background: var(--white);
+    color: var(--black);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+.dp-result { flex: 1; font-size: 12px; }
+.dp-result.hit     { color: var(--green); }
+.dp-result.out     { color: var(--red); }
+.dp-result.special { color: var(--gold); }
+.dp-result.homer   { color: var(--gold); font-weight: 700; }
+.dp-type {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+.dp-type.hit     { background: rgba(34,197,94,0.1);  color: var(--green); }
+.dp-type.out     { background: rgba(239,68,68,0.1);  color: var(--red); }
+.dp-type.special { background: rgba(232,184,75,0.1); color: var(--gold); }
+
+/* ══════════════════════════════════════════
+   SEASON MODE FEATURE
+══════════════════════════════════════════ */
+.season-feature {
+    border-top: 1px solid var(--border);
+    background: var(--ink);
+}
+.season-feature > .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 96px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+@media (max-width: 768px) {
+    .season-feature > .inner { grid-template-columns: 1fr; gap: 48px; }
+}
+.season-feature-text .section-title { margin-bottom: 20px; }
+.season-feature-text p {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--dim);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+.season-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 28px;
+}
+.season-perk {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--silver);
+    font-weight: 300;
+}
+.perk-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(232,184,75,0.1);
+    border: 1px solid rgba(232,184,75,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Draft card visual */
+.draft-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.draft-card-demo {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: default;
+}
+.draft-card-demo:hover {
+    transform: translateX(6px);
+    border-color: var(--purple);
+}
+.draft-card-demo.curse { border-color: rgba(239,68,68,0.2); }
+.draft-card-demo.curse:hover { border-color: var(--red); }
+.dcm-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.dcm-icon { font-size: 22px; }
+.dcm-name { font-size: 15px; font-weight: 700; color: var(--white); flex: 1; }
+.dcm-rarity {
+    font-family: var(--f-mono);
+    font-size: 8px;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+.dcm-rarity.epic   { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.dcm-rarity.cursed { background: rgba(239,68,68,0.1);   color: var(--red);    border: 1px solid rgba(239,68,68,0.2); }
+.dcm-rarity.rare   { background: rgba(59,130,246,0.1);  color: var(--blue);   border: 1px solid rgba(59,130,246,0.2); }
+.dcm-swap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+.dcm-from { color: var(--red);    background: rgba(239,68,68,0.08);  padding: 2px 8px; border-radius: 3px; }
+.dcm-to   { color: var(--green);  background: rgba(34,197,94,0.08);  padding: 2px 8px; border-radius: 3px; font-weight: 700; }
+.dcm-to.homer { color: var(--gold); background: rgba(232,184,75,0.08); }
+.dcm-arr  { color: var(--border); }
+.dcm-desc { font-size: 12px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+
+/* ══════════════════════════════════════════
+   SPORTS ROADMAP
+══════════════════════════════════════════ */
+.roadmap-section {
+    border-top: 1px solid var(--border);
+}
+.roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 52px;
+}
+@media (max-width: 768px) {
+    .roadmap-grid { grid-template-columns: 1fr 1fr; }
+}
+.roadmap-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 28px 22px;
+    position: relative;
+    overflow: hidden;
+}
+.roadmap-item.live { border-color: rgba(34,197,94,0.3); }
+.roadmap-item.live::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(34,197,94,0.5);
+}
+.roadmap-sport-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+.roadmap-sport-name {
+    font-family: var(--f-display);
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+.roadmap-sport-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 300;
+    margin-bottom: 14px;
+}
+.roadmap-features {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.roadmap-feature {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.roadmap-feature::before { content: "·"; color: var(--gold-lo); }
+.roadmap-feature.done { color: var(--green); }
+.roadmap-feature.done::before { content: "✓"; color: var(--green); }
+
+/* ══════════════════════════════════════════
+   CTA BAND
+══════════════════════════════════════════ */
+.cta-band {
+    border-top: 1px solid var(--border);
+    background: var(--ink);
+    padding: 96px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.cta-band::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(232,184,75,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+.cta-band-title {
+    font-family: var(--f-display);
+    font-size: clamp(48px, 8vw, 88px);
+    letter-spacing: 4px;
+    color: var(--white);
+    line-height: 0.95;
+    margin-bottom: 16px;
+    position: relative;
+}
+.cta-band-title span { color: var(--gold); }
+.cta-band-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--dim);
+    margin-bottom: 36px;
+    position: relative;
+}
+.cta-band-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer {
+    border-top: 1px solid var(--border);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.footer-logo {
+    font-family: var(--f-display);
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--gold-lo);
+}
+.footer-copy {
+    font-size: 12px;
+    color: var(--border);
+    letter-spacing: 1px;
+}
+.footer-links {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+.footer-links a {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--silver); }
+
+/* ── Scroll reveal ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+    <a href="#" class="nav-logo">
+        <div class="nav-logo-dice">🎲</div>
+        MLD SPORTS
+    </a>
+    <ul class="nav-links">
+        <li><a href="#games">Games</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#season">Season Mode</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="index.html" class="nav-cta">Play Now</a></li>
+    </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-dice-float">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="160" height="160" rx="28" fill="white"/>
+            <circle cx="68" cy="68" r="14" fill="#111"/>
+            <circle cx="132" cy="68" r="14" fill="#111"/>
+            <circle cx="68" cy="100" r="14" fill="#111"/>
+            <circle cx="132" cy="100" r="14" fill="#111"/>
+            <circle cx="68" cy="132" r="14" fill="#111"/>
+            <circle cx="132" cy="132" r="14" fill="#111"/>
+        </svg>
+    </div>
+
+    <div class="hero-inner">
+        <div class="hero-eyebrow">Major League Diceball · Season 1</div>
+        <h1 class="hero-headline">
+            ROLL.<br>
+            <span>WIN.</span>
+            REPEAT.
+        </h1>
+        <p class="hero-sub">
+            <strong>Sports games built around dice.</strong> Real rules, real tension, real seasons.
+            Build your deck. Beat the odds. Claim the pennant.
+        </p>
+        <div class="hero-actions">
+            <a href="index.html" class="btn-primary">⚾ Play Baseball Now</a>
+            <a href="#games" class="btn-ghost">See All Games →</a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-val">21<span>×</span></div>
+                <div class="hero-stat-lbl">Dice Outcomes</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-val">5<span>+</span></div>
+                <div class="hero-stat-lbl">Sports Coming</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-val">∞</div>
+                <div class="hero-stat-lbl">Season Runs</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Ticker ── -->
+<div class="ticker">
+    <div class="ticker-track">
+        <!-- First set -->
+        <div class="ticker-item"><span class="dot dot-gold"></span> Major League Diceball — Live Now</div>
+        <div class="ticker-item"><span class="dot dot-green"></span> Season Mode · Build Your Deck</div>
+        <div class="ticker-item"><span class="dot dot-blue"></span> Online Multiplayer · Cross-Platform</div>
+        <div class="ticker-item"><span class="dot dot-purple"></span> MLD Golf — Coming Soon</div>
+        <div class="ticker-item"><span class="dot dot-red"></span> MLD Hockey — In Development</div>
+        <div class="ticker-item"><span class="dot dot-gold"></span> 21 Dice Outcomes Per Sport</div>
+        <div class="ticker-item"><span class="dot dot-green"></span> Roguelite Progression System</div>
+        <div class="ticker-item"><span class="dot dot-blue"></span> Free to Play — No Installs</div>
+        <!-- Duplicate for seamless loop -->
+        <div class="ticker-item"><span class="dot dot-gold"></span> Major League Diceball — Live Now</div>
+        <div class="ticker-item"><span class="dot dot-green"></span> Season Mode · Build Your Deck</div>
+        <div class="ticker-item"><span class="dot dot-blue"></span> Online Multiplayer · Cross-Platform</div>
+        <div class="ticker-item"><span class="dot dot-purple"></span> MLD Golf — Coming Soon</div>
+        <div class="ticker-item"><span class="dot dot-red"></span> MLD Hockey — In Development</div>
+        <div class="ticker-item"><span class="dot dot-gold"></span> 21 Dice Outcomes Per Sport</div>
+        <div class="ticker-item"><span class="dot dot-green"></span> Roguelite Progression System</div>
+        <div class="ticker-item"><span class="dot dot-blue"></span> Free to Play — No Installs</div>
+    </div>
+</div>
+
+<!-- ── Games ── -->
+<section id="games">
+    <div class="section-eyebrow reveal">The Lineup</div>
+    <h2 class="section-title reveal">PICK YOUR<br>SPORT</h2>
+    <p class="section-sub reveal">Each game is built from the ground up for its sport — real rules, real strategy, real dice.</p>
+
+    <div class="games-grid reveal">
+        <a href="index.html" class="game-card">
+            <span class="game-card-sport">⚾</span>
+            <div class="game-card-name">BASEBALL</div>
+            <div class="game-card-tagline">9 innings. 21 dice outcomes. Multiplayer or solo season mode with deck-building progression.</div>
+            <div class="game-card-status">
+                <span class="tag tag-green">Live Now</span>
+                <span class="game-card-arrow">→</span>
+            </div>
+        </a>
+
+        <div class="game-card soon">
+            <div class="soon-ribbon">Soon</div>
+            <span class="game-card-sport">⛳</span>
+            <div class="game-card-name">GOLF</div>
+            <div class="game-card-tagline">18 holes. Upgrade your club bag between rounds. Chase the course record solo.</div>
+            <div class="game-card-status">
+                <span class="tag tag-muted">In Design</span>
+                <span class="game-card-arrow">→</span>
+            </div>
+        </div>
+
+        <div class="game-card soon">
+            <div class="soon-ribbon">Soon</div>
+            <span class="game-card-sport">🏒</span>
+            <div class="game-card-name">HOCKEY</div>
+            <div class="game-card-tagline">3 periods. Power plays. Possession rolls. Fast, punishing, and deeply satisfying.</div>
+            <div class="game-card-status">
+                <span class="tag tag-muted">Planned</span>
+                <span class="game-card-arrow">→</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── How It Works ── -->
+<section id="how" class="how-section">
+    <div class="section-eyebrow reveal">Simple to learn</div>
+    <h2 class="section-title reveal">HOW IT<br>WORKS</h2>
+
+    <div class="how-grid">
+        <div class="how-steps reveal">
+            <div class="how-step">
+                <div class="how-step-num">01</div>
+                <div>
+                    <div class="how-step-title">Pick your team</div>
+                    <div class="how-step-desc">Choose from all 30 MLB franchises. Your team's colours show up on the field with custom pegs for every runner.</div>
+                </div>
+            </div>
+            <div class="how-step">
+                <div class="how-step-num">02</div>
+                <div>
+                    <div class="how-step-title">Roll two dice</div>
+                    <div class="how-step-desc">Each combination maps to an outcome — singles, home runs, strikeouts, sac flies. 21 results, zero ambiguity.</div>
+                </div>
+            </div>
+            <div class="how-step">
+                <div class="how-step-num">03</div>
+                <div>
+                    <div class="how-step-title">Play a full 9-inning game</div>
+                    <div class="how-step-desc">Top and bottom halves, runners on base, tag-ups, double plays — the real game mechanics, no shortcuts.</div>
+                </div>
+            </div>
+            <div class="how-step">
+                <div class="how-step-num">04</div>
+                <div>
+                    <div class="how-step-title">Build in Season Mode</div>
+                    <div class="how-step-desc">Draft upgrades between games. Swap outcomes in your deck. Beat 5 opponents to win the pennant.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reveal">
+            <div class="dice-preview">
+                <div class="dice-preview-header">
+                    <span class="dice-preview-title">Dice Chart — Baseball</span>
+                    <div class="dice-preview-dots">
+                        <div class="dp-dot" style="background:#3a3a3a;"></div>
+                        <div class="dp-dot" style="background:#3a3a3a;"></div>
+                        <div class="dp-dot" style="background:var(--green);"></div>
+                    </div>
+                </div>
+                <div class="dice-preview-rows">
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">1</div><div class="dp-die">1</div></div>
+                        <div class="dp-result hit">Double</div>
+                        <div class="dp-type hit">Hit</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">1</div><div class="dp-die">4</div></div>
+                        <div class="dp-result hit">Walk</div>
+                        <div class="dp-type hit">On Base</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">2</div><div class="dp-die">2</div></div>
+                        <div class="dp-result out">Double Play</div>
+                        <div class="dp-type out">Out</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">3</div><div class="dp-die">4</div></div>
+                        <div class="dp-result hit">Single</div>
+                        <div class="dp-type hit">Hit</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">4</div><div class="dp-die">4</div></div>
+                        <div class="dp-result special">Fielder's Choice</div>
+                        <div class="dp-type special">Special</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">5</div><div class="dp-die">5</div></div>
+                        <div class="dp-result hit">Triple</div>
+                        <div class="dp-type hit">Hit</div>
+                    </div>
+                    <div class="dp-row">
+                        <div class="dp-dice"><div class="dp-die">6</div><div class="dp-die">6</div></div>
+                        <div class="dp-result homer">⭐ Home Run</div>
+                        <div class="dp-type special">Homer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Season Mode Feature ── -->
+<div class="season-feature" id="season">
+    <div class="inner">
+        <div class="season-feature-text reveal">
+            <div class="section-eyebrow">Roguelite Progression</div>
+            <h2 class="section-title">SEASON<br>MODE</h2>
+            <p>Play five games against escalating CPU opponents. After every game, a scout slides into your dugout with three upgrade offers — swap one dice outcome in your deck for something better.</p>
+            <p>Win the pennant. Start a new season. Build a different deck. No two runs play the same.</p>
+
+            <div class="season-perks">
+                <div class="season-perk">
+                    <div class="perk-icon">🃏</div>
+                    <div>21-slot deck with a guaranteed minimum of 8 outs — infinite innings are mathematically impossible.</div>
+                </div>
+                <div class="season-perk">
+                    <div class="perk-icon">📈</div>
+                    <div>Four rarity tiers: Common, Rare, Epic, and Cursed. Cursed cards give you something great and take something away.</div>
+                </div>
+                <div class="season-perk">
+                    <div class="perk-icon">🤖</div>
+                    <div>CPU opponents have their own decks that scale with difficulty — by World Series, they've got five upgrades on you.</div>
+                </div>
+                <div class="season-perk">
+                    <div class="perk-icon">💾</div>
+                    <div>Season state saves automatically. Pick up exactly where you left off.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="draft-visual reveal">
+            <div style="font-family:var(--f-mono);font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Sample Draft Offers</div>
+            <div class="draft-card-demo">
+                <div class="dcm-header">
+                    <div class="dcm-icon">🌠</div>
+                    <div class="dcm-name">Gapper!</div>
+                    <div class="dcm-rarity epic">Epic</div>
+                </div>
+                <div class="dcm-swap">
+                    <span class="dcm-from">Ground Out</span>
+                    <span class="dcm-arr">→</span>
+                    <span class="dcm-to">TRIPLE</span>
+                </div>
+                <div class="dcm-desc">Replace a boring Ground Out with a screaming Triple. Real damage.</div>
+            </div>
+
+            <div class="draft-card-demo">
+                <div class="dcm-header">
+                    <div class="dcm-icon">🚶</div>
+                    <div class="dcm-name">Patient Hitter</div>
+                    <div class="dcm-rarity rare">Rare</div>
+                </div>
+                <div class="dcm-swap">
+                    <span class="dcm-from">Strike Out</span>
+                    <span class="dcm-arr">→</span>
+                    <span class="dcm-to">Walk</span>
+                </div>
+                <div class="dcm-desc">One Strike Out becomes a Walk. A free base is a free base.</div>
+            </div>
+
+            <div class="draft-card-demo curse">
+                <div class="dcm-header">
+                    <div class="dcm-icon">🩸</div>
+                    <div class="dcm-name">Butcher's Bill</div>
+                    <div class="dcm-rarity cursed">Cursed</div>
+                </div>
+                <div class="dcm-swap">
+                    <span class="dcm-from">Pop Out</span>
+                    <span class="dcm-arr">→</span>
+                    <span class="dcm-to homer">HOME RUN</span>
+                </div>
+                <div class="dcm-swap">
+                    <span class="dcm-from">Single</span>
+                    <span class="dcm-arr">→</span>
+                    <span class="dcm-to" style="color:var(--red);border-color:rgba(239,68,68,0.4);">DOUBLE PLAY</span>
+                </div>
+                <div class="dcm-desc">Big highs, brutal lows. Choose wisely.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Roadmap ── -->
+<section id="roadmap" class="roadmap-section">
+    <div class="section-eyebrow reveal">What's coming</div>
+    <h2 class="section-title reveal">THE<br>ROSTER</h2>
+
+    <div class="roadmap-grid reveal">
+        <div class="roadmap-item live">
+            <span class="roadmap-sport-icon">⚾</span>
+            <div class="roadmap-sport-name">BASEBALL</div>
+            <div class="roadmap-sport-desc">The original. Full 9-inning game with all the real mechanics.</div>
+            <div class="roadmap-features">
+                <div class="roadmap-feature done">Solo vs CPU</div>
+                <div class="roadmap-feature done">Online Multiplayer</div>
+                <div class="roadmap-feature done">Season Mode</div>
+                <div class="roadmap-feature done">Deck Building</div>
+                <div class="roadmap-feature done">Team Colours</div>
+            </div>
+        </div>
+        <div class="roadmap-item">
+            <span class="roadmap-sport-icon">⛳</span>
+            <div class="roadmap-sport-name">GOLF</div>
+            <div class="roadmap-sport-desc">18 holes, club bag as your deck, solo career mode.</div>
+            <div class="roadmap-features">
+                <div class="roadmap-feature">18-Hole Courses</div>
+                <div class="roadmap-feature">Club Upgrades</div>
+                <div class="roadmap-feature">Career Mode</div>
+                <div class="roadmap-feature">Leaderboards</div>
+            </div>
+        </div>
+        <div class="roadmap-item">
+            <span class="roadmap-sport-icon">🏒</span>
+            <div class="roadmap-sport-name">HOCKEY</div>
+            <div class="roadmap-sport-desc">3 periods, possession rolls, power plays.</div>
+            <div class="roadmap-features">
+                <div class="roadmap-feature">Possession System</div>
+                <div class="roadmap-feature">Power Play</div>
+                <div class="roadmap-feature">Goalie Ratings</div>
+                <div class="roadmap-feature">Multiplayer</div>
+            </div>
+        </div>
+        <div class="roadmap-item">
+            <span class="roadmap-sport-icon">🏈</span>
+            <div class="roadmap-sport-name">FOOTBALL</div>
+            <div class="roadmap-sport-desc">Downs, drives, field goals — the full playbook.</div>
+            <div class="roadmap-features">
+                <div class="roadmap-feature">Down & Distance</div>
+                <div class="roadmap-feature">Drive System</div>
+                <div class="roadmap-feature">Playbook Deck</div>
+                <div class="roadmap-feature">2-Minute Drill</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="cta-band">
+    <h2 class="cta-band-title reveal">READY<br>TO <span>ROLL?</span></h2>
+    <p class="cta-band-sub reveal">No download. No account. Just pick a team and play.</p>
+    <div class="cta-band-actions reveal">
+        <a href="index.html" class="btn-primary">⚾ Play Baseball — Free</a>
+        <a href="#roadmap" class="btn-ghost">See What's Coming</a>
+    </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+    <div class="footer-logo">MLD SPORTS</div>
+    <ul class="footer-links">
+        <li><a href="index.html">Play Baseball</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+    <div class="footer-copy">© 2025 MLD Sports</div>
+</footer>
+
+<script>
+// ── Scroll reveal ──────────────────────────────────────────────────
+const observer = new IntersectionObserver(
+    (entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                // Stagger siblings in same parent
+                const siblings = Array.from(entry.target.parentElement.querySelectorAll('.reveal'));
+                const idx = siblings.indexOf(entry.target);
+                entry.target.style.transitionDelay = `${idx * 0.08}s`;
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+);
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav active state on scroll ─────────────────────────────────────
+const sections = document.querySelectorAll('section[id], div[id]');
+const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--white)' : '';
+    });
+}, { passive: true });
+
+// ── Dice preview hover glow ────────────────────────────────────────
+document.querySelectorAll('.dp-row').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        const result = row.querySelector('.dp-result');
+        if (result) {
+            const isHit = result.classList.contains('hit') || result.classList.contains('homer');
+            row.style.background = isHit
+                ? 'rgba(34,197,94,0.05)'
+                : 'rgba(239,68,68,0.05)';
+        }
+    });
+    row.addEventListener('mouseleave', () => { row.style.background = ''; });
+});
+</script>
+</body>
+</html>
