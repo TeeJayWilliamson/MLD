@@ -2784,6 +2784,7 @@
         window._seasonCPUDeck    = buildCPUDeck(tierIdx);
         window._inSeasonGame     = true;
 
+        // ── Hard-reset all game state ──────────────────────────────
         gameState.homeTeam    = season.teamName;
         gameState.visitorTeam = oppTeam;
         gameState.inning      = 1;
@@ -2792,10 +2793,39 @@
         gameState.scores      = { visitor: 0, home: 0 };
         gameState.runners     = [];
 
-        updateInGameDiceChart(season.deck);
+        // ── Hard-reset all UI remnants from the previous game ──────
+        // 1. Remove any runner pegs still on the field
+        clearAllRunnerPegs();
 
+        // 2. Clear animation lock flags so roll button isn't stuck
+        isAnimating    = false;
+        cpuTurnPending = false;
+
+        // 3. Hide/reset overlays that may be mid-animation or stuck
+        const umpire = document.getElementById("umpire-overlay");
+        umpire.classList.remove("flash");
+        umpire.style.opacity = "0";
+        umpire.style.transform = "translate(-50%, -50%) scale(0)";
+
+        const transition = document.getElementById("transition-overlay");
+        transition.classList.remove("hold-flash");
+        transition.style.display = "none";
+        transition.style.opacity = "0";
+
+        // 4. Reset dice faces
+        document.getElementById("die1").innerText = "1";
+        document.getElementById("die2").innerText = "1";
+        document.getElementById("die1").classList.remove("rolling");
+        document.getElementById("die2").classList.remove("rolling");
+
+        // 5. Clear winner highlight from previous game-over modal
+        document.getElementById("gameover-row-visitor").classList.remove("winner");
+        document.getElementById("gameover-row-home").classList.remove("winner");
+        document.getElementById("gameover-modal").classList.remove("show");
+
+        // ── Show the game screen ───────────────────────────────────
+        updateInGameDiceChart(season.deck);
         showScreen("game-screen");
-        document.getElementById("transition-overlay").style.display = "none";
         document.getElementById("room-banner").innerText = `${tier.label.toUpperCase()} · GAME ${season.gameNum}`;
         document.getElementById("game-log").innerText = "Play Ball!";
 
