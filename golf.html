@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Diceball Golf</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --felt:        #0f3d1f;
+  --felt-mid:    #1a5c2e;
+  --felt-light:  #2a7a3e;
+  --fairway:     #3a9e50;
+  --rough:       #5c7a2a;
+  --sand:        #d4b86a;
+  --water:       #1a6b9e;
+  --cream:       #f7eed8;
+  --cream-dark:  #e8d5b0;
+  --cream-mid:   #d4b88a;
+  --parchment:   #faf4e6;
+  --gold:        #c8973a;
+  --gold-bright: #e8b84b;
+  --neon:        #39ff14;
+  --neon-dim:    #1a8a00;
+  --red:         #e63030;
+  --sky:         #1a3a5c;
+  --white:       #ffffff;
+  --ink:         #1a0f00;
+  --ink-mid:     #5c3a10;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #080c08;
+  font-family: 'Barlow Condensed', 'Impact', sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── App shell ── */
+#app {
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--felt);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 520px) {
+  #app {
+    height: 90vh;
+    max-height: 860px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 1px #1a3a1a, 0 40px 120px rgba(0,0,0,0.95);
+    overflow: hidden;
+  }
+}
+@media (max-width: 519px) {
+  body { align-items: stretch; }
+  #app { height: 100%; border-radius: 0; }
+}
+
+.screen { display: flex; flex-direction: column; height: 100%; }
+.hidden { display: none !important; }
+
+/* ────────────────────────────────────────────
+   SETUP SCREEN
+──────────────────────────────────────────── */
+#setup-screen {
+  background: var(--felt);
+  position: relative;
+  overflow: hidden;
+}
+#setup-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,255,255,0.03) 28px, rgba(255,255,255,0.03) 29px),
+    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(255,255,255,0.03) 28px, rgba(255,255,255,0.03) 29px);
+  pointer-events: none;
+}
+
+.setup-hero {
+  padding: 36px 24px 28px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.setup-flag {
+  font-size: 64px;
+  display: block;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+  margin-bottom: 10px;
+  animation: flagwave 3s ease-in-out infinite;
+}
+@keyframes flagwave {
+  0%,100% { transform: rotate(-3deg) translateY(0); }
+  50%      { transform: rotate(3deg) translateY(-4px); }
+}
+.setup-hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--gold-bright);
+  text-shadow: 0 2px 20px rgba(200,151,58,0.5), 0 0 60px rgba(200,151,58,0.2);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.setup-hero-sub {
+  font-size: 12px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Scorecard-style rules box */
+.setup-card {
+  background: var(--parchment);
+  margin: 0 16px;
+  border-radius: 12px;
+  padding: 14px;
+  border: 2px solid var(--cream-dark);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.setup-card-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cream-dark);
+  font-family: 'DM Mono', monospace;
+}
+.dice-table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.dice-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: 5px;
+}
+.dice-roll {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 4px;
+  padding: 2px 5px;
+  white-space: nowrap;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+.dice-result {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.dice-roll.eagle   { background: #7c3aed; }
+.dice-roll.birdie  { background: #1d6b2a; }
+.dice-roll.par     { background: #2563eb; }
+.dice-roll.bogey   { background: #b45309; }
+.dice-roll.hazard  { background: #dc2626; }
+.dice-roll.ob      { background: #1a0f00; border: 1px solid #5c3a10; }
+
+/* Mode buttons */
+.setup-modes {
+  padding: 14px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  justify-content: flex-end;
+}
+.mode-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 4px;
+}
+
+.team-select-row {
+  display: flex;
+  gap: 8px;
+}
+.team-select-row select {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.35);
+  color: var(--cream);
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: center;
+  cursor: pointer;
+}
+.team-select-row select:focus { outline: none; border-color: var(--gold); }
+
+.start-btn {
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  transition: filter 0.15s, transform 0.1s;
+  color: var(--ink);
+}
+.start-btn:active { transform: translateY(2px); filter: brightness(0.9); }
+.btn-solo {
+  background: linear-gradient(135deg, var(--gold-bright), #a07020);
+  box-shadow: 0 5px 0 #6a4a10, 0 8px 20px rgba(200,151,58,0.35);
+}
+.btn-vs {
+  background: linear-gradient(135deg, #4ade80, #14532d);
+  box-shadow: 0 5px 0 #0a3a1a, 0 8px 20px rgba(74,222,128,0.25);
+  color: white;
+}
+
+/* ────────────────────────────────────────────
+   GAME SCREEN
+──────────────────────────────────────────── */
+#game-screen {
+  background: var(--felt);
+  position: relative;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 6px;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.menu-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--gold-bright);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.hole-banner {
+  flex: 1;
+  text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+/* Scorecard strip */
+.scorecard-strip {
+  display: flex;
+  background: var(--parchment);
+  border-bottom: 2px solid var(--cream-dark);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sc-hole {
+  flex: 1;
+  text-align: center;
+  padding: 5px 2px;
+  border-right: 1px solid var(--cream-dark);
+  position: relative;
+  min-width: 0;
+  cursor: default;
+}
+.sc-hole:last-child { border-right: none; }
+.sc-hole-num {
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  color: var(--ink-mid);
+  line-height: 1;
+}
+.sc-hole-par {
+  font-size: 8px;
+  color: var(--ink-mid);
+  opacity: 0.6;
+  font-family: 'DM Mono', monospace;
+  line-height: 1;
+}
+.sc-hole-score {
+  font-size: 15px;
+  font-weight: 900;
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 1.1;
+  color: var(--ink);
+  min-height: 18px;
+}
+.sc-hole-score.eagle  { color: #7c3aed; }
+.sc-hole-score.birdie { color: #16a34a; }
+.sc-hole-score.par-score { color: #2563eb; }
+.sc-hole-score.bogey  { color: #b45309; }
+.sc-hole-score.double { color: #dc2626; }
+.sc-hole-score.triple { color: #1a0f00; }
+.sc-hole.active { background: rgba(200,151,58,0.15); }
+.sc-hole.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+}
+
+/* Hole info bar */
+.hole-info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px 6px;
+  flex-shrink: 0;
+}
+.hole-stat {
+  text-align: center;
+}
+.hole-stat-val {
+  font-size: 26px;
+  font-weight: 900;
+  font-family: 'Playfair Display', serif;
+  color: var(--gold-bright);
+  line-height: 1;
+  display: block;
+}
+.hole-stat-lbl {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  font-family: 'DM Mono', monospace;
+}
+.shots-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-direction: column;
+}
+.shot-pips {
+  display: flex;
+  gap: 5px;
+}
+.shot-pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  transition: all 0.3s ease;
+}
+.shot-pip.used { background: var(--gold); border-color: var(--gold-bright); box-shadow: 0 0 6px rgba(232,184,75,0.5); }
+.shot-pip.over { background: var(--red); border-color: #ff4444; box-shadow: 0 0 6px rgba(230,48,48,0.5); }
+
+/* Hole SVG view */
+.hole-view {
+  flex: 1;
+  min-height: 120px;
+  max-height: 300px;
+  position: relative;
+  margin: 0 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.08);
+}
+#hole-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Shot result log */
+.shot-log {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  margin: 6px 10px;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+  color: var(--cream);
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+
+/* In-game dice chart (compact) */
+.ingame-chart {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 0 10px 4px;
+  flex-shrink: 0;
+}
+.igc-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 5px;
+  padding: 3px 5px;
+}
+.igc-roll {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  background: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.6);
+  border-radius: 3px;
+  padding: 1px 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.igc-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  font-family: 'Barlow Condensed', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Controls */
+.controls {
+  padding: 6px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.dice-display {
+  display: flex;
+  gap: 14px;
+}
+.die {
+  width: 50px;
+  height: 50px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.9);
+  font-family: 'Playfair Display', serif;
+  color: var(--ink);
+}
+.die.rolling { animation: wobble 0.12s infinite alternate; }
+@keyframes wobble {
+  0%   { transform: rotate(-12deg) scale(1.05); }
+  100% { transform: rotate(12deg) scale(0.95); }
+}
+.roll-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #16a34a, #0a3a18);
+  color: white;
+  box-shadow: 0 5px 0 #052e0e, 0 8px 20px rgba(22,163,74,0.3);
+  transition: filter 0.15s, transform 0.1s;
+}
+.roll-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #052e0e; }
+.roll-btn:disabled { background: #1a1a1a; box-shadow: 0 2px 0 #111; color: #333; cursor: not-allowed; }
+
+/* ────────────────────────────────────────────
+   SCORECARD / RESULTS SCREEN
+──────────────────────────────────────────── */
+#results-screen {
+  background: var(--parchment);
+  overflow-y: auto;
+}
+.results-hero {
+  background: var(--felt);
+  padding: 28px 20px 22px;
+  text-align: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.results-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 40px);
+}
+.results-trophy { font-size: 52px; display: block; margin-bottom: 8px; position: relative; }
+.results-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--gold-bright);
+  text-shadow: 0 0 30px rgba(232,184,75,0.4);
+  letter-spacing: 2px;
+  position: relative;
+}
+.results-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+  margin-top: 4px;
+  position: relative;
+}
+
+.results-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.final-score-box {
+  background: white;
+  border-radius: 12px;
+  border: 2px solid var(--cream-dark);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.fsc-header {
+  background: var(--felt);
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+.fsc-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--cream-dark);
+  gap: 10px;
+}
+.fsc-row:last-child { border-bottom: none; }
+.fsc-name {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 800;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+  color: var(--ink);
+}
+.fsc-score-big {
+  font-size: 28px;
+  font-weight: 900;
+  font-family: 'Playfair Display', serif;
+  color: var(--ink);
+  min-width: 40px;
+  text-align: right;
+}
+.fsc-vs-par {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  padding: 3px 8px;
+  border-radius: 6px;
+  min-width: 52px;
+  text-align: center;
+}
+.vs-under { background: #dcfce7; color: #14532d; }
+.vs-even  { background: #dbeafe; color: #1e3a8a; }
+.vs-over  { background: #fee2e2; color: #7f1d1d; }
+
+/* Hole-by-hole grid */
+.hbh-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  font-family: 'DM Mono', monospace;
+  text-align: center;
+}
+.hbh-grid {
+  background: white;
+  border-radius: 12px;
+  border: 2px solid var(--cream-dark);
+  overflow: hidden;
+}
+.hbh-head, .hbh-data-row {
+  display: grid;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+}
+.hbh-head {
+  background: var(--felt);
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 8px;
+}
+.hbh-data-row {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--cream-dark);
+  align-items: center;
+}
+.hbh-data-row:last-child { border-bottom: none; }
+.hbh-cell { text-align: center; }
+.hbh-cell.hole-n { text-align: left; font-weight: 700; color: var(--ink-mid); }
+.score-badge {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 11px;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+}
+.badge-eagle  { background: #7c3aed; color: white; }
+.badge-birdie { background: #16a34a; color: white; border-radius: 50%; }
+.badge-par    { background: #2563eb; color: white; border-radius: 4px; }
+.badge-bogey  { background: #b45309; color: white; }
+.badge-double { background: #dc2626; color: white; }
+.badge-triple { background: #1a0f00; color: #e8b84b; }
+
+.play-again-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--gold-bright), #a07020);
+  color: var(--ink);
+  box-shadow: 0 5px 0 #6a4a10;
+  transition: filter 0.15s, transform 0.1s;
+}
+.play-again-btn:active { transform: translateY(2px); }
+
+/* ── Umpire overlay ── */
+.swing-overlay {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: rgba(0,0,0,0.92);
+  border: 2px solid var(--gold);
+  color: #fff;
+  padding: 12px 28px;
+  font-size: 22px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  border-radius: 10px;
+  z-index: 100;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+}
+.swing-overlay.pop {
+  animation: overlayPop 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes overlayPop {
+  0%   { transform: translate(-50%,-50%) scale(0.3); opacity: 0; }
+  18%  { transform: translate(-50%,-50%) scale(1.08); opacity: 1; }
+  28%  { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  78%  { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(0.85); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ═══ SETUP SCREEN ═══ -->
+  <div id="setup-screen" class="screen">
+    <div class="setup-hero">
+      <span class="setup-flag">⛳</span>
+      <h1>Dice Golf</h1>
+      <div class="setup-hero-sub">Roll the links · 9 holes · Major League</div>
+    </div>
+
+    <div class="setup-card">
+      <div class="setup-card-title">🎲 Shot Chart — Sum of 2 Dice</div>
+      <div class="dice-table" id="setup-chart"></div>
+    </div>
+
+    <div class="setup-modes">
+      <div class="mode-label">Choose your format</div>
+      <div class="team-select-row">
+        <select id="p1-select">
+          <option value="Eagles">Eagles</option>
+          <option value="Birdies">Birdies</option>
+          <option value="Condors">Condors</option>
+          <option value="Albatrosses">Albatrosses</option>
+          <option value="Bogeymen">Bogeymen</option>
+          <option value="Sand Wedges">Sand Wedges</option>
+        </select>
+        <select id="p2-select">
+          <option value="Tigers">Tigers</option>
+          <option value="Sharks">Sharks</option>
+          <option value="Vipers">Vipers</option>
+          <option value="Falcons">Falcons</option>
+          <option value="Wolves">Wolves</option>
+          <option value="Phantoms">Phantoms</option>
+        </select>
+      </div>
+      <button class="start-btn btn-vs" onclick="startGame('vs')">⛳ Play 9 Holes (vs CPU)</button>
+      <button class="start-btn btn-solo" onclick="startGame('solo')">🎲 Solo Round</button>
+    </div>
+  </div>
+
+  <!-- ═══ GAME SCREEN ═══ -->
+  <div id="game-screen" class="screen hidden">
+    <div class="top-bar">
+      <button class="menu-btn" onclick="goMenu()">⌂ Menu</button>
+      <div class="hole-banner" id="hole-banner">HOLE 1</div>
+    </div>
+
+    <div class="scorecard-strip" id="scorecard-strip"></div>
+
+    <div class="hole-info-bar">
+      <div class="hole-stat">
+        <span class="hole-stat-val" id="hole-par-val">4</span>
+        <span class="hole-stat-lbl">Par</span>
+      </div>
+      <div class="hole-stat">
+        <span class="hole-stat-val" id="hole-yards-val">380</span>
+        <span class="hole-stat-lbl">Yards</span>
+      </div>
+      <div class="hole-stat shots-row">
+        <div class="shot-pips" id="shot-pips"></div>
+        <span class="hole-stat-lbl">Shots</span>
+      </div>
+      <div class="hole-stat">
+        <span class="hole-stat-val" id="total-score-val">E</span>
+        <span class="hole-stat-lbl" id="total-score-lbl">Score</span>
+      </div>
+    </div>
+
+    <div class="hole-view">
+      <svg id="hole-svg" viewBox="0 0 320 240" preserveAspectRatio="xMidYMid meet">
+        <!-- drawn by JS -->
+      </svg>
+      <div class="swing-overlay" id="swing-overlay"></div>
+    </div>
+
+    <div class="shot-log" id="shot-log">Play Ball!</div>
+
+    <div class="ingame-chart" id="ingame-chart"></div>
+
+    <div class="controls">
+      <div class="dice-display">
+        <div class="die" id="die1">?</div>
+        <div class="die" id="die2">?</div>
+      </div>
+      <button class="roll-btn" id="roll-btn" onclick="rollDice()">🏌️ Swing!</button>
+    </div>
+  </div>
+
+  <!-- ═══ RESULTS SCREEN ═══ -->
+  <div id="results-screen" class="screen hidden">
+    <div class="results-hero">
+      <span class="results-trophy" id="results-trophy">🏆</span>
+      <div class="results-headline" id="results-headline">Round Complete</div>
+      <div class="results-sub" id="results-sub">Final Scorecard</div>
+    </div>
+    <div class="results-body">
+      <div class="final-score-box" id="final-score-box"></div>
+      <div class="hbh-title">Hole by Hole</div>
+      <div class="hbh-grid" id="hbh-grid"></div>
+      <button class="play-again-btn" onclick="goMenu()">⛳ Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DICE SHOT TABLE  (sum of 2d6 = 2–12)
+// ══════════════════════════════════════════════
+const SHOTS = [
+  // roll, label, yards-multiplier, type, description
+  { roll: 2,  label: "Hole In One!",    yardsMult: 99,  type: "eagle",  cls: "eagle",  desc: "MIRACLE SHOT — straight in the cup!" },
+  { roll: 3,  label: "Perfect Drive",   yardsMult: 1.0, type: "great",  cls: "birdie", desc: "Lands on the fairway, excellent position." },
+  { roll: 4,  label: "Solid Strike",    yardsMult: 0.85,type: "good",   cls: "birdie", desc: "Good contact, fairway lie." },
+  { roll: 5,  label: "Fairway Shot",    yardsMult: 0.75,type: "ok",     cls: "par",    desc: "Straight and steady down the fairway." },
+  { roll: 6,  label: "Safe Shot",       yardsMult: 0.65,type: "ok",     cls: "par",    desc: "Plays it safe. Solid but unspectacular." },
+  { roll: 7,  label: "Into the Rough",  yardsMult: 0.5, type: "rough",  cls: "bogey",  desc: "Ball finds the rough. Tough next lie." },
+  { roll: 8,  label: "Thin Strike",     yardsMult: 0.45,type: "rough",  cls: "bogey",  desc: "Caught thin — short of target." },
+  { roll: 9,  label: "Sand Trap!",      yardsMult: 0.35,type: "sand",   cls: "bogey",  desc: "Plugged in a bunker. Blast out needed." },
+  { roll: 10, label: "Water Hazard!",   yardsMult: 0.0, type: "water",  cls: "hazard", desc: "Splash! Drop with penalty stroke." },
+  { roll: 11, label: "Deep Rough",      yardsMult: 0.25,type: "rough",  cls: "hazard", desc: "Buried in deep rough — punch out only." },
+  { roll: 12, label: "Out of Bounds!",  yardsMult: 0.0, type: "ob",     cls: "ob",     desc: "OB! Stroke & distance penalty." },
+];
+
+// ══════════════════════════════════════════════
+//  COURSE DATA — 9 holes
+// ══════════════════════════════════════════════
+const COURSE = [
+  { hole: 1,  par: 4, yards: 385, name: "Opening Drive",    shape: "straight" },
+  { hole: 2,  par: 3, yards: 165, name: "Island Green",     shape: "straight" },
+  { hole: 3,  par: 5, yards: 520, name: "Dog Leg Left",     shape: "dogleg-l" },
+  { hole: 4,  par: 4, yards: 410, name: "Windmill Alley",   shape: "straight" },
+  { hole: 5,  par: 3, yards: 145, name: "Pond Crossing",    shape: "straight" },
+  { hole: 6,  par: 5, yards: 545, name: "Thunder Gulch",    shape: "dogleg-r" },
+  { hole: 7,  par: 4, yards: 395, name: "Bunker Row",       shape: "straight" },
+  { hole: 8,  par: 3, yards: 180, name: "The Cathedral",    shape: "straight" },
+  { hole: 9,  par: 5, yards: 560, name: "Home Stretch",     shape: "dogleg-l" },
+];
+const TOTAL_PAR = COURSE.reduce((s,h)=>s+h.par,0);
+
+// ══════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════
+let mode, p1Name, p2Name;
+let holeIdx, shotCount, ballYards, currentPar, currentYards;
+let p1Scores = [], p2Scores = [];
+let currentTurn; // 'p1' or 'p2'
+let p2Pending;   // stores p2's dice result for the hole (vs mode)
+let holeComplete;
+let pendingHoleIn1; // for hole-in-one special
+
+function getShotByRoll(r) { return SHOTS.find(s=>s.roll===r); }
+
+// ══════════════════════════════════════════════
+//  SETUP / CHART RENDERING
+// ══════════════════════════════════════════════
+function buildSetupChart() {
+  const el = document.getElementById('setup-chart');
+  el.innerHTML = '';
+  SHOTS.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'dice-row';
+    row.innerHTML = `<span class="dice-roll ${s.cls}">${s.roll}</span><span class="dice-result">${s.label}</span>`;
+    el.appendChild(row);
+  });
+}
+
+function buildIngameChart() {
+  const el = document.getElementById('ingame-chart');
+  el.innerHTML = '';
+  SHOTS.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'igc-item';
+    item.innerHTML = `<span class="igc-roll">${s.roll}</span><span class="igc-name">${s.label}</span>`;
+    el.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  SCORECARD STRIP
+// ══════════════════════════════════════════════
+function buildScorecardStrip() {
+  const el = document.getElementById('scorecard-strip');
+  el.innerHTML = '';
+  COURSE.forEach((h,i) => {
+    const cell = document.createElement('div');
+    cell.className = 'sc-hole' + (i===holeIdx ? ' active' : '');
+    cell.id = `sc-${i}`;
+    const scoreStr = p1Scores[i] != null ? p1Scores[i] : '';
+    const cls = scoreStr ? getScoreClass(p1Scores[i], h.par) : '';
+    cell.innerHTML = `<div class="sc-hole-num">${h.hole}</div><div class="sc-hole-par">p${h.par}</div><div class="sc-hole-score ${cls}">${scoreStr}</div>`;
+    el.appendChild(cell);
+  });
+}
+
+function updateScorecardStrip() {
+  COURSE.forEach((h,i) => {
+    const cell = document.getElementById(`sc-${i}`);
+    if (!cell) return;
+    cell.className = 'sc-hole' + (i===holeIdx ? ' active' : '');
+    const scoreStr = p1Scores[i] != null ? p1Scores[i] : '';
+    const cls = scoreStr ? getScoreClass(p1Scores[i], h.par) : '';
+    cell.querySelector('.sc-hole-score').textContent = scoreStr;
+    cell.querySelector('.sc-hole-score').className = `sc-hole-score ${cls}`;
+  });
+}
+
+function getScoreClass(score, par) {
+  const diff = score - par;
+  if (diff <= -2) return 'eagle';
+  if (diff === -1) return 'birdie';
+  if (diff === 0)  return 'par-score';
+  if (diff === 1)  return 'bogey';
+  if (diff === 2)  return 'double';
+  return 'triple';
+}
+
+// ══════════════════════════════════════════════
+//  HOLE VISUAL (SVG)
+// ══════════════════════════════════════════════
+function drawHole(shape, progress, shotType) {
+  const svg = document.getElementById('hole-svg');
+  const W = 320, H = 240;
+  const teeX = 160, teeY = 210;
+  const pinX = 160, pinY = 30;
+
+  let fairwayPath, ballX, ballY;
+
+  if (shape === 'dogleg-l') {
+    const midX = 210, midY = 140;
+    fairwayPath = `M${teeX},${teeY} Q${midX},${midY} ${pinX},${pinY}`;
+    const t = Math.min(progress, 1);
+    // bezier point
+    ballX = (1-t)*(1-t)*teeX + 2*(1-t)*t*midX + t*t*pinX;
+    ballY = (1-t)*(1-t)*teeY + 2*(1-t)*t*midY + t*t*pinY;
+  } else if (shape === 'dogleg-r') {
+    const midX = 110, midY = 140;
+    fairwayPath = `M${teeX},${teeY} Q${midX},${midY} ${pinX},${pinY}`;
+    const t = Math.min(progress, 1);
+    ballX = (1-t)*(1-t)*teeX + 2*(1-t)*t*midX + t*t*pinX;
+    ballY = (1-t)*(1-t)*teeY + 2*(1-t)*t*midY + t*t*pinY;
+  } else {
+    fairwayPath = `M${teeX},${teeY} L${pinX},${pinY}`;
+    ballX = teeX + (pinX-teeX)*Math.min(progress,1);
+    ballY = teeY + (pinY-teeY)*Math.min(progress,1);
+  }
+
+  // Ball color by shot type
+  const ballColors = { great:'#39ff14', good:'#a8e63d', ok:'#e8b84b', rough:'#d4b86a', sand:'#f5d96b', water:'#60b8ff', ob:'#ff4444', eagle:'#e040fb' };
+  const bc = ballColors[shotType] || '#fff';
+
+  // Rough stripes bg
+  let roughRects = '';
+  for (let i=0; i<8; i++) {
+    roughRects += `<rect x="${i*40}" y="0" width="20" height="${H}" fill="rgba(92,122,42,0.18)"/>`;
+  }
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0a1f0a"/>
+        <stop offset="100%" stop-color="#1a5c2e"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Sky/background -->
+    <rect width="${W}" height="${H}" fill="url(#skyGrad)"/>
+    ${roughRects}
+
+    <!-- Fairway -->
+    <path d="${fairwayPath}" fill="none" stroke="#3a9e50" stroke-width="44" stroke-linecap="round" opacity="0.9"/>
+    <path d="${fairwayPath}" fill="none" stroke="#4abf60" stroke-width="30" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- Tee box -->
+    <rect x="${teeX-14}" y="${teeY-8}" width="28" height="14" rx="3" fill="#8B4513" opacity="0.7"/>
+    <text x="${teeX}" y="${teeY+2}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.5)" font-family="DM Mono,monospace">TEE</text>
+
+    <!-- Tee marker -->
+    <circle cx="${teeX}" cy="${teeY}" r="5" fill="#e8b84b" opacity="0.7"/>
+
+    <!-- Green -->
+    <ellipse cx="${pinX}" cy="${pinY+10}" rx="30" ry="18" fill="#2ecc71" opacity="0.9"/>
+    <ellipse cx="${pinX}" cy="${pinY+10}" rx="24" ry="13" fill="#27ae60"/>
+
+    <!-- Pin -->
+    <line x1="${pinX}" y1="${pinY-8}" x2="${pinX}" y2="${pinY+10}" stroke="white" stroke-width="1.5"/>
+    <polygon points="${pinX},${pinY-8} ${pinX+10},${pinY-3} ${pinX},${pinY+2}" fill="#e63030"/>
+
+    <!-- Ball shadow -->
+    <ellipse cx="${ballX}" cy="${ballY+2}" rx="7" ry="3" fill="rgba(0,0,0,0.3)"/>
+    <!-- Ball -->
+    <circle cx="${ballX}" cy="${ballY}" r="7" fill="${bc}" stroke="white" stroke-width="1.5"/>
+    <circle cx="${ballX-2}" cy="${ballY-2}" r="2.5" fill="rgba(255,255,255,0.5)"/>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  SHOT PIPS
+// ══════════════════════════════════════════════
+function updateShotPips() {
+  const container = document.getElementById('shot-pips');
+  const maxShots = currentPar + 3; // show up to par+3 pips
+  container.innerHTML = '';
+  for (let i=0; i<maxShots; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'shot-pip';
+    if (i < shotCount) {
+      pip.classList.add(i < currentPar ? 'used' : 'over');
+    }
+    container.appendChild(pip);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  TOTAL SCORE DISPLAY
+// ══════════════════════════════════════════════
+function updateTotalScore() {
+  const scores = p1Scores.filter(s=>s!=null);
+  const played = scores.length;
+  const pars   = COURSE.slice(0, played).reduce((s,h)=>s+h.par,0);
+  const total  = scores.reduce((a,b)=>a+b,0);
+  const diff   = total - pars;
+  const el = document.getElementById('total-score-val');
+  const lbl = document.getElementById('total-score-lbl');
+  if (played === 0) { el.textContent = 'E'; lbl.textContent='Score'; return; }
+  if (diff === 0)  el.textContent = 'E';
+  else if (diff > 0) el.textContent = '+' + diff;
+  else el.textContent = String(diff);
+  lbl.textContent = `Thru ${played}`;
+}
+
+// ══════════════════════════════════════════════
+//  START GAME
+// ══════════════════════════════════════════════
+function startGame(m) {
+  mode = m;
+  p1Name = document.getElementById('p1-select').value;
+  p2Name = mode === 'vs' ? document.getElementById('p2-select').value : null;
+  p1Scores = [];
+  p2Scores = [];
+  holeIdx = 0;
+  loadHole();
+  showScreen('game-screen');
+}
+
+function loadHole() {
+  const h = COURSE[holeIdx];
+  currentPar = h.par;
+  currentYards = h.yards;
+  shotCount = 0;
+  ballYards = 0;
+  holeComplete = false;
+  pendingHoleIn1 = false;
+  currentTurn = 'p1';
+
+  document.getElementById('hole-banner').textContent = `HOLE ${h.hole} — ${h.name.toUpperCase()}`;
+  document.getElementById('hole-par-val').textContent = h.par;
+  document.getElementById('hole-yards-val').textContent = h.yards;
+  document.getElementById('shot-log').textContent = mode === 'vs' ? `${p1Name} tees off!` : 'Play Ball!';
+  document.getElementById('die1').textContent = '?';
+  document.getElementById('die2').textContent = '?';
+  document.getElementById('roll-btn').disabled = false;
+  document.getElementById('roll-btn').textContent = '🏌️ Swing!';
+
+  buildScorecardStrip();
+  updateShotPips();
+  updateTotalScore();
+  drawHole(h.shape, 0, 'ok');
+
+  // CPU pre-rolls for vs mode
+  if (mode === 'vs') {
+    p2Pending = simulateCPUHole(h);
+  }
+}
+
+function simulateCPUHole(h) {
+  let shots = 0;
+  let yards = 0;
+  const MAX = h.par + 3;
+  while (yards < h.yards && shots < MAX) {
+    shots++;
+    const r = rollD6() + rollD6();
+    const shot = getShotByRoll(r);
+    if (r === 2) { shots = 1; break; } // hole in one
+    if (shot.type === 'water' || shot.type === 'ob') {
+      shots++; // penalty
+      yards += h.yards * 0.2;
+    } else {
+      yards += h.yards * shot.yardsMult;
+    }
+    if (yards >= h.yards) break;
+  }
+  return Math.min(shots, MAX);
+}
+
+// ══════════════════════════════════════════════
+//  ROLLING
+// ══════════════════════════════════════════════
+function rollD6() { return Math.floor(Math.random()*6)+1; }
+
+function rollDice() {
+  if (holeComplete) { advanceAfterHole(); return; }
+
+  const btn = document.getElementById('roll-btn');
+  btn.disabled = true;
+  const d1El = document.getElementById('die1');
+  const d2El = document.getElementById('die2');
+  d1El.classList.add('rolling');
+  d2El.classList.add('rolling');
+  d1El.textContent = '?';
+  d2El.textContent = '?';
+
+  let frames = 0;
+  const anim = setInterval(() => {
+    d1El.textContent = rollD6();
+    d2El.textContent = rollD6();
+    if (++frames > 12) {
+      clearInterval(anim);
+      const r1 = rollD6(), r2 = rollD6();
+      d1El.textContent = r1;
+      d2El.textContent = r2;
+      d1El.classList.remove('rolling');
+      d2El.classList.remove('rolling');
+      resolveShot(r1+r2);
+    }
+  }, 60);
+}
+
+function resolveShot(total) {
+  const h = COURSE[holeIdx];
+  const shot = getShotByRoll(total);
+  shotCount++;
+
+  const overlay = document.getElementById('swing-overlay');
+  overlay.className = 'swing-overlay';
+  void overlay.offsetWidth;
+  overlay.textContent = shot.label;
+  overlay.className = 'swing-overlay pop';
+
+  let logMsg = `Shot ${shotCount}: ${shot.label} — ${shot.desc}`;
+  let holed = false;
+  const MAX = currentPar + 3;
+
+  if (total === 2) {
+    // Hole in one — always!
+    ballYards = currentYards;
+    holed = true;
+    logMsg = `🌟 HOLE IN ONE! ${p1Name} holes it from the tee!`;
+  } else if (shot.type === 'water') {
+    shotCount++; // penalty
+    ballYards = Math.max(ballYards + currentYards * 0.2, 0);
+    logMsg = `💧 Water Hazard! +1 penalty stroke. Drop zone.`;
+  } else if (shot.type === 'ob') {
+    shotCount++; // penalty
+    logMsg = `🚫 Out of Bounds! +1 penalty. Replaying from previous spot.`;
+    // yards don't advance
+  } else {
+    const advance = currentYards * shot.yardsMult;
+    ballYards = Math.min(ballYards + advance, currentYards);
+    if (ballYards >= currentYards) holed = true;
+  }
+
+  const progress = Math.min(ballYards / currentYards, 1);
+  drawHole(h.shape, progress, shot.type);
+  updateShotPips();
+
+  if (holed || shotCount >= MAX) {
+    const finalShots = holed ? shotCount : MAX;
+    holeComplete = true;
+    p1Scores[holeIdx] = finalShots;
+    updateTotalScore();
+    updateScorecardStrip();
+    drawHole(h.shape, 1, 'eagle');
+
+    const diff = finalShots - currentPar;
+    let resultLabel = 'Par';
+    if (total === 2 && shotCount === 1) resultLabel = '⛳ HOLE IN ONE!!!';
+    else if (diff <= -2) resultLabel = '🦅 Eagle!';
+    else if (diff === -1) resultLabel = '🐦 Birdie!';
+    else if (diff === 0)  resultLabel = 'Par';
+    else if (diff === 1)  resultLabel = 'Bogey';
+    else if (diff === 2)  resultLabel = 'Double Bogey';
+    else resultLabel = `+${diff}`;
+
+    logMsg = `Hole complete — ${finalShots} shots (${resultLabel})`;
+
+    const btn = document.getElementById('roll-btn');
+    if (holeIdx < 8) {
+      btn.textContent = holeIdx === 7 ? '📋 Finish Round' : '➡️ Next Hole';
+    } else {
+      btn.textContent = '📋 See Final Scorecard';
+    }
+    btn.disabled = false;
+  } else {
+    // Keep rolling
+    document.getElementById('roll-btn').disabled = false;
+    document.getElementById('roll-btn').textContent = '🏌️ Swing!';
+  }
+
+  document.getElementById('shot-log').textContent = logMsg;
+}
+
+// ══════════════════════════════════════════════
+//  HOLE ADVANCE / FINISH
+// ══════════════════════════════════════════════
+function advanceAfterHole() {
+  holeIdx++;
+  if (holeIdx > 8) {
+    showResults();
+  } else {
+    loadHole();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  RESULTS
+// ══════════════════════════════════════════════
+function showResults() {
+  // Generate CPU full scores if vs mode
+  if (mode === 'vs') {
+    p2Scores = COURSE.map(h => simulateCPUHole(h));
+  }
+
+  const p1Total = p1Scores.reduce((a,b)=>a+b,0);
+  const p2Total = mode === 'vs' ? p2Scores.reduce((a,b)=>a+b,0) : null;
+  const p1Diff = p1Total - TOTAL_PAR;
+  const winner = mode === 'vs' ? (p1Total <= p2Total ? p1Name : p2Name) : null;
+
+  // Trophy / headline
+  const trophy = document.getElementById('results-trophy');
+  const headline = document.getElementById('results-headline');
+  const sub = document.getElementById('results-sub');
+
+  if (mode === 'vs') {
+    trophy.textContent = p1Total <= p2Total ? '🏆' : '😔';
+    headline.textContent = p1Total <= p2Total ? `${p1Name} WINS!` : `${p2Name} WINS!`;
+    sub.textContent = `${p1Name} ${p1Total} · ${p2Name} ${p2Total}`;
+  } else {
+    if (p1Diff <= -5) { trophy.textContent='🦅'; headline.textContent='Incredible Round!'; }
+    else if (p1Diff <= -2) { trophy.textContent='🐦'; headline.textContent='Great Round!'; }
+    else if (p1Diff <= 2) { trophy.textContent='⛳'; headline.textContent='Solid Round!'; }
+    else { trophy.textContent='😅'; headline.textContent='Keep Practicing!'; }
+    sub.textContent = `${p1Name} · ${TOTAL_PAR} par course`;
+  }
+
+  // Final score box
+  const fsb = document.getElementById('final-score-box');
+  const fscHeader = `<div class="fsc-header"><span>PLAYER</span><span>SCORE</span><span>VS PAR</span></div>`;
+  const makeVsPar = (diff) => {
+    const cls = diff < 0 ? 'vs-under' : diff === 0 ? 'vs-even' : 'vs-over';
+    const txt = diff < 0 ? String(diff) : diff === 0 ? 'E' : '+'+diff;
+    return `<span class="fsc-vs-par ${cls}">${txt}</span>`;
+  };
+  let rows = `<div class="fsc-row"><span class="fsc-name">⛳ ${p1Name}</span><span class="fsc-score-big">${p1Total}</span>${makeVsPar(p1Diff)}</div>`;
+  if (mode === 'vs') {
+    rows += `<div class="fsc-row"><span class="fsc-name">🤖 ${p2Name}</span><span class="fsc-score-big">${p2Total}</span>${makeVsPar(p2Total-TOTAL_PAR)}</div>`;
+  }
+  fsb.innerHTML = fscHeader + rows;
+
+  // Hole by hole
+  const hbh = document.getElementById('hbh-grid');
+  const cols = mode === 'vs' ? '2fr 1fr 1fr 1fr' : '2fr 1fr 1fr';
+  const headCols = mode === 'vs'
+    ? `<span class="hbh-cell hole-n">Hole</span><span class="hbh-cell">Par</span><span class="hbh-cell">${p1Name.split(' ')[0]}</span><span class="hbh-cell">${p2Name.split(' ')[0]}</span>`
+    : `<span class="hbh-cell hole-n">Hole</span><span class="hbh-cell">Par</span><span class="hbh-cell">Score</span>`;
+
+  let hbhHTML = `<div class="hbh-head" style="grid-template-columns:${cols}">${headCols}</div>`;
+  COURSE.forEach((h,i) => {
+    const p1s = p1Scores[i];
+    const p2s = p2Scores[i];
+    const makeBadge = (score, par) => {
+      const d = score - par;
+      let cls = 'badge-par';
+      if (d <= -2) cls='badge-eagle'; else if (d===-1) cls='badge-birdie';
+      else if (d===0) cls='badge-par'; else if (d===1) cls='badge-bogey';
+      else if (d===2) cls='badge-double'; else cls='badge-triple';
+      return `<span class="score-badge ${cls}">${score}</span>`;
+    };
+    const p2cell = mode === 'vs' ? `<span class="hbh-cell">${makeBadge(p2s, h.par)}</span>` : '';
+    hbhHTML += `<div class="hbh-data-row" style="grid-template-columns:${cols}">
+      <span class="hbh-cell hole-n">${h.hole}. ${h.name}</span>
+      <span class="hbh-cell" style="color:var(--ink-mid)">${h.par}</span>
+      <span class="hbh-cell">${makeBadge(p1s, h.par)}</span>
+      ${p2cell}
+    </div>`;
+  });
+  hbh.innerHTML = hbhHTML;
+
+  showScreen('results-screen');
+}
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  ['setup-screen','game-screen','results-screen'].forEach(s => {
+    document.getElementById(s).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goMenu() {
+  showScreen('setup-screen');
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+buildSetupChart();
+buildIngameChart();
+</script>
+</body>
+</html>
