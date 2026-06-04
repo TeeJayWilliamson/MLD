@@ -37,10 +37,20 @@
         font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         display: flex;
         justify-content: center;
-        align-items: stretch;
+        align-items: center;
         height: 100%;
     }
 
+    /* Narrow phones: stretch full height, constrained width */
+    @media (max-width: 519px) {
+        body { align-items: stretch; }
+        #setup-screen, #game-screen, #season-screen, #draft-screen, #season-over-screen {
+            height: 100% !important;
+            border-radius: 0 !important;
+        }
+    }
+
+    /* Wider screens and folding phones: card mode */
     @media (min-width: 520px) {
         body { align-items: center; background: #080808; }
         #setup-screen, #game-screen, #season-screen, #draft-screen, #season-over-screen {
@@ -294,6 +304,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        max-height: 100%;
         overflow: hidden;
     }
 
@@ -423,6 +434,13 @@
         .score-val { width: 19px; height: 19px; min-width: 19px; line-height: 19px; font-size: 10px; }
         .score-values { gap: 3px; }
     }
+    .score-val.extra {
+        background: #1a1a00;
+        color: #f1c40f;
+        border-color: #3a3a00;
+        font-size: 9px;
+        letter-spacing: 0;
+    }
     .score-val.active {
         background: var(--red-hot);
         color: #fff;
@@ -484,6 +502,7 @@
         width: 100%;
         flex: 1;
         min-height: 160px;
+        max-height: 340px;
         background-color: var(--green-field);
         border-radius: 0 0 200px 200px;
         border: 4px solid rgba(255,255,255,0.9);
@@ -1283,13 +1302,13 @@
             <select id="team-select"></select>
         </div>
 
-        <button class="btn btn-solo" id="btn-solo" onclick="setupSolo()">⚾ Quick Game vs CPU</button>
-        <button class="btn btn-season" id="btn-season" onclick="openSeasonMode()">🎲 Season Mode</button>
+        <button class="btn btn-solo" id="btn-solo" onclick="setupSolo()">Quick Game vs CPU</button>
+        <button class="btn btn-season" id="btn-season" onclick="openSeasonMode()">Season Mode</button>
 
         <div class="action-divider" id="ui-divider">Online Multiplayer</div>
 
         <div id="host-panel">
-            <button class="btn btn-create" id="btn-create-room" onclick="setupRoom(true)">🏠 Create Room</button>
+            <button class="btn btn-create" id="btn-create-room" onclick="setupRoom(true)">Create Room</button>
         </div>
 
         <div style="margin-top: 6px;" id="join-panel">
@@ -1308,7 +1327,7 @@
                 <span class="rule-dice hit">1·4</span><span class="rule-text">Walk</span>
                 <span class="rule-dice out">1·5</span><span class="rule-text">Pop Out</span>
                 <span class="rule-dice out">1·6</span><span class="rule-text">Ground Out</span>
-                <span class="rule-dice out">2·2</span><span class="rule-text">Double Play</span>
+                <span class="rule-dice out">2·2</span><span class="rule-text">Double Play Risk</span>
                 <span class="rule-dice out">2·3</span><span class="rule-text">Ground Out</span>
                 <span class="rule-dice out">2·4</span><span class="rule-text">Strike Out</span>
                 <span class="rule-dice hit">2·5</span><span class="rule-text">Single</span>
@@ -1470,7 +1489,7 @@
         "1-4": { name: "Walk", type: "walk", color: "#2ecc71" },
         "1-5": { name: "Pop Out", type: "out", color: "#e74c3c" },
         "1-6": { name: "Ground Out", type: "out", color: "#e74c3c" }, 
-        "2-2": { name: "DOUBLE PLAY!", type: "double-play", color: "#c0392b" },
+        "2-2": { name: "Double Play Risk", type: "double-play", color: "#c0392b" },
         "2-3": { name: "Ground Out", type: "out", color: "#e74c3c" },
         "2-4": { name: "Strike Out", type: "out" , color: "#e74c3c"},
         "2-5": { name: "Single!", type: "hit", bases: 1, color: "#2ecc71" },
@@ -1700,6 +1719,14 @@
     function evaluateTurnLockout() {
         const btn = document.getElementById("roll-btn");
 
+        // Season mode: always keep the dice chart synced to whoever is at bat
+        if (window._inSeasonGame) {
+            const activeChart = gameState.isTopInning
+                ? window._seasonCPUDeck
+                : window._seasonPlayerDeck;
+            if (activeChart) updateInGameDiceChart(activeChart);
+        }
+
         if (isSoloMode) {
             if (!gameState.isTopInning) {
                 btn.disabled = false;
@@ -1753,7 +1780,7 @@
         const currentActiveNick = gameState.isTopInning ? getNickname(gameState.visitorTeam) : getNickname(gameState.homeTeam);
         document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
 
-        document.querySelectorAll(".score-val").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".score-val").forEach(el => el.classList.remove("active", "extra"));
         const outEl = document.getElementById(`out-${Math.min(gameState.outs, 3)}`);
         if (outEl) outEl.classList.add("active");
         if (gameState.inning <= 9) {
@@ -1769,6 +1796,11 @@
             const halfArrow = gameState.isTopInning ? "▲" : "▼";
             innRow.innerHTML = `<span style="color:#f1c40f;font-size:10px;letter-spacing:0">${ordinalSuffix(gameState.inning)} ${halfArrow}</span>`;
             document.getElementById("lbl-status").innerText = `✦ EXTRA INNINGS — AT BAT: ${currentActiveNick}`;
+            // Mark all 9 inning cells as "extra" to show they've been played
+            for (let i = 1; i <= 9; i++) {
+                const el = document.getElementById(`inn-${i}`);
+                if (el) el.classList.add("extra");
+            }
         } else {
             innRow.innerText = "INNING";
             document.getElementById("lbl-status").innerText = `AT BAT: ${currentActiveNick}`;
@@ -1812,6 +1844,8 @@
 
             const displayPlay = (play.type === "double-play" && !gameState.runners.includes(1))
                 ? { ...play, name: "Ground Out" }
+                : (play.type === "fielders-choice" && gameState.runners.length === 0)
+                ? { ...play, name: "Reach on FC" }
                 : (play.type === "hit" && play.bases === 4 && gameState.runners.length === 3)
                 ? { ...play, name: "GRAND SLAM!!" }
                 : play;
@@ -2272,8 +2306,10 @@
 
             case "fielders-choice":
                 if (gameState.runners.length === 0) {
-                    gameState.outs++;
-                    document.getElementById("game-log").innerText = `${activeTeamNick}: Fielder's Choice — out at first!`;
+                    // Nobody on — no force play possible, batter reaches on a ground ball
+                    stepsToAnimate.push({ start: 0, end: 1, team: gameState.isTopInning });
+                    gameState.runners.push(1);
+                    document.getElementById("game-log").innerText = `${activeTeamNick}: Fielder's Choice — no force, batter reaches 1st!`;
                 } else {
                     gameState.outs++;
                     gameState.runners.sort((a, b) => b - a);
@@ -2512,7 +2548,7 @@
         "1-4": { name: "Walk",            type: "walk",          color: "#2ecc71"            },
         "1-5": { name: "Pop Out",         type: "out",           color: "#e74c3c"            },
         "1-6": { name: "Ground Out",      type: "out",           color: "#e74c3c"            },
-        "2-2": { name: "DOUBLE PLAY!",    type: "double-play",   color: "#c0392b"            },
+        "2-2": { name: "Double Play Risk",type: "double-play",   color: "#c0392b"            },
         "2-3": { name: "Ground Out",      type: "out",           color: "#e74c3c"            },
         "2-4": { name: "Strike Out",      type: "out",           color: "#e74c3c"            },
         "2-5": { name: "Single!",         type: "hit",           bases: 1, color: "#2ecc71"  },
@@ -2635,7 +2671,7 @@
             desc:"Pop Out → HOME RUN.   BUT   Single (3·4) → Double Play. Big highs, brutal lows.",
             swaps:[
                 { slot:"4-5", to:{ name:"HOME RUN!", type:"hit", bases:4, color:"#f1c40f" } },
-                { slot:"3-4", to:{ name:"DOUBLE PLAY!", type:"double-play", color:"#c0392b" } },
+                { slot:"3-4", to:{ name:"Double Play Risk", type:"double-play", color:"#c0392b" } },
             ]
         },
         {
@@ -2659,7 +2695,7 @@
             desc:"Strike Out (3·3) → DOUBLE.   BUT   Fielder's Choice → Double Play. More pop, more risk.",
             swaps:[
                 { slot:"3-3", to:{ name:"DOUBLE!!", type:"hit", bases:2, color:"#3498db" } },
-                { slot:"4-4", to:{ name:"DOUBLE PLAY!", type:"double-play", color:"#c0392b" } },
+                { slot:"4-4", to:{ name:"Double Play Risk", type:"double-play", color:"#c0392b" } },
             ]
         },
         {
@@ -2723,7 +2759,7 @@
     function renderSeasonHub() {
         document.getElementById("ss-wins").innerText    = season.wins;
         document.getElementById("ss-losses").innerText  = season.losses;
-        document.getElementById("ss-game-num").innerText = season.gameNum;
+        document.getElementById("ss-game-num").innerText = `${season.gameNum}/${SEASON_LENGTH * 2}`;
         document.getElementById("ss-chips").innerText   = season.chips;
 
         const grid = document.getElementById("ss-deck-grid");
@@ -2939,8 +2975,16 @@
         if (promptEl) promptEl.innerText = SCOUT_INTROS[Math.floor(Math.random() * SCOUT_INTROS.length)];
 
         const usedIds = season.appliedUpgrades.map(u => u.id);
+        const usedSlots = new Set(
+            season.appliedUpgrades.flatMap(u => {
+                const card = ALL_DRAFT_CARDS.find(c => c.id === u.id);
+                return card ? card.swaps.map(s => s.slot) : [];
+            })
+        );
+
         const pool = ALL_DRAFT_CARDS
             .filter(c => !usedIds.includes(c.id))
+            .filter(c => !c.swaps.some(s => usedSlots.has(s.slot)))
             .filter(c => isDraftCardSafe(c, season.deck));
 
         for (let i = pool.length - 1; i > 0; i--) {
@@ -3146,7 +3190,7 @@
             </div>
             <div class="season-stat">
                 <div class="season-stat-val" id="ss-game-num">1</div>
-                <div class="season-stat-lbl">Game</div>
+                <div class="season-stat-lbl">Game #</div>
             </div>
             <div class="season-stat">
                 <div class="season-stat-val" id="ss-chips">0</div>
